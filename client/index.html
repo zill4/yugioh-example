@@ -1,13 +1,36 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<%- XR_ENV === 'avp' ? `
+<html lang="en" class="is-spatial">
+  ` : `
+  <html lang="en">
+    ` %>
+    <head>
+      <meta charset="UTF-8" />
+      <link rel="icon" type="image/svg+xml" href="/icons/icon-192x192.png" />
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+      />
+      <title>Card Vault - Yu-Gi-Oh! Card Shop</title>
+
+      <!-- PWA -->
+      <link rel="manifest" href="/manifest.webmanifest" />
+      <meta name="theme-color" content="#1e3a8a" />
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta
+        name="apple-mobile-web-app-status-bar-style"
+        content="black-translucent"
+      />
+      <meta name="apple-mobile-web-app-title" content="Card Vault" />
+      <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+      <meta
+        name="description"
+        content="Card Vault - Premium Yu-Gi-Oh! Card Collection and Trading Platform"
+      />
+    </head>
+    <body>
+      <div id="root"></div>
+      <script type="module" src="/src/main.tsx"></script>
+    </body>
+  </html>
 </html>
