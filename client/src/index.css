@@ -106,8 +106,12 @@ html.is-spatial {
   background-color: transparent;
   --xr-background-material: transparent;
 
+  body {
+    background: none;
+    --xr-background-material: transparent;
+  }
+
   .main-window {
-    /* @apply bg-none; */
     background: none;
     --xr-background-material: transparent;
     position: relative;
@@ -127,24 +131,203 @@ html.is-spatial {
     border-radius: 50px;
   }
 
-  .folded-footer {
-    background: none;
-    --xr-background-material: translucent;
-    border-radius: 50px;
-    --xr-back: 100;
+  /* Card List Spatial Styling */
+  .grid {
+    /* Make card grid more spatial with depth */
+    transform-style: preserve-3d;
   }
-  .unfolded-footer {
-    background: none;
-    --xr-background-material: translucent;
-    border-radius: 50px;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    --xr-back: 100;
-    width: 1200px;
 
-    footer {
-      background: none;
+  /* Individual Card Spatial Effects */
+  [enable-xr] {
+    /* Base spatial properties for XR elements */
+    --xr-background-material: translucent;
+    position: relative;
+  }
+
+  /* Card Items in Spatial Mode */
+  .group.cursor-pointer {
+    --xr-background-material: translucent;
+    transform-style: preserve-3d;
+    --xr-back: 20;
+  }
+
+  .group.cursor-pointer:hover {
+    --xr-back: 30;
+    transform: translateZ(10px) scale(1.05);
+  }
+
+  /* Card Containers */
+  .bg-slate-800\/90 {
+    background: none !important;
+    --xr-background-material: translucent;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.2);
+  }
+
+  /* Card Images in Spatial Mode */
+  img[enable-xr] {
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    position: relative;
+    --xr-back: 10;
+  }
+
+  /* Rarity Badges */
+  .absolute.top-2.right-2 {
+    --xr-back: 15;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Price Display */
+  .text-emerald-400 {
+    position: relative;
+    --xr-back: 10;
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+  }
+
+  /* Card Names */
+  .text-slate-100 {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    color: #f1f5f9 !important;
+  }
+
+  /* Monster Stats */
+  .text-red-400 {
+    text-shadow: 0 0 8px rgba(248, 113, 113, 0.6);
+  }
+
+  .text-cyan-400 {
+    text-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+  }
+
+  .text-amber-400 {
+    text-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+  }
+
+  /* Buttons in Spatial Mode */
+  button[enable-xr] {
+    --xr-back: 15;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+    border: 1px solid rgba(139, 92, 246, 0.5);
+  }
+
+  button[enable-xr]:hover {
+    --xr-back: 25;
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+    transform: translateZ(10px);
+  }
+
+  /* Card Details Spatial Layout */
+  .card-detail-container {
+    transform-style: preserve-3d;
+  }
+
+  .card-detail-image {
+    position: relative;
+    --xr-back: 30;
+    transform: translateZ(10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  .card-detail-info {
+    --xr-background-material: translucent;
+    border-radius: 20px;
+    padding: 30px;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    bottom: 20px;
+    --xr-back: 40;
+    width: 400px;
+    transform-origin: center right;
+    transform: translateZ(10px);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+  }
+
+  /* Search and Filter Spatial Layout */
+  .search-container {
+    position: fixed;
+    top: 150px;
+    left: 20px;
+    --xr-back: 60;
+    --xr-background-material: translucent;
+    border-radius: 20px;
+    padding: 20px;
+    transform: translateZ(10px);
+  }
+
+  /* Shop Controls */
+  .shop-controls {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    --xr-back: 50;
+    --xr-background-material: translucent;
+    border-radius: 25px;
+    padding: 15px;
+    backdrop-filter: blur(20px);
+  }
+
+  /* Card Shop Layout */
+  .card-shop-layout {
+    transform-style: preserve-3d;
+    perspective: 1200px;
+  }
+
+  /* No results message */
+  .text-center.py-16 {
+    --xr-background-material: translucent;
+    border-radius: 20px;
+    padding: 40px;
+    --xr-back: 30;
+    backdrop-filter: blur(20px);
+  }
+
+  /* Floating Card Effects */
+  .group:nth-child(odd) {
+    animation: float-card-1 6s ease-in-out infinite;
+  }
+
+  .group:nth-child(even) {
+    animation: float-card-2 8s ease-in-out infinite;
+  }
+
+  /* Floating animations for cards */
+  @keyframes float-card-1 {
+    0%, 100% {
+      transform: translateY(0px);
     }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes float-card-2 {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-15px);
+    }
+  }
+
+  /* Enhanced text visibility in spatial mode */
+  .text-slate-300,
+  .text-slate-400,
+  .text-slate-500 {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    color: #cbd5e1 !important;
+  }
+
+  /* Stock status overlay spatial effect */
+  .absolute.inset-0.bg-red-900\/80 {
+    --xr-back: 25;
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
   }
 }

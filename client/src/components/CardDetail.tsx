@@ -62,12 +62,12 @@ const CardDetail: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+    <div enable-xr className="card-detail-container min-h-screen relative overflow-hidden">
       {/* Professional dark overlay */}
       <div enable-xr className="absolute inset-0 opacity-40">
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-800/50 via-slate-700/30 to-slate-800/50" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-red-900/15 via-transparent to-transparent" />
+        <div enable-xr className="absolute inset-0 bg-gradient-to-r from-slate-800/50 via-slate-700/30 to-slate-800/50" />
+        <div enable-xr className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
+        <div enable-xr className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-red-900/15 via-transparent to-transparent" />
       </div>
       
       {/* Header */}
@@ -84,12 +84,13 @@ const CardDetail: React.FC = () => {
       </header>
 
       <div enable-xr className="relative max-w-[1400px] mx-auto px-6 py-8">
-        <div className="flex flex-col lg:flex-row gap-8 items-start">
+        <div enable-xr className="flex flex-col lg:flex-row gap-8 items-start">
           {/* Card Image - Fixed size container */}
-          <div enable-xr className="lg:w-[500px] flex-shrink-0">
-            <div className="sticky top-8">
-              <div className="relative aspect-[686/1000] max-w-[500px] mx-auto bg-slate-800/90 backdrop-blur-xl rounded-xl overflow-hidden shadow-2xl shadow-slate-900/30 border border-slate-600/50">
+          <div enable-xr className="card-detail-image lg:w-[500px] flex-shrink-0">
+            <div enable-xr className="sticky top-8">
+              <div enable-xr className="relative aspect-[686/1000] max-w-[500px] mx-auto bg-slate-800/90 backdrop-blur-xl rounded-xl overflow-hidden shadow-2xl shadow-slate-900/30 border border-slate-600/50">
                 <img
+                  enable-xr
                   src={card.imageUrl}
                   alt={card.name}
                   className="w-full h-auto object-contain p-6"
@@ -101,8 +102,8 @@ const CardDetail: React.FC = () => {
                 
                 {/* Stock Status Overlay */}
                 {!card.inStock && (
-                  <div className="absolute inset-0 bg-red-900/80 backdrop-blur-sm flex items-center justify-center border-2 border-red-600/50">
-                    <div className="bg-red-600/90 text-red-100 px-6 py-3 rounded-lg font-bold text-sm shadow-xl border border-red-500/30">
+                  <div enable-xr className="absolute inset-0 bg-red-900/80 backdrop-blur-sm flex items-center justify-center border-2 border-red-600/50">
+                    <div enable-xr className="bg-red-600/90 text-red-100 px-6 py-3 rounded-lg font-bold text-sm shadow-xl border border-red-500/30">
                       UNAVAILABLE
                     </div>
                   </div>
@@ -112,7 +113,7 @@ const CardDetail: React.FC = () => {
           </div>
 
           {/* Card Details - Right column */}
-          <div enable-xr className="flex-1 space-y-6">
+          <div enable-xr className="card-detail-info flex-1 space-y-6">
             {/* Title and Key Info */}
             <div enable-xr className="space-y-3">
               <div className="flex items-center gap-3 text-sm text-slate-400">

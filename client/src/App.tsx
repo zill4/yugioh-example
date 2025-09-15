@@ -7,8 +7,8 @@ function App() {
     <Router basename={process.env.XR_ENV === 'avp' ? '/webspatial/avp' : '/'}>
       <div className="App min-h-screen">
         <Routes>
-          <Route path="/webspatial/avp" element={<CardShop />} />
-          <Route path="/webspatial/app/card/:id" element={<CardDetail />} />
+          <Route path="/" element={<CardShop />} />
+          <Route path="/card/:id" element={<CardDetail />} />
         </Routes>
       </div>
     </Router>
