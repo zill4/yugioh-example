@@ -7,18 +7,21 @@ const CardShop = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRarity, setSelectedRarity] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
+  const [selectedSet, setSelectedSet] = useState<string>('all');
   
   const filteredCards = sampleCards.filter(card => {
     const matchesSearch = card.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          card.description?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
     const matchesRarity = selectedRarity === 'all' || card.rarity === selectedRarity;
     const matchesType = selectedType === 'all' || card.cardType === selectedType;
-    
-    return matchesSearch && matchesRarity && matchesType;
+    const matchesSet = selectedSet === 'all' || card.setCode?.startsWith(selectedSet) || false;
+
+    return matchesSearch && matchesRarity && matchesType && matchesSet;
   });
 
   const rarities = [...new Set(sampleCards.map(card => card.rarity))];
   const cardTypes = [...new Set(sampleCards.map(card => card.cardType))];
+  const sets = [...new Set(sampleCards.map(card => card.setCode?.substring(0, 3) || 'OTHER'))].sort();
 
   return (
     <div enable-xr className="card-shop-layout min-h-screen relative overflow-hidden">
@@ -44,7 +47,7 @@ const CardShop = () => {
       {/* Filters */}
       <div enable-xr className="search-container relative max-w-7xl mx-auto px-6 py-8 lg:px-8">
         <div enable-xr className="bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-slate-600/50 shadow-2xl p-6 sm:p-8 mb-8 ring-1 ring-slate-700/30">
-          <div enable-xr className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div enable-xr className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Search */}
             <div enable-xr>
               <label enable-xr htmlFor="search" className="block text-sm font-bold text-slate-200 mb-3 uppercase tracking-wider">
@@ -95,6 +98,33 @@ const CardShop = () => {
                 <option value="all" className="bg-slate-700">All Types</option>
                 {cardTypes.map(type => (
                   <option key={type} value={type} className="bg-slate-700">{type}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Set Filter */}
+            <div enable-xr>
+              <label enable-xr htmlFor="set" className="block text-sm font-bold text-slate-200 mb-3 uppercase tracking-wider">
+                Set
+              </label>
+              <select
+                enable-xr
+                id="set"
+                value={selectedSet}
+                onChange={(e) => setSelectedSet(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-700/50 border-2 border-slate-600 rounded-lg text-slate-100 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition-all appearance-none cursor-pointer backdrop-blur-sm"
+              >
+                <option value="all" className="bg-slate-700">All Sets</option>
+                {sets.map(set => (
+                  <option key={set} value={set} className="bg-slate-700">
+                    {set === 'SDP' ? 'STARTER DECK PEGASUS' :
+                     set === 'LOB' ? 'LEGEND OF BLUE EYES' :
+                     set === 'MRL' ? 'MAGIC RULER' :
+                     set === 'SDK' ? 'STARTER DECK KAIBA' :
+                     set === 'SDY' ? 'STARTER DECK YUGI' :
+                     set === 'SDJ' ? 'STARTER DECK JOEY' :
+                     set}
+                  </option>
                 ))}
               </select>
             </div>

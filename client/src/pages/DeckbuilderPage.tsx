@@ -5,6 +5,12 @@ const DeckbuilderPage = () => {
   const [selectedDeck, setSelectedDeck] = useState<string>('');
   
   const deckTemplates = [
+    // Original starter decks
+    { id: 'yugi', name: 'Yugi\'s Deck', type: 'Balanced', cards: 40, icon: '🎩', character: 'Yugi Moto' },
+    { id: 'kaiba', name: 'Kaiba\'s Deck', type: 'Aggressive', cards: 40, icon: '🐲', character: 'Seto Kaiba' },
+    { id: 'joey', name: 'Joey\'s Deck', type: 'Beatdown', cards: 40, icon: '🃏', character: 'Joey Wheeler' },
+    { id: 'pegasus', name: 'Pegasus\' Deck', type: 'Control', cards: 40, icon: '🎭', character: 'Maximillion Pegasus' },
+    // Custom decks
     { id: 'dragons', name: 'Dragon Lords', type: 'Aggressive', cards: 42, icon: '🐉' },
     { id: 'spellcasters', name: 'Mystic Mages', type: 'Control', cards: 40, icon: '🔮' },
     { id: 'warriors', name: 'Noble Knights', type: 'Balanced', cards: 41, icon: '⚔️' },
@@ -86,7 +92,7 @@ const DeckbuilderPage = () => {
                           <span className="font-bold text-slate-100 text-sm">{deck.name}</span>
                         </div>
                         <div enable-xr className="text-xs text-slate-400">
-                          {deck.type} • {deck.cards} cards
+                          {deck.character ? `${deck.character} • ` : ''}{deck.type} • {deck.cards} cards
                         </div>
                       </div>
                       <div enable-xr className="text-xs text-slate-500">
