@@ -1,21 +1,68 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/UserContext';
+
+// Template deck interface for non-authenticated users
+interface TemplateDeck {
+  id: string;
+  name: string;
+  type: string;
+  cards: number;
+  icon?: string;
+  character?: string;
+}
+
+const deckTemplates: TemplateDeck[] = [
+  // Original starter decks
+  { id: 'yugi', name: 'Yugi\'s Deck', type: 'Balanced', cards: 40, icon: '🎩', character: 'Yugi Moto' },
+  { id: 'kaiba', name: 'Kaiba\'s Deck', type: 'Aggressive', cards: 40, icon: '🐲', character: 'Seto Kaiba' },
+  { id: 'joey', name: 'Joey\'s Deck', type: 'Beatdown', cards: 40, icon: '🃏', character: 'Joey Wheeler' },
+  { id: 'pegasus', name: 'Pegasus\' Deck', type: 'Control', cards: 40, icon: '🎭', character: 'Maximillion Pegasus' },
+  // Custom decks
+  { id: 'dragons', name: 'Dragon Lords', type: 'Aggressive', cards: 42, icon: '🐉' },
+  { id: 'spellcasters', name: 'Mystic Mages', type: 'Control', cards: 40, icon: '🔮' },
+  { id: 'warriors', name: 'Noble Knights', type: 'Balanced', cards: 41, icon: '⚔️' },
+  { id: 'machines', name: 'Cyber Army', type: 'Combo', cards: 43, icon: '🤖' }
+];
 
 const DeckbuilderPage = () => {
+  const { user, isAuthenticated, getUserDecks, saveDeck, deleteDeck } = useAuth();
   const [selectedDeck, setSelectedDeck] = useState<string>('');
-  
-  const deckTemplates = [
-    // Original starter decks
-    { id: 'yugi', name: 'Yugi\'s Deck', type: 'Balanced', cards: 40, icon: '🎩', character: 'Yugi Moto' },
-    { id: 'kaiba', name: 'Kaiba\'s Deck', type: 'Aggressive', cards: 40, icon: '🐲', character: 'Seto Kaiba' },
-    { id: 'joey', name: 'Joey\'s Deck', type: 'Beatdown', cards: 40, icon: '🃏', character: 'Joey Wheeler' },
-    { id: 'pegasus', name: 'Pegasus\' Deck', type: 'Control', cards: 40, icon: '🎭', character: 'Maximillion Pegasus' },
-    // Custom decks
-    { id: 'dragons', name: 'Dragon Lords', type: 'Aggressive', cards: 42, icon: '🐉' },
-    { id: 'spellcasters', name: 'Mystic Mages', type: 'Control', cards: 40, icon: '🔮' },
-    { id: 'warriors', name: 'Noble Knights', type: 'Balanced', cards: 41, icon: '⚔️' },
-    { id: 'machines', name: 'Cyber Army', type: 'Combo', cards: 43, icon: '🤖' }
-  ];
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newDeckName, setNewDeckName] = useState('');
+
+  // Get user decks or show default templates
+  const userDecks = isAuthenticated ? getUserDecks() : [];
+  const availableDecks = isAuthenticated ? userDecks : deckTemplates;
+
+  const handleCreateDeck = () => {
+    if (!isAuthenticated) return;
+
+    if (!newDeckName.trim()) return;
+
+    const newDeck = {
+      id: `deck_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      name: newDeckName.trim(),
+      userId: user!.id,
+      cards: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      isPublic: false,
+      tags: [],
+    };
+
+    saveDeck(newDeck);
+    setNewDeckName('');
+    setShowCreateForm(false);
+  };
+
+  const handleDeleteDeck = (deckId: string) => {
+    if (!isAuthenticated) return;
+    deleteDeck(deckId);
+    if (selectedDeck === deckId) {
+      setSelectedDeck('');
+    }
+  };
 
   return (
     <div enable-xr className="min-h-screen relative overflow-hidden">
@@ -33,21 +80,36 @@ const DeckbuilderPage = () => {
             <Link to="/" enable-xr className="text-2xl font-bold bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 bg-clip-text text-transparent tracking-wider">
               YU-GI-OH! VAULT
             </Link>
-            <div enable-xr className="flex gap-4">
-              <Link
-                to="/cardshop"
-                enable-xr
-                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white rounded-lg text-sm font-bold transition-all duration-300 shadow-xl border border-purple-500/30 hover:border-purple-400/50 tracking-wider"
-              >
-                CARD SHOP
-              </Link>
-              <Link
-                to="/game"
-                enable-xr
-                className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white rounded-lg text-sm font-bold transition-all duration-300 shadow-xl border border-red-500/30 hover:border-red-400/50 tracking-wider"
-              >
-                TEST DECK
-              </Link>
+            <div enable-xr className="flex gap-4 items-center">
+              {isAuthenticated && user ? (
+                <>
+                  <span enable-xr className="text-slate-300 text-sm">
+                    <span className="text-purple-400 font-bold">{user.profile.displayName}</span>'s Decks
+                  </span>
+                  <Link
+                    to="/cardshop"
+                    enable-xr
+                    className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white rounded-lg text-sm font-bold transition-all duration-300 shadow-xl border border-purple-500/30 hover:border-purple-400/50 tracking-wider"
+                  >
+                    CARD SHOP
+                  </Link>
+                  <Link
+                    to="/game"
+                    enable-xr
+                    className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white rounded-lg text-sm font-bold transition-all duration-300 shadow-xl border border-red-500/30 hover:border-red-400/50 tracking-wider"
+                  >
+                    TEST DECK
+                  </Link>
+                </>
+              ) : (
+                <Link
+                  to="/auth"
+                  enable-xr
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white rounded-lg text-sm font-bold transition-all duration-300 shadow-xl border border-purple-500/30 hover:border-purple-400/50 tracking-wider"
+                >
+                  LOGIN TO BUILD
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -61,8 +123,22 @@ const DeckbuilderPage = () => {
             DECK FORGE
           </h1>
           <p enable-xr className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Craft the perfect deck with our advanced deck building tools and strategic analysis.
+            {isAuthenticated
+              ? `Craft the perfect deck with our advanced deck building tools and strategic analysis.`
+              : `Login to create and manage your own decks. Preview starter deck templates below.`
+            }
           </p>
+          {!isAuthenticated && (
+            <div enable-xr className="mt-6">
+              <Link
+                to="/auth"
+                enable-xr
+                className="inline-block px-8 py-3 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white rounded-xl text-lg font-bold transition-all duration-300 shadow-2xl border border-purple-500/30 hover:border-purple-400/50 tracking-wider"
+              >
+                🚀 LOGIN TO START BUILDING
+              </Link>
+            </div>
+          )}
         </div>
 
         <div enable-xr className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -74,41 +150,87 @@ const DeckbuilderPage = () => {
               </h2>
               
               <div enable-xr className="space-y-4 mb-6">
-                {deckTemplates.map((deck) => (
+                {availableDecks.map((deck) => (
                   <div
                     key={deck.id}
-                    onClick={() => setSelectedDeck(deck.id)}
                     enable-xr
-                    className={`cursor-pointer p-4 rounded-xl border transition-all duration-300 ${
+                    className={`p-4 rounded-xl border transition-all duration-300 ${
                       selectedDeck === deck.id
                         ? 'bg-purple-700/50 border-purple-500'
                         : 'bg-slate-700/50 border-slate-600 hover:border-slate-500'
                     }`}
                   >
                     <div enable-xr className="flex items-center justify-between">
-                      <div>
+                      <div
+                        enable-xr
+                        className="flex-1 cursor-pointer"
+                        onClick={() => setSelectedDeck(deck.id)}
+                      >
                         <div enable-xr className="flex items-center gap-2 mb-1">
-                          <span className="text-lg">{deck.icon}</span>
+                          <span className="text-lg">{(deck as any).icon || '🎴'}</span>
                           <span className="font-bold text-slate-100 text-sm">{deck.name}</span>
                         </div>
                         <div enable-xr className="text-xs text-slate-400">
-                          {deck.character ? `${deck.character} • ` : ''}{deck.type} • {deck.cards} cards
+                          {(deck as any).character ? `${(deck as any).character} • ` : ''}
+                          {(deck as any).type || 'Custom'} • {(deck as any).cards || 0} cards
                         </div>
                       </div>
-                      <div enable-xr className="text-xs text-slate-500">
-                        2d ago
-                      </div>
+                      {isAuthenticated && (deck as any).userId && (
+                        <button
+                          onClick={() => handleDeleteDeck(deck.id)}
+                          enable-xr
+                          className="text-red-400 hover:text-red-300 text-sm p-1"
+                          title="Delete deck"
+                        >
+                          🗑️
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
 
-              <button
-                enable-xr
-                className="w-full py-3 px-4 bg-gradient-to-r from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 text-white rounded-xl text-sm font-bold transition-all duration-300 shadow-xl border border-green-500/30 hover:border-green-400/50 tracking-wider"
-              >
-                + CREATE NEW DECK
-              </button>
+              {showCreateForm ? (
+                <div enable-xr className="space-y-3">
+                  <input
+                    type="text"
+                    value={newDeckName}
+                    onChange={(e) => setNewDeckName(e.target.value)}
+                    placeholder="Enter deck name..."
+                    enable-xr
+                    className="w-full px-4 py-3 bg-slate-700/50 border-2 border-slate-600 rounded-lg text-slate-100 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition-all backdrop-blur-sm"
+                  />
+                  <div enable-xr className="flex gap-2">
+                    <button
+                      onClick={handleCreateDeck}
+                      enable-xr
+                      className="flex-1 py-2 px-4 bg-gradient-to-r from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 text-white rounded-lg text-sm font-bold transition-all duration-300 shadow-xl border border-green-500/30 tracking-wider"
+                    >
+                      CREATE
+                    </button>
+                    <button
+                      onClick={() => setShowCreateForm(false)}
+                      enable-xr
+                      className="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-lg text-sm font-bold transition-all duration-300 shadow-xl border border-slate-500/30 tracking-wider"
+                    >
+                      CANCEL
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => isAuthenticated ? setShowCreateForm(true) : null}
+                  enable-xr
+                  className={`w-full py-3 px-4 rounded-xl text-sm font-bold transition-all duration-300 shadow-xl border tracking-wider ${
+                    isAuthenticated
+                      ? 'bg-gradient-to-r from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 text-white border-green-500/30 hover:border-green-400/50'
+                      : 'bg-slate-700/50 text-slate-400 border-slate-600/50 cursor-not-allowed'
+                  }`}
+                  disabled={!isAuthenticated}
+                >
+                  {isAuthenticated ? '+ CREATE NEW DECK' : 'LOGIN TO CREATE DECKS'}
+                </button>
+              )}
             </div>
           </div>
 
@@ -202,18 +324,31 @@ const DeckbuilderPage = () => {
                 <div enable-xr className="text-center py-16">
                   <div enable-xr className="text-8xl mb-6">🎴</div>
                   <h2 enable-xr className="text-3xl font-bold text-slate-100 mb-4 tracking-wider">
-                    SELECT A DECK
+                    {isAuthenticated ? 'SELECT A DECK' : 'PREVIEW DECKS'}
                   </h2>
                   <p enable-xr className="text-slate-300 text-lg mb-8">
-                    Choose a deck from the sidebar to start building and customizing
+                    {isAuthenticated
+                      ? 'Choose a deck from the sidebar to start building and customizing'
+                      : 'Login to create and customize your own decks'
+                    }
                   </p>
-                  <button
-                    onClick={() => setSelectedDeck('dragons')}
-                    enable-xr
-                    className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white rounded-xl text-lg font-bold transition-all duration-300 shadow-xl border border-blue-500/30 hover:border-blue-400/50 tracking-wider"
-                  >
-                    START BUILDING
-                  </button>
+                  {isAuthenticated ? (
+                    <button
+                      onClick={() => setSelectedDeck('dragons')}
+                      enable-xr
+                      className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white rounded-xl text-lg font-bold transition-all duration-300 shadow-xl border border-blue-500/30 hover:border-blue-400/50 tracking-wider"
+                    >
+                      START BUILDING
+                    </button>
+                  ) : (
+                    <Link
+                      to="/auth"
+                      enable-xr
+                      className="inline-block px-8 py-3 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white rounded-xl text-lg font-bold transition-all duration-300 shadow-xl border border-purple-500/30 hover:border-purple-400/50 tracking-wider"
+                    >
+                      LOGIN TO BUILD
+                    </Link>
+                  )}
                 </div>
               )}
             </div>
@@ -246,3 +381,4 @@ const DeckbuilderPage = () => {
 };
 
 export default DeckbuilderPage;
+

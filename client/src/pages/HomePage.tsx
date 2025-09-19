@@ -1,7 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/UserContext';
 
 const HomePage = () => {
+  const { user, isAuthenticated, logout } = useAuth();
+
   return (
     <div enable-xr className="min-h-screen relative overflow-hidden">
       {/* Background overlay */}
@@ -18,21 +21,38 @@ const HomePage = () => {
             <Link to="/" enable-xr className="text-2xl font-bold bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 bg-clip-text text-transparent tracking-wider">
               YU-GI-OH! VAULT
             </Link>
-            <div enable-xr className="flex gap-4">
-              <Link
-                to="/auth"
-                enable-xr
-                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white rounded-lg text-sm font-bold transition-all duration-300 shadow-xl border border-purple-500/30 hover:border-purple-400/50 tracking-wider"
-              >
-                LOGIN
-              </Link>
-              <Link
-                to="/auth"
-                enable-xr
-                className="px-4 py-2 bg-gradient-to-r from-slate-600 to-slate-800 hover:from-slate-500 hover:to-slate-700 text-white rounded-lg text-sm font-bold transition-all duration-300 shadow-xl border border-slate-500/30 hover:border-slate-400/50 tracking-wider"
-              >
-                SIGN UP
-              </Link>
+            <div enable-xr className="flex gap-4 items-center">
+              {isAuthenticated && user ? (
+                <>
+                  <span enable-xr className="text-slate-300 text-sm">
+                    Welcome, <span className="text-purple-400 font-bold">{user.profile.displayName}</span>
+                  </span>
+                  <button
+                    onClick={logout}
+                    enable-xr
+                    className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white rounded-lg text-sm font-bold transition-all duration-300 shadow-xl border border-red-500/30 hover:border-red-400/50 tracking-wider"
+                  >
+                    LOGOUT
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/auth"
+                    enable-xr
+                    className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white rounded-lg text-sm font-bold transition-all duration-300 shadow-xl border border-purple-500/30 hover:border-purple-400/50 tracking-wider"
+                  >
+                    LOGIN
+                  </Link>
+                  <Link
+                    to="/auth"
+                    enable-xr
+                    className="px-4 py-2 bg-gradient-to-r from-slate-600 to-slate-800 hover:from-slate-500 hover:to-slate-700 text-white rounded-lg text-sm font-bold transition-all duration-300 shadow-xl border border-slate-500/30 hover:border-slate-400/50 tracking-wider"
+                  >
+                    SIGN UP
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -70,20 +90,48 @@ const HomePage = () => {
 
           {/* Action Buttons */}
           <div enable-xr className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <Link
-              to="/cardshop"
-              enable-xr
-              className="px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white rounded-xl text-lg font-bold transition-all duration-300 shadow-2xl border border-purple-500/30 hover:border-purple-400/50 tracking-wider hover:scale-105 transform"
-            >
-              🛒 EXPLORE CARD SHOP
-            </Link>
-            <Link
-              to="/game"
-              enable-xr
-              className="px-8 py-4 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white rounded-xl text-lg font-bold transition-all duration-300 shadow-2xl border border-red-500/30 hover:border-red-400/50 tracking-wider hover:scale-105 transform"
-            >
-              ⚔️ START DUELING
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to="/cardshop"
+                  enable-xr
+                  className="px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white rounded-xl text-lg font-bold transition-all duration-300 shadow-2xl border border-purple-500/30 hover:border-purple-400/50 tracking-wider hover:scale-105 transform"
+                >
+                  🛒 BROWSE CARDS
+                </Link>
+                <Link
+                  to="/deckbuilder"
+                  enable-xr
+                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white rounded-xl text-lg font-bold transition-all duration-300 shadow-2xl border border-blue-500/30 hover:border-blue-400/50 tracking-wider hover:scale-105 transform"
+                >
+                  🎴 BUILD DECK
+                </Link>
+                <Link
+                  to="/game"
+                  enable-xr
+                  className="px-8 py-4 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white rounded-xl text-lg font-bold transition-all duration-300 shadow-2xl border border-red-500/30 hover:border-red-400/50 tracking-wider hover:scale-105 transform"
+                >
+                  ⚔️ START DUELING
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/auth"
+                  enable-xr
+                  className="px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white rounded-xl text-lg font-bold transition-all duration-300 shadow-2xl border border-purple-500/30 hover:border-purple-400/50 tracking-wider hover:scale-105 transform"
+                >
+                  🚀 GET STARTED
+                </Link>
+                <Link
+                  to="/cardshop"
+                  enable-xr
+                  className="px-8 py-4 bg-gradient-to-r from-slate-600 to-slate-800 hover:from-slate-500 hover:to-slate-700 text-white rounded-xl text-lg font-bold transition-all duration-300 shadow-2xl border border-slate-500/30 hover:border-slate-400/50 tracking-wider hover:scale-105 transform"
+                >
+                  🛒 PREVIEW CARDS
+                </Link>
+              </>
+            )}
           </div>
         </div>
 

@@ -108,3 +108,51 @@ export interface DeckStrategy {
   winCondition: string;
   difficulty: "Beginner" | "Intermediate" | "Advanced" | "Expert";
 }
+
+// User Account Types
+export interface User {
+  id: string;
+  username: string;
+  email: string;
+  createdAt: string;
+  lastLoginAt: string;
+  profile: UserProfile;
+}
+
+export interface UserProfile {
+  displayName: string;
+  avatar?: string;
+  bio?: string;
+  favoriteCard?: string;
+  duelistLevel: number;
+  totalWins: number;
+  totalLosses: number;
+  favoriteDeck?: string;
+}
+
+export interface Deck {
+  id: string;
+  name: string;
+  userId: string;
+  cards: DeckCard[];
+  createdAt: string;
+  updatedAt: string;
+  isPublic: boolean;
+  strategy?: DeckStrategy;
+  tags: string[];
+}
+
+export interface DeckCard {
+  cardId: string;
+  quantity: number;
+}
+
+export interface UserStats {
+  gamesPlayed: number;
+  gamesWon: number;
+  gamesLost: number;
+  winRate: number;
+  favoriteCardType: string;
+  decksCreated: number;
+  lastActive: string;
+}

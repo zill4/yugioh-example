@@ -1,8 +1,106 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/UserContext';
 
 const AuthPage = () => {
+  const navigate = useNavigate();
+  const { login, signup, isAuthenticated } = useAuth();
+
   const [isLogin, setIsLogin] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    rememberMe: false,
+  });
+
+  // Redirect if already authenticated
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+    // Clear errors when user starts typing
+    if (error) setError('');
+    if (success) setSuccess('');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    setIsLoading(true);
+
+    try {
+      if (isLogin) {
+        // Login
+        if (!formData.username || !formData.password) {
+          setError('Please fill in all fields');
+          return;
+        }
+
+        const success = await login(formData.username, formData.password);
+        if (success) {
+          setSuccess('Login successful! Redirecting...');
+          setTimeout(() => navigate('/'), 1000);
+        } else {
+          setError('Invalid username or password');
+        }
+      } else {
+        // Signup
+        if (!formData.username || !formData.email || !formData.password) {
+          setError('Please fill in all required fields');
+          return;
+        }
+
+        if (formData.password !== formData.confirmPassword) {
+          setError('Passwords do not match');
+          return;
+        }
+
+        if (formData.password.length < 6) {
+          setError('Password must be at least 6 characters long');
+          return;
+        }
+
+        const success = await signup(formData.username, formData.email, formData.password);
+        if (success) {
+          setSuccess('Account created successfully! Redirecting...');
+          setTimeout(() => navigate('/'), 1000);
+        } else {
+          setError('Username or email already exists');
+        }
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleMode = () => {
+    setIsLogin(!isLogin);
+    setError('');
+    setSuccess('');
+    setFormData({
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      rememberMe: false,
+    });
+  };
 
   return (
     <div enable-xr className="min-h-screen relative overflow-hidden">
@@ -37,7 +135,7 @@ const AuthPage = () => {
           {/* Toggle Buttons */}
           <div enable-xr className="flex bg-slate-700/50 rounded-xl p-1 mb-8">
             <button
-              onClick={() => setIsLogin(true)}
+              onClick={toggleMode}
               enable-xr
               className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all duration-300 tracking-wider ${
                 isLogin
@@ -48,7 +146,7 @@ const AuthPage = () => {
               LOGIN
             </button>
             <button
-              onClick={() => setIsLogin(false)}
+              onClick={toggleMode}
               enable-xr
               className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all duration-300 tracking-wider ${
                 !isLogin
@@ -59,6 +157,19 @@ const AuthPage = () => {
               SIGN UP
             </button>
           </div>
+
+          {/* Error/Success Messages */}
+          {error && (
+            <div enable-xr className="mb-6 p-4 bg-red-900/50 border border-red-600/50 rounded-lg">
+              <p enable-xr className="text-red-200 text-sm text-center">{error}</p>
+            </div>
+          )}
+
+          {success && (
+            <div enable-xr className="mb-6 p-4 bg-green-900/50 border border-green-600/50 rounded-lg">
+              <p enable-xr className="text-green-200 text-sm text-center">{success}</p>
+            </div>
+          )}
 
           {/* Form Header */}
           <div enable-xr className="text-center mb-8">
@@ -71,33 +182,41 @@ const AuthPage = () => {
           </div>
 
           {/* Form */}
-          <form className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username/Email */}
             <div>
-              <label enable-xr htmlFor="email" className="block text-sm font-bold text-slate-200 mb-2 uppercase tracking-wider">
+              <label enable-xr htmlFor="username" className="block text-sm font-bold text-slate-200 mb-2 uppercase tracking-wider">
                 {isLogin ? 'Email or Username' : 'Username'}
               </label>
               <input
                 enable-xr
-                id="email"
-                type={isLogin ? 'email' : 'text'}
+                id="username"
+                name="username"
+                type={isLogin ? 'text' : 'text'}
                 placeholder={isLogin ? 'Enter your email or username' : 'Choose a username'}
-                className="w-full px-4 py-3 bg-slate-700/50 border-2 border-slate-600 rounded-lg text-slate-100 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition-all backdrop-blur-sm"
+                value={formData.username}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                className="w-full px-4 py-3 bg-slate-700/50 border-2 border-slate-600 rounded-lg text-slate-100 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition-all backdrop-blur-sm disabled:opacity-50"
               />
             </div>
 
             {/* Email (Sign up only) */}
             {!isLogin && (
               <div>
-                <label enable-xr htmlFor="signup-email" className="block text-sm font-bold text-slate-200 mb-2 uppercase tracking-wider">
+                <label enable-xr htmlFor="email" className="block text-sm font-bold text-slate-200 mb-2 uppercase tracking-wider">
                   Email Address
                 </label>
                 <input
                   enable-xr
-                  id="signup-email"
+                  id="email"
+                  name="email"
                   type="email"
                   placeholder="Enter your email address"
-                  className="w-full px-4 py-3 bg-slate-700/50 border-2 border-slate-600 rounded-lg text-slate-100 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition-all backdrop-blur-sm"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  disabled={isLoading}
+                  className="w-full px-4 py-3 bg-slate-700/50 border-2 border-slate-600 rounded-lg text-slate-100 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition-all backdrop-blur-sm disabled:opacity-50"
                 />
               </div>
             )}
@@ -110,24 +229,32 @@ const AuthPage = () => {
               <input
                 enable-xr
                 id="password"
+                name="password"
                 type="password"
                 placeholder="Enter your password"
-                className="w-full px-4 py-3 bg-slate-700/50 border-2 border-slate-600 rounded-lg text-slate-100 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition-all backdrop-blur-sm"
+                value={formData.password}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                className="w-full px-4 py-3 bg-slate-700/50 border-2 border-slate-600 rounded-lg text-slate-100 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition-all backdrop-blur-sm disabled:opacity-50"
               />
             </div>
 
             {/* Confirm Password (Sign up only) */}
             {!isLogin && (
               <div>
-                <label enable-xr htmlFor="confirm-password" className="block text-sm font-bold text-slate-200 mb-2 uppercase tracking-wider">
+                <label enable-xr htmlFor="confirmPassword" className="block text-sm font-bold text-slate-200 mb-2 uppercase tracking-wider">
                   Confirm Password
                 </label>
                 <input
                   enable-xr
-                  id="confirm-password"
+                  id="confirmPassword"
+                  name="confirmPassword"
                   type="password"
                   placeholder="Confirm your password"
-                  className="w-full px-4 py-3 bg-slate-700/50 border-2 border-slate-600 rounded-lg text-slate-100 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition-all backdrop-blur-sm"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  disabled={isLoading}
+                  className="w-full px-4 py-3 bg-slate-700/50 border-2 border-slate-600 rounded-lg text-slate-100 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 transition-all backdrop-blur-sm disabled:opacity-50"
                 />
               </div>
             )}
@@ -136,10 +263,23 @@ const AuthPage = () => {
             {isLogin && (
               <div enable-xr className="flex items-center justify-between text-sm">
                 <label enable-xr className="flex items-center text-slate-300">
-                  <input type="checkbox" enable-xr className="mr-2 rounded" />
+                  <input
+                    type="checkbox"
+                    name="rememberMe"
+                    checked={formData.rememberMe}
+                    onChange={handleInputChange}
+                    disabled={isLoading}
+                    enable-xr
+                    className="mr-2 rounded disabled:opacity-50"
+                  />
                   Remember me
                 </label>
-                <button enable-xr type="button" className="text-purple-400 hover:text-purple-300 font-medium">
+                <button
+                  enable-xr
+                  type="button"
+                  className="text-purple-400 hover:text-purple-300 font-medium disabled:opacity-50"
+                  disabled={isLoading}
+                >
                   Forgot password?
                 </button>
               </div>
@@ -149,9 +289,20 @@ const AuthPage = () => {
             <button
               enable-xr
               type="submit"
-              className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white rounded-lg text-sm font-bold transition-all duration-300 shadow-xl border border-purple-500/30 hover:border-purple-400/50 tracking-wider"
+              disabled={isLoading}
+              className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 disabled:from-slate-600 disabled:to-slate-700 text-white rounded-lg text-sm font-bold transition-all duration-300 shadow-xl border border-purple-500/30 hover:border-purple-400/50 disabled:border-slate-500/30 tracking-wider disabled:cursor-not-allowed"
             >
-              {isLogin ? 'LOGIN TO DUEL' : 'CREATE ACCOUNT'}
+              {isLoading ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {isLogin ? 'LOGGING IN...' : 'CREATING ACCOUNT...'}
+                </span>
+              ) : (
+                isLogin ? 'LOGIN TO DUEL' : 'CREATE ACCOUNT'
+              )}
             </button>
 
             {/* Divider */}
