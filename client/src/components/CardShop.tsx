@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { sampleCards } from '../data/sampleCards';
 import CardList from './CardList';
+import { getXRProps } from '../utils/xr';
 import { useState } from 'react';
 
 const CardShop = () => {
@@ -24,37 +25,37 @@ const CardShop = () => {
   const sets = [...new Set(sampleCards.map(card => card.setCode?.substring(0, 3) || 'OTHER'))].sort();
 
   return (
-    <div enable-xr className="card-shop-layout min-h-screen relative overflow-hidden">
+    <div {...getXRProps()} className="card-shop-layout min-h-screen relative overflow-hidden">
       {/* Professional dark overlay */}
-      <div enable-xr className="absolute inset-0 opacity-40">
-        <div enable-xr className="absolute inset-0 bg-gradient-to-r from-slate-800/50 via-slate-700/30 to-slate-800/50" />
-        <div enable-xr className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
-        <div enable-xr className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-red-900/15 via-transparent to-transparent" />
+      <div {...getXRProps()} className="absolute inset-0 opacity-40">
+        <div {...getXRProps()} className="absolute inset-0 bg-gradient-to-r from-slate-800/50 via-slate-700/30 to-slate-800/50" />
+        <div {...getXRProps()} className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
+        <div {...getXRProps()} className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-red-900/15 via-transparent to-transparent" />
       </div>
 
       {/* Header */}
-      <header enable-xr className="navbar relative bg-slate-800/90 backdrop-blur-lg border-b border-slate-700/50 shadow-2xl">
-        <div enable-xr className="max-w-7xl mx-auto px-6 lg:px-8 py-6 sm:py-8">
-          <h1 enable-xr className="text-3xl sm:text-4xl font-bold text-center bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 bg-clip-text text-transparent tracking-wider">
+      <header {...getXRProps()} className="navbar relative bg-slate-800/90 backdrop-blur-lg border-b border-slate-700/50 shadow-2xl">
+        <div {...getXRProps()} className="max-w-7xl mx-auto px-6 lg:px-8 py-6 sm:py-8">
+          <h1 {...getXRProps()} className="text-3xl sm:text-4xl font-bold text-center bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 bg-clip-text text-transparent tracking-wider">
             CARD VAULT
           </h1>
-          <p enable-xr className="text-center text-slate-300 text-base mt-3 font-medium tracking-wide">
+          <p {...getXRProps()} className="text-center text-slate-300 text-base mt-3 font-medium tracking-wide">
             PREMIUM CARD COLLECTION
           </p>
         </div>
       </header>
 
       {/* Filters */}
-      <div enable-xr className="search-container relative max-w-7xl mx-auto px-6 py-8 lg:px-8">
-        <div enable-xr className="bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-slate-600/50 shadow-2xl p-6 sm:p-8 mb-8 ring-1 ring-slate-700/30">
-          <div enable-xr className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div {...getXRProps()} className="search-container relative max-w-7xl mx-auto px-6 py-8 lg:px-8">
+        <div {...getXRProps()} className="bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-slate-600/50 shadow-2xl p-6 sm:p-8 mb-8 ring-1 ring-slate-700/30">
+          <div {...getXRProps()} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Search */}
-            <div enable-xr>
-              <label enable-xr htmlFor="search" className="block text-sm font-bold text-slate-200 mb-3 uppercase tracking-wider">
+            <div {...getXRProps()}>
+              <label {...getXRProps()} htmlFor="search" className="block text-sm font-bold text-slate-200 mb-3 uppercase tracking-wider">
                 Search Collection
               </label>
               <input
-                enable-xr
+                {...getXRProps()}
                 id="search"
                 type="text"
                 placeholder="Enter card name or description..."
@@ -65,12 +66,12 @@ const CardShop = () => {
             </div>
 
             {/* Rarity Filter */}
-            <div enable-xr>
-              <label enable-xr htmlFor="rarity" className="block text-sm font-bold text-slate-200 mb-3 uppercase tracking-wider">
+            <div {...getXRProps()}>
+              <label {...getXRProps()} htmlFor="rarity" className="block text-sm font-bold text-slate-200 mb-3 uppercase tracking-wider">
                 Rarity Filter
               </label>
               <select
-                enable-xr
+                {...getXRProps()}
                 id="rarity"
                 value={selectedRarity}
                 onChange={(e) => setSelectedRarity(e.target.value)}
@@ -84,12 +85,12 @@ const CardShop = () => {
             </div>
 
             {/* Card Type Filter */}
-            <div enable-xr>
-              <label enable-xr htmlFor="cardType" className="block text-sm font-bold text-slate-200 mb-3 uppercase tracking-wider">
+            <div {...getXRProps()}>
+              <label {...getXRProps()} htmlFor="cardType" className="block text-sm font-bold text-slate-200 mb-3 uppercase tracking-wider">
                 Card Type
               </label>
               <select
-                enable-xr
+                {...getXRProps()}
                 id="cardType"
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
@@ -103,12 +104,12 @@ const CardShop = () => {
             </div>
 
             {/* Set Filter */}
-            <div enable-xr>
-              <label enable-xr htmlFor="set" className="block text-sm font-bold text-slate-200 mb-3 uppercase tracking-wider">
+            <div {...getXRProps()}>
+              <label {...getXRProps()} htmlFor="set" className="block text-sm font-bold text-slate-200 mb-3 uppercase tracking-wider">
                 Set
               </label>
               <select
-                enable-xr
+                {...getXRProps()}
                 id="set"
                 value={selectedSet}
                 onChange={(e) => setSelectedSet(e.target.value)}
@@ -132,14 +133,14 @@ const CardShop = () => {
         </div>
 
         {/* Results Count */}
-        <div enable-xr className="text-center mb-6">
-          <p enable-xr className="text-slate-300 text-sm font-medium tracking-wider uppercase">
+        <div {...getXRProps()} className="text-center mb-6">
+          <p {...getXRProps()} className="text-slate-300 text-sm font-medium tracking-wider uppercase">
             {filteredCards.length} of {sampleCards.length} CARDS IN COLLECTION
           </p>
         </div>
 
         {/* Card Grid */}
-        <div enable-xr className="card-grid-container">
+        <div {...getXRProps()} className="card-grid-container">
           <CardList cards={filteredCards} />
         </div>
       </div>
