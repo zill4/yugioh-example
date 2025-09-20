@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { getXRProps } from '../utils/xr';
 import { GameController } from '../game/GameController';
-import type { GameState, GameCard, CardInPlay } from '../game/types/GameTypes';
+import type { GameState, GameCard, CardInPlay, GameAction } from '../game/types/GameTypes';
 import {
   DndContext,
   DragOverlay,
@@ -23,6 +23,12 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
   const [draggedCard, setDraggedCard] = useState<CardInPlay | null>(null);
+  const [selectedCard, setSelectedCard] = useState<CardInPlay | null>(null);
+  const [showCardActionModal, setShowCardActionModal] = useState(false);
+  const [showTargetingModal, setShowTargetingModal] = useState(false);
+  const [targetingMode, setTargetingMode] = useState<'attack' | 'effect' | null>(null);
+  const [pendingAction, setPendingAction] = useState<GameAction | null>(null);
+  const [availableTargets, setAvailableTargets] = useState<CardInPlay[]>([]);
   const gameControllerRef = useRef<GameController | null>(null);
   
   // Derive AI turn state from gameState to ensure consistency
@@ -50,16 +56,49 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
       case 'Main2':
         // Attack with monster if it's on the field
         if (card.position === 'monster') {
-          // Simple attack logic - attack first available target
-          const opponentMonsters = gameState.opponent.zones.mainMonsterZones.filter(m => m !== null);
-          if (opponentMonsters.length > 0) {
-            const targetIndex = gameState.opponent.zones.mainMonsterZones.findIndex(m => m !== null);
-            gameControllerRef.current.attack(card.id, targetIndex);
-          } else {
-            // Direct attack
-            gameControllerRef.current.attack(card.id);
-          }
+          // Show targeting modal for attack
+          setTargetingMode('attack');
+          setPendingAction({
+            type: 'ATTACK',
+            player: 'player',
+            cardId: card.id,
+          });
+          setShowTargetingModal(true);
         }
+        break;
+
+      case 'Battle':
+        // Attack with monster if it's on the field
+        if (card.position === 'monster') {
+          // Show targeting modal for attack
+          setTargetingMode('attack');
+          setPendingAction({
+            type: 'ATTACK',
+            player: 'player',
+            cardId: card.id,
+          });
+          setShowTargetingModal(true);
+        }
+        break;
+    }
+  }, [gameState, isAITurn]);
+
+  // Enhanced card interaction handler
+  const handleCardAction = useCallback((card: CardInPlay, action: string) => {
+    if (!gameControllerRef.current || !gameState || isAITurn) return;
+
+    switch (action) {
+      case 'activate':
+        gameControllerRef.current.activateEffect(card.id);
+        break;
+      case 'summon':
+        gameControllerRef.current.normalSummon(card.id);
+        break;
+      case 'set':
+        gameControllerRef.current.setMonster(card.id);
+        break;
+      case 'special_summon':
+        gameControllerRef.current.specialSummon(card.id);
         break;
     }
   }, [gameState, isAITurn]);
@@ -72,6 +111,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
   const handleEndTurn = useCallback(() => {
     if (!gameControllerRef.current || isAITurn) return;
     gameControllerRef.current.endTurn();
+  }, [isAITurn]);
+
+  const handleDrawCard = useCallback(() => {
+    if (!gameControllerRef.current || isAITurn) return;
+    gameControllerRef.current.drawCard();
   }, [isAITurn]);
 
   // Memoized helper functions (declare first to avoid hoisting issues)
@@ -176,13 +220,28 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
         try {
           if (card.position === 'hand') {
             console.log('Playing card from hand to zone', zoneIndex, 'card:', card.name);
-            gameControllerRef.current?.playCard(card.id, zoneIndex);
+            // For monsters, show the action modal instead of direct play
+            if (card.type === 'monster') {
+              setSelectedCard(card);
+              setShowCardActionModal(true);
+            } else {
+              gameControllerRef.current?.playCard(card.id, zoneIndex);
+            }
           } else if (card.position === 'monster') {
             console.log('Attacking with monster to zone', zoneIndex);
             const targetMonster = gameState.opponent.zones.mainMonsterZones[zoneIndex];
             if (targetMonster) {
-              gameControllerRef.current?.attack(card.id, zoneIndex);
+              // Show targeting modal for attack
+              setTargetingMode('attack');
+              setPendingAction({
+                type: 'ATTACK',
+                player: 'player',
+                cardId: card.id,
+                zoneIndex: zoneIndex,
+              });
+              setShowTargetingModal(true);
             } else {
+              // Direct attack
               gameControllerRef.current?.attack(card.id);
             }
           }
@@ -281,14 +340,22 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     zoneType: 'monster' | 'spellTrap';
     isPlayerZone: boolean;
   }> = React.memo(({ card, isOpponent = false, zoneIndex, zoneType, isPlayerZone }) => {
-    const isValidTarget = useMemo(() => 
+    const isValidTarget = useMemo(() =>
       gameState ? isValidDropTarget(zoneType, zoneIndex) : false,
       [gameState?.currentPhase, gameState?.player, draggedCard, zoneType, zoneIndex, isValidDropTarget]
     );
-    const canDrag = useMemo(() => 
+    const canDrag = useMemo(() =>
       card && isPlayerZone && canDragCard(card),
       [card, isPlayerZone, gameState?.currentPhase, gameState?.currentTurn, canDragCard]
     );
+
+    const getCardStatus = useCallback((card: CardInPlay) => {
+      const status = [];
+      if (card.attackUsed) status.push('Attacked');
+      if (card.summonedThisTurn) status.push('Summoned');
+      if (card.faceDown) status.push('Set');
+      return status;
+    }, []);
 
     return (
       <DroppableZone id={`zone-${zoneType}-${zoneIndex}`} isPlayerZone={isPlayerZone}>
@@ -325,35 +392,58 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                 {isOpponent ? (
                   <div className="w-full h-full bg-blue-900 border border-blue-700 rounded-md flex items-center justify-center">
                     <div className="text-white text-lg">🎴</div>
+                    {card.faceDown && (
+                      <div className="absolute top-1 right-1">
+                        <div className="w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
+                      </div>
+                    )}
                   </div>
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-b from-white to-gray-100 border border-gray-800 rounded-md flex flex-col p-1">
-                    <div className="text-black text-[8px] font-bold text-center mb-1">{card.name}</div>
-                    <div className="flex-1 bg-gradient-to-br from-blue-100 to-purple-200 rounded mb-1 flex items-center justify-center relative overflow-hidden">
-                      {card.imageUrl ? (
-                        <img 
-                          src={card.imageUrl} 
-                          alt={card.name}
-                          className="w-full h-full object-cover rounded"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <>
-                          {card.type === 'monster' ? (
-                            <div className="text-4xl opacity-60">👹</div>
-                          ) : card.type === 'spell' ? (
-                            <div className="text-3xl opacity-60">✨</div>
-                          ) : (
-                            <div className="text-3xl opacity-60">🃏</div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded"></div>
-                        </>
-                      )}
-                    </div>
-                    {card.attack !== undefined && (
-                      <div className="text-[6px] text-black font-bold text-right">
-                        ATK/{card.attack} DEF/{card.defense || 0}
+                  <div className={`w-full h-full border border-gray-800 rounded-md flex flex-col p-1 ${
+                    card.faceDown ? 'bg-gradient-to-b from-purple-900 to-purple-800' : 'bg-gradient-to-b from-white to-gray-100'
+                  }`}>
+                    {card.faceDown ? (
+                      <div className="flex-1 flex items-center justify-center">
+                        <div className="text-yellow-300 text-2xl">🂠</div>
+                        <div className="absolute top-1 right-1">
+                          <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                        </div>
                       </div>
+                    ) : (
+                      <>
+                        <div className="text-black text-[8px] font-bold text-center mb-1">{card.name}</div>
+                        <div className="flex-1 bg-gradient-to-br from-blue-100 to-purple-200 rounded mb-1 flex items-center justify-center relative overflow-hidden">
+                          {card.imageUrl ? (
+                            <img
+                              src={card.imageUrl}
+                              alt={card.name}
+                              className="w-full h-full object-cover rounded"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <>
+                              {card.type === 'monster' ? (
+                                <div className="text-4xl opacity-60">👹</div>
+                              ) : card.type === 'spell' ? (
+                                <div className="text-3xl opacity-60">✨</div>
+                              ) : (
+                                <div className="text-3xl opacity-60">🃏</div>
+                              )}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded"></div>
+                            </>
+                          )}
+                        </div>
+                        {card.attack !== undefined && (
+                          <div className="text-[6px] text-black font-bold text-right">
+                            ATK/{card.attack} DEF/{card.defense || 0}
+                          </div>
+                        )}
+                        {card.type === 'monster' && (
+                          <div className="text-[5px] text-gray-600 text-center mt-1">
+                            {getCardStatus(card).join(' • ')}
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 )}
@@ -369,13 +459,20 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
   const HandCard: React.FC<{ card: GameCard; index: number; isPlayerHand: boolean }> = React.memo(({ card, index, isPlayerHand }) => {
     const cardInPlay = useMemo(() => ({ ...card, position: 'hand' } as CardInPlay), [card]);
 
+    const handleHandCardClick = useCallback(() => {
+      if (isPlayerHand && !isAITurn && gameState) {
+        setSelectedCard(cardInPlay);
+        setShowCardActionModal(true);
+      }
+    }, [isPlayerHand, isAITurn, gameState, cardInPlay]);
+
     return (
       <DraggableCard card={cardInPlay} isPlayerCard={isPlayerHand}>
         <div
           {...getXRProps()}
-          onClick={() => isPlayerHand && !isAITurn && handleCardClick(cardInPlay, true)}
+          onClick={handleHandCardClick}
           className={`w-16 h-24 bg-gradient-to-b from-white to-gray-100 border-2 border-gray-800 rounded-md shadow-lg select-none ${
-            isAITurn && isPlayerHand ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110 hover:-translate-y-2'
+            isAITurn && isPlayerHand ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110 hover:-translate-y-2 cursor-pointer'
           } transition-all duration-200 relative overflow-hidden`}
           style={{
             userSelect: 'none',
@@ -388,8 +485,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
             <div className="text-black text-[7px] font-bold text-center mb-1">{card?.name || `Card ${index + 1}`}</div>
             <div className="flex-1 bg-gradient-to-br from-blue-100 to-purple-200 rounded mb-1 flex items-center justify-center relative overflow-hidden">
               {card?.imageUrl ? (
-                <img 
-                  src={card.imageUrl} 
+                <img
+                  src={card.imageUrl}
                   alt={card.name}
                   className="w-full h-full object-cover rounded"
                   loading="lazy"
@@ -417,6 +514,182 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
       </DraggableCard>
     );
   });
+
+  // Card Action Modal Component
+  const CardActionModal: React.FC = () => {
+    if (!selectedCard || !gameState) return null;
+
+    const isMonster = selectedCard.type === 'monster';
+    const canNormalSummon = !gameState.player.hasNormalSummoned && isMonster;
+    const canSet = !gameState.player.hasSetMonster && isMonster;
+    const isSpell = selectedCard.type === 'spell';
+    const isTrap = selectedCard.type === 'trap';
+    const canActivate = isSpell || isTrap;
+
+    const handleNormalSummon = useCallback(() => {
+      if (gameControllerRef.current) {
+        gameControllerRef.current.normalSummon(selectedCard.id);
+        setShowCardActionModal(false);
+        setSelectedCard(null);
+      }
+    }, [selectedCard.id]);
+
+    const handleSetCard = useCallback(() => {
+      if (gameControllerRef.current) {
+        gameControllerRef.current.setMonster(selectedCard.id);
+        setShowCardActionModal(false);
+        setSelectedCard(null);
+      }
+    }, [selectedCard.id]);
+
+    const handleActivateSpellTrap = useCallback(() => {
+      if (gameControllerRef.current) {
+        gameControllerRef.current.activateEffect(selectedCard.id);
+        setShowCardActionModal(false);
+        setSelectedCard(null);
+      }
+    }, [selectedCard.id]);
+
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <h3 className="text-lg font-bold mb-4 text-center">{selectedCard.name}</h3>
+
+          {isMonster && (
+            <div className="space-y-3">
+              <h4 className="font-semibold text-center">Monster Actions:</h4>
+              <div className="space-y-2">
+                {canNormalSummon && (
+                  <button
+                    onClick={handleNormalSummon}
+                    className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                  >
+                    Normal Summon (Face-up Attack)
+                  </button>
+                )}
+                {canSet && (
+                  <button
+                    onClick={handleSetCard}
+                    className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                  >
+                    Set (Face-down Defense)
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {(isSpell || isTrap) && canActivate && (
+            <div className="space-y-3">
+              <h4 className="font-semibold text-center">
+                {isSpell ? 'Spell' : 'Trap'} Actions:
+              </h4>
+              <div className="space-y-2">
+                <button
+                  onClick={handleActivateSpellTrap}
+                  className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                >
+                  Activate {isSpell ? 'Spell' : 'Trap'}
+                </button>
+                <button
+                  onClick={() => {
+                    if (gameControllerRef.current) {
+                      gameControllerRef.current.playCard(selectedCard.id);
+                      setShowCardActionModal(false);
+                      setSelectedCard(null);
+                    }
+                  }}
+                  className="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors"
+                >
+                  Set {isSpell ? 'Spell' : 'Trap'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          <button
+            onClick={() => {
+              setShowCardActionModal(false);
+              setSelectedCard(null);
+            }}
+            className="w-full mt-4 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // Targeting Modal Component
+  const TargetingModal: React.FC = () => {
+    if (!targetingMode || !gameState) return null;
+
+    const getTargets = () => {
+      switch (targetingMode) {
+        case 'attack':
+          return gameState.opponent.zones.mainMonsterZones.filter(card => card !== null) as CardInPlay[];
+        case 'effect':
+          // For now, return all valid targets - this would be more specific based on the effect
+          return [
+            ...gameState.opponent.zones.mainMonsterZones,
+            ...gameState.opponent.zones.spellTrapZones,
+            ...gameState.player.zones.mainMonsterZones,
+            ...gameState.player.zones.spellTrapZones,
+          ].filter(card => card !== null) as CardInPlay[];
+        default:
+          return [];
+      }
+    };
+
+    const targets = getTargets();
+
+    const handleTargetSelect = useCallback((target: CardInPlay) => {
+      if (pendingAction && gameControllerRef.current) {
+        const actionWithTarget = { ...pendingAction, targetId: target.id };
+        gameControllerRef.current.executePlayerAction(actionWithTarget);
+        setShowTargetingModal(false);
+        setTargetingMode(null);
+        setPendingAction(null);
+      }
+    }, [pendingAction]);
+
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+          <h3 className="text-lg font-bold mb-4 text-center">
+            Select Target for {targetingMode === 'attack' ? 'Attack' : 'Effect'}
+          </h3>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {targets.map((target, index) => (
+              <button
+                key={index}
+                onClick={() => handleTargetSelect(target)}
+                className="p-3 border-2 border-gray-300 hover:border-blue-500 rounded-lg transition-colors"
+              >
+                <div className="text-sm font-medium text-center">{target.name}</div>
+                <div className="text-xs text-gray-600 text-center mt-1">
+                  {target.type === 'monster' ? `ATK: ${target.attack}` : target.type}
+                </div>
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => {
+              setShowTargetingModal(false);
+              setTargetingMode(null);
+              setPendingAction(null);
+            }}
+            className="w-full mt-4 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  };
 
 
   useEffect(() => {
@@ -488,13 +761,14 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
   }
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
-      onDragEnd={handleDragEnd}
-    >
+    <>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd}
+      >
       <div {...getXRProps()} className="min-h-screen bg-black relative overflow-hidden">
 
         {/* Game Header */}
@@ -517,13 +791,53 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
               <div {...getXRProps()} className="text-center">
                 <div {...getXRProps()} className="text-sm text-slate-400">Phase</div>
                 <div {...getXRProps()} className="text-lg font-bold text-purple-400">{gameState.currentPhase}</div>
+                <div {...getXRProps()} className="text-xs text-slate-500 mt-1">
+                  {gameState.currentPhase === 'Draw' && 'Draw cards and activate effects'}
+                  {gameState.currentPhase === 'Standby' && 'Activate standby effects'}
+                  {gameState.currentPhase === 'Main1' && 'Summon, activate cards'}
+                  {gameState.currentPhase === 'Battle' && 'Attack with monsters'}
+                  {gameState.currentPhase === 'Main2' && 'Additional actions'}
+                  {gameState.currentPhase === 'End' && 'End effects, discard'}
+                </div>
               </div>
               <div {...getXRProps()} className="text-center">
                 <div {...getXRProps()} className="text-sm text-slate-400">Turn</div>
                 <div {...getXRProps()} className="text-lg font-bold text-blue-400">
                   {gameState.currentTurn === 'player' ? 'Your Turn' : 'Opponent\'s Turn'}
                 </div>
+                <div {...getXRProps()} className="text-xs text-slate-500 mt-1">
+                  Turn {gameState.turnNumber}
+                </div>
               </div>
+              {gameState.currentTurn === 'player' && (
+                <div {...getXRProps()} className="flex items-center space-x-2">
+                  <div {...getXRProps()} className="text-xs text-slate-400">Actions:</div>
+                  {!gameState.player.hasNormalSummoned && (
+                    <div {...getXRProps()} className="text-xs px-2 py-1 bg-green-600/20 text-green-400 rounded border border-green-600/30">
+                      Can Summon
+                    </div>
+                  )}
+                  {gameState.currentPhase === 'Battle' && (
+                    <div {...getXRProps()} className="text-xs px-2 py-1 bg-red-600/20 text-red-400 rounded border border-red-600/30">
+                      Battle Phase
+                    </div>
+                  )}
+                </div>
+              )}
+              {gameState.currentPhase === 'Draw' && gameState.currentTurn === 'player' && (
+                <button
+                  onClick={handleDrawCard}
+                  disabled={isAITurn}
+                  {...getXRProps()}
+                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${
+                    isAITurn
+                      ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-yellow-600 to-yellow-800 hover:from-yellow-500 hover:to-yellow-700 text-white'
+                  }`}
+                >
+                  Draw Card
+                </button>
+              )}
               <button
                 onClick={handleNextPhase}
                 disabled={isAITurn}
@@ -730,6 +1044,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
         ) : null}
       </DragOverlay>
     </DndContext>
+
+    {/* Modals */}
+    <CardActionModal />
+    <TargetingModal />
+    </>
   );
 };
 

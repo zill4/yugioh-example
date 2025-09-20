@@ -1,5 +1,5 @@
 // Yu-Gi-Oh! Card Types inspired by the actual game mechanics
-import type { MonsterCategory } from "../game/types/GameTypes";
+import type { EffectType, MonsterCategory } from "../game/types/GameTypes";
 
 export type CardType = "Monster" | "Spell" | "Trap";
 
@@ -74,6 +74,8 @@ export interface BaseCard {
   pendulumScale?: number;
   linkRating?: number;
   linkArrows?: string[];
+  effectType?: EffectType;
+  effect?: string;
   monsterCategory?: MonsterCategory;
 }
 
