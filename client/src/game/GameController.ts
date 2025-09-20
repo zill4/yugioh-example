@@ -1,10 +1,6 @@
 import { GameEngine } from "./engine/GameEngine";
 import { DummyAI } from "./ai/DummyAI";
-import {
-  type GameState,
-  type GameAction,
-  type GameCard,
-} from "./types/GameTypes";
+import { type GameState, type GameAction } from "./types/GameTypes";
 
 export interface GameControllerCallbacks {
   onGameStateChange: (gameState: GameState) => void;
@@ -25,20 +21,36 @@ export class GameController {
 
   // Initialize the game controller with callbacks
   public initialize(callbacks: GameControllerCallbacks): void {
+    console.log("GameController: Initializing...");
     this.callbacks = callbacks;
+    let isInitialState = true;
 
     // Subscribe to game engine events
     this.gameEngine.subscribeToGameState((gameState) => {
+      console.log(
+        "GameController: Game state changed, current turn:",
+        gameState.currentTurn,
+        "isInitial:",
+        isInitialState
+      );
       this.callbacks?.onGameStateChange(gameState);
 
-      // Check if it's AI's turn
-      if (gameState.currentTurn === "opponent" && !gameState.winner) {
+      // Check if it's AI's turn (but skip on initial state to prevent double initialization)
+      if (
+        gameState.currentTurn === "opponent" &&
+        !gameState.winner &&
+        !isInitialState
+      ) {
+        console.log("GameController: Starting AI turn");
         this.callbacks?.onAITurnStart();
         this.ai.startTurn();
       }
+
+      isInitialState = false;
     });
 
     this.gameEngine.subscribeToGameEnd((winner) => {
+      console.log("GameController: Game ended, winner:", winner);
       this.callbacks?.onGameEnd(winner);
       this.ai.stop();
     });

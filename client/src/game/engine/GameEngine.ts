@@ -2,7 +2,6 @@ import {
   type GameState,
   type GamePhase,
   type PlayerState,
-  type GameCard,
   type GameEvent,
   type CardInPlay,
   type GameAction,
@@ -16,6 +15,8 @@ export class GameEngine {
 
   constructor() {
     this.gameState = this.initializeGame();
+    // Notify subscribers of the initial game state
+    this.notifyGameStateChange();
   }
 
   // Initialize a new game
@@ -303,6 +304,10 @@ export class GameEngine {
 
   // Notify subscribers of game state changes
   private notifyGameStateChange(): void {
+    console.log(
+      "GameEngine: Notifying game state change, current turn:",
+      this.gameState.currentTurn
+    );
     this.onGameStateChange?.(this.gameState);
   }
 

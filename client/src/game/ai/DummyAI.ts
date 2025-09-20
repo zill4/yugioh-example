@@ -1,5 +1,4 @@
 import { GameEngine } from "../engine/GameEngine";
-import { type GameState, type GameCard } from "../types/GameTypes";
 
 export class DummyAI {
   private gameEngine: GameEngine;
@@ -11,6 +10,7 @@ export class DummyAI {
 
   // Start AI turn
   public startTurn(): void {
+    console.log("DummyAI: Starting turn");
     this.executeTurn();
   }
 
@@ -67,7 +67,7 @@ export class DummyAI {
   }
 
   // Handle main phases (Main1 and Main2)
-  private async handleMainPhase(isMain2: boolean = false): Promise<void> {
+  private async handleMainPhase(_isMain2: boolean = false): Promise<void> {
     const gameState = this.gameEngine.getGameState();
     const aiState = gameState.opponent;
 
@@ -140,6 +140,8 @@ export class DummyAI {
       // Attack with first available monster
       const attacker = attackableMonsters[0];
 
+      if (!attacker) return;
+
       // Check if player has monsters to attack
       const playerMonsters = playerState.monsterZones.filter(
         (monster) => monster !== null
@@ -185,30 +187,34 @@ export class DummyAI {
 
   // Helper function for delays
   private delay(ms: number): Promise<void> {
+    console.log(`DummyAI: Starting delay for ${ms}ms`);
     return new Promise((resolve) => {
-      this.aiTimeout = setTimeout(resolve, ms);
+      this.aiTimeout = setTimeout(() => {
+        console.log(`DummyAI: Delay of ${ms}ms completed`);
+        resolve();
+      }, ms);
     });
   }
 
-  // Make a random decision (for more varied gameplay)
-  private makeRandomChoice<T>(choices: T[]): T {
-    return choices[Math.floor(Math.random() * choices.length)];
-  }
+  // Make a random decision (for more varied gameplay) - unused for now
+  // private makeRandomChoice<T>(choices: T[]): T {
+  //   return choices[Math.floor(Math.random() * choices.length)];
+  // }
 
-  // Get AI strategy based on game state
-  private getAIStrategy(
-    gameState: GameState
-  ): "aggressive" | "defensive" | "balanced" {
-    const aiState = gameState.opponent;
-    const playerState = gameState.player;
-
-    // Simple strategy: if AI has more life, be aggressive
-    if (aiState.lifePoints > playerState.lifePoints) {
-      return "aggressive";
-    } else if (aiState.lifePoints < playerState.lifePoints) {
-      return "defensive";
-    } else {
-      return "balanced";
-    }
-  }
+  // Get AI strategy based on game state - unused for now
+  // private getAIStrategy(
+  //   gameState: GameState
+  // ): "aggressive" | "defensive" | "balanced" {
+  //   const aiState = gameState.opponent;
+  //   const playerState = gameState.player;
+  //
+  //   // Simple strategy: if AI has more life, be aggressive
+  //   if (aiState.lifePoints > playerState.lifePoints) {
+  //     return "aggressive";
+  //   } else if (aiState.lifePoints < playerState.lifePoints) {
+  //     return "defensive";
+  //   } else {
+  //     return "balanced";
+  //   }
+  // }
 }

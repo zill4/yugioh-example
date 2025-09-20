@@ -2,6 +2,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import { getXRProps } from '../utils/xr';
 import { GameController } from '../game/GameController';
 import type { GameState, GameCard, CardInPlay } from '../game/types/GameTypes';
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  closestCenter,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 
 interface GameBoardProps {
   gameMode: string;
@@ -11,56 +22,28 @@ interface GameBoardProps {
 const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [isAITurn, setIsAITurn] = useState(false);
+  const [initError, setInitError] = useState<string | null>(null);
+  const [draggedCard, setDraggedCard] = useState<CardInPlay | null>(null);
   const gameControllerRef = useRef<GameController | null>(null);
 
-  useEffect(() => {
-    // Initialize game controller
-    const gameController = new GameController();
-    gameControllerRef.current = gameController;
-
-    // Set up callbacks
-    gameController.initialize({
-      onGameStateChange: (newGameState) => {
-        setGameState(newGameState);
+  // Dnd-kit sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
       },
-      onGameEnd: (winner) => {
-        alert(`Game Over! ${winner === 'player' ? 'You Win!' : 'AI Wins!'}`);
-        onEndGame();
-      },
-      onAITurnStart: () => {
-        setIsAITurn(true);
-      },
-      onAITurnEnd: () => {
-        setIsAITurn(false);
-      }
-    });
+    })
+  );
 
-    // Get initial game state
-    setGameState(gameController.getGameState());
-
-    // Cleanup
-    return () => {
-      gameControllerRef.current = null;
-    };
-  }, [onEndGame]);
-
-  // Handle card click
+  // Game logic functions
   const handleCardClick = (card: CardInPlay, isPlayerCard: boolean) => {
     if (!gameControllerRef.current || !gameState || isAITurn) return;
 
-    // Only allow player to interact with their own cards
     if (!isPlayerCard) return;
 
-    // Handle different card interactions based on game phase
     switch (gameState.currentPhase) {
       case 'Main1':
       case 'Main2':
-        // Try to play card if it's in hand
-        if (card.position === 'hand') {
-          gameControllerRef.current.playCard(card.id);
-        }
-        break;
-      case 'Battle':
         // Attack with monster if it's on the field
         if (card.position === 'monster') {
           // Simple attack logic - attack first available target
@@ -77,45 +60,171 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     }
   };
 
-  // Handle zone click (for empty zones)
-  const handleZoneClick = (zoneIndex: number, zoneType: 'monster' | 'spellTrap', isPlayerZone: boolean) => {
-    if (!gameControllerRef.current || !gameState || isAITurn) return;
-
-    if (!isPlayerZone) return;
-
-    switch (gameState.currentPhase) {
-      case 'Main1':
-      case 'Main2':
-        // Try to play a card from hand to this zone
-        const playerHand = gameState.player.hand;
-        if (playerHand.length > 0) {
-          // Play the first card from hand (simple logic)
-          gameControllerRef.current.playCard(playerHand[0].id, zoneIndex);
-        }
-        break;
-    }
-  };
-
-  // Handle phase change
   const handleNextPhase = () => {
     if (!gameControllerRef.current || isAITurn) return;
     gameControllerRef.current.changePhase();
   };
 
-  // Handle end turn
   const handleEndTurn = () => {
     if (!gameControllerRef.current || isAITurn) return;
     gameControllerRef.current.endTurn();
   };
 
-  if (!gameState) {
+  // Dnd-kit drag handlers
+  const handleDragStart = (event: DragStartEvent) => {
+    const card = event.active.data.current as CardInPlay;
+    console.log('Drag started:', card.name, card.position);
+    setDraggedCard(card);
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const card = event.active.data.current as CardInPlay;
+    const over = event.over;
+
+    if (over && canDropCard(card, over.id as string)) {
+      console.log('Valid drop target:', over.id);
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const card = event.active.data.current as CardInPlay;
+    const over = event.over;
+
+    console.log('Drag ended:', card.name, over ? `over ${over.id}` : 'over nothing');
+
+    if (over && canDropCard(card, over.id as string)) {
+      const overId = over.id as string;
+      const zoneMatch = overId.match(/zone-(\w+)-(\d+)/);
+
+      if (zoneMatch) {
+        const zoneIndex = parseInt(zoneMatch[2]);
+
+        try {
+          if (card.position === 'hand') {
+            console.log('Playing card from hand to zone', zoneIndex);
+            gameControllerRef.current?.playCard(card.id, zoneIndex);
+          } else if (card.position === 'monster') {
+            console.log('Attacking with monster to zone', zoneIndex);
+            const targetMonster = gameState?.opponent.monsterZones[zoneIndex];
+            if (targetMonster) {
+              gameControllerRef.current?.attack(card.id, zoneIndex);
+            } else {
+              gameControllerRef.current?.attack(card.id);
+            }
+          }
+        } catch (error) {
+          console.error('Error handling drop:', error);
+        }
+      }
+    }
+
+    setDraggedCard(null);
+  };
+
+  // Helper functions
+  const canDragCard = (card: CardInPlay): boolean => {
+    if (!gameState || isAITurn) return false;
+
+    if (card.position === 'hand') {
+      return gameState.currentPhase === 'Main1' || gameState.currentPhase === 'Main2';
+    } else if (card.position === 'monster') {
+      return gameState.currentPhase === 'Battle';
+    }
+
+    return false;
+  };
+
+  const canDropCard = (card: CardInPlay, targetId: string): boolean => {
+    if (!gameState) return false;
+
+    const targetMatch = targetId.match(/zone-(\w+)-(\d+)/);
+    if (!targetMatch) return false;
+
+    const zoneType = targetMatch[1] as 'monster' | 'spellTrap';
+    const zoneIndex = parseInt(targetMatch[2]);
+
+    if (card.position === 'hand') {
+      if (gameState.currentPhase !== 'Main1' && gameState.currentPhase !== 'Main2') return false;
+      const playerState = gameState.player;
+      const targetZone = zoneType === 'monster' ? playerState.monsterZones : playerState.spellTrapZones;
+      return targetZone[zoneIndex] === null;
+    }
+
+    if (card.position === 'monster' && gameState.currentPhase === 'Battle') {
+      return zoneType === 'monster' && zoneIndex >= 0 && zoneIndex < 5;
+    }
+
+    return false;
+  };
+
+  const isValidDropTarget = (_zoneType: 'monster' | 'spellTrap', zoneIndex: number): boolean => {
+    if (!draggedCard || !gameState) return false;
+
+    const targetMatch = `zone-${_zoneType}-${zoneIndex}`;
+    return canDropCard(draggedCard, targetMatch);
+  };
+
+  // Draggable Card Component
+  const DraggableCard: React.FC<{
+    card: CardInPlay;
+    isPlayerCard: boolean;
+    children: React.ReactNode;
+  }> = ({ card, isPlayerCard: _isPlayerCard, children }) => {
+    const canDrag = canDragCard(card);
+
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      isDragging,
+    } = useDraggable({
+      id: `card-${card.id}`,
+      data: {
+        card,
+        type: 'card',
+      },
+      disabled: !canDrag,
+    });
+
+    const style = {
+      transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+      opacity: isDragging ? 0.5 : 1,
+    };
+
     return (
-      <div {...getXRProps()} className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading game...</div>
+      <div
+        ref={setNodeRef}
+        style={style}
+        {...listeners}
+        {...attributes}
+        className={canDrag ? 'cursor-grab active:cursor-grabbing' : ''}
+      >
+        {children}
       </div>
     );
-  }
+  };
 
+  // Droppable Zone Component
+  const DroppableZone: React.FC<{
+    id: string;
+    children: React.ReactNode;
+  }> = ({ id, children }) => {
+    const { setNodeRef, isOver } = useDroppable({
+      id,
+    });
+
+    return (
+      <div
+        ref={setNodeRef}
+        className={isOver ? 'drop-zone-hover' : ''}
+      >
+        {children}
+      </div>
+    );
+  };
+
+  // Card Slot Component
   const CardSlot: React.FC<{
     card: CardInPlay | null;
     isMonster?: boolean;
@@ -123,52 +232,89 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     zoneIndex: number;
     zoneType: 'monster' | 'spellTrap';
     isPlayerZone: boolean;
-  }> = ({ card, isMonster = false, isOpponent = false, zoneIndex, zoneType, isPlayerZone }) => (
-    <div
-      {...getXRProps()}
-      onClick={card ? () => handleCardClick(card, isPlayerZone) : () => handleZoneClick(zoneIndex, zoneType, isPlayerZone)}
-      className={`
-        w-12 h-16 rounded border flex items-center justify-center cursor-pointer
-        transition-all duration-200 hover:border-purple-400/50
-        ${card
-          ? `bg-gradient-to-br ${isMonster ? 'from-amber-600 to-amber-800 border-amber-500' : 'from-purple-600 to-purple-800 border-purple-500'}`
-          : 'bg-slate-700/50 border-slate-600 border-dashed hover:bg-slate-600/50'
-        }
-        ${isAITurn && isPlayerZone ? 'opacity-50 cursor-not-allowed' : ''}
-      `}
-    >
-      {card ? (
-        <div {...getXRProps()} className="text-[10px] font-bold text-white text-center p-0.5 leading-tight">
-          {isOpponent ? '🎴' : card.name}
-        </div>
-      ) : (
-        <div {...getXRProps()} className="text-slate-400 text-sm">
-          {isMonster ? '👹' : '✨'}
-        </div>
-      )}
-    </div>
-  );
+  }> = ({ card, isMonster = false, isOpponent = false, zoneIndex, zoneType, isPlayerZone }) => {
+    const isValidTarget = gameState ? isValidDropTarget(zoneType, zoneIndex) : false;
+    const canDrag = card && isPlayerZone && canDragCard(card);
 
-  const HandCard: React.FC<{ card: GameCard; index: number; isPlayerHand: boolean }> = ({ card, index, isPlayerHand }) => (
-    <div
-      {...getXRProps()}
-      onClick={() => isPlayerHand && !isAITurn && handleCardClick({ ...card, position: 'hand' } as CardInPlay, true)}
-      className={`w-12 h-16 bg-gradient-to-br from-blue-600 to-blue-800 border border-blue-500 rounded flex items-center justify-center cursor-pointer hover:scale-105 transition-all duration-200 shadow-xl ${
-        isAITurn && isPlayerHand ? 'opacity-50 cursor-not-allowed' : ''
-      }`}
-    >
-      <div {...getXRProps()} className="text-[10px] font-bold text-white text-center p-0.5 leading-tight">
-        {card?.name || `Card ${index + 1}`}
-      </div>
-    </div>
-  );
+    return (
+      <DroppableZone id={`zone-${zoneType}-${zoneIndex}`}>
+        <div
+          {...getXRProps()}
+          onClick={card ? () => handleCardClick(card, isPlayerZone) : undefined}
+          className={`
+            w-12 h-16 rounded border flex items-center justify-center
+            transition-all duration-200
+            ${card
+              ? `bg-gradient-to-br ${isMonster ? 'from-amber-600 to-amber-800 border-amber-500' : 'from-purple-600 to-purple-800 border-purple-500'} ${canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}`
+              : `bg-slate-700/50 border-slate-600 border-dashed hover:bg-slate-600/50 cursor-pointer`
+            }
+            ${isAITurn && isPlayerZone ? 'opacity-50 cursor-not-allowed' : ''}
+            ${draggedCard && !card && isValidTarget && isPlayerZone ? 'bg-green-600/50 border-green-400 animate-pulse' : ''}
+            ${draggedCard && !card && !isValidTarget && isPlayerZone ? 'bg-red-600/30 border-red-400' : ''}
+          `}
+        >
+          {card ? (
+            <DraggableCard card={card} isPlayerCard={isPlayerZone}>
+              <div
+                {...getXRProps()}
+                className={`
+                  text-[10px] font-bold text-white text-center p-0.5 leading-tight select-none
+                  ${canDrag ? 'hover:scale-105 transition-transform' : ''}
+                `}
+                style={{
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none',
+                  MozUserSelect: 'none',
+                  msUserSelect: 'none',
+                }}
+              >
+                {isOpponent ? '🎴' : card.name}
+              </div>
+            </DraggableCard>
+          ) : (
+            <div {...getXRProps()} className="text-slate-400 text-sm">
+              {isMonster ? '👹' : '✨'}
+            </div>
+          )}
+        </div>
+      </DroppableZone>
+    );
+  };
 
-  const DeckArea: React.FC<{ cards: GameCard[]; label: string; isOpponent?: boolean }> = ({ cards, label, isOpponent = false }) => (
+  // Hand Card Component
+  const HandCard: React.FC<{ card: GameCard; index: number; isPlayerHand: boolean }> = ({ card, index, isPlayerHand }) => {
+    const cardInPlay = { ...card, position: 'hand' } as CardInPlay;
+
+    return (
+      <DraggableCard card={cardInPlay} isPlayerCard={isPlayerHand}>
+        <div
+          {...getXRProps()}
+          onClick={() => isPlayerHand && !isAITurn && handleCardClick(cardInPlay, true)}
+          className={`w-12 h-16 bg-gradient-to-br from-blue-600 to-blue-800 border border-blue-500 rounded flex items-center justify-center shadow-xl select-none ${
+            isAITurn && isPlayerHand ? 'opacity-50 cursor-not-allowed' : ''
+          } hover:scale-105 transition-all duration-200`}
+          style={{
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
+            MozUserSelect: 'none',
+            msUserSelect: 'none',
+          }}
+        >
+          <div {...getXRProps()} className="text-[10px] font-bold text-white text-center p-0.5 leading-tight">
+            {card?.name || `Card ${index + 1}`}
+          </div>
+        </div>
+      </DraggableCard>
+    );
+  };
+
+  // Deck Area Component
+  const DeckArea: React.FC<{ cards: GameCard[]; label: string; isOpponent?: boolean }> = ({ cards, label, isOpponent: _isOpponent = false }) => (
     <div {...getXRProps()} className="flex flex-col items-center space-y-1">
       <div
         {...getXRProps()}
         className={`w-10 h-14 bg-gradient-to-br from-slate-700 to-slate-900 border border-slate-500 rounded flex items-center justify-center cursor-pointer hover:border-blue-400/50 transition-all duration-200 ${
-          isOpponent ? 'rotate-180' : ''
+          _isOpponent ? 'rotate-180' : ''
         }`}
       >
         <div {...getXRProps()} className="text-slate-300 text-xs font-bold">
@@ -181,13 +327,14 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     </div>
   );
 
+  // Graveyard Area Component
   const GraveyardArea: React.FC<{ cards: GameCard[]; label: string }> = ({ cards, label }) => (
     <div {...getXRProps()} className="flex flex-col items-center space-y-1">
       <div
         {...getXRProps()}
-        className="w-10 h-14 bg-gradient-to-br from-purple-700 to-purple-900 border border-purple-500 rounded flex items-center justify-center cursor-pointer hover:border-purple-400/50 transition-all duration-200"
+        className="w-10 h-14 bg-gradient-to-br from-gray-700 to-gray-900 border border-gray-500 rounded flex items-center justify-center cursor-pointer hover:border-gray-400/50 transition-all duration-200"
       >
-        <div {...getXRProps()} className="text-purple-300 text-xs font-bold">
+        <div {...getXRProps()} className="text-gray-300 text-xs font-bold">
           {cards.length}
         </div>
       </div>
@@ -197,6 +344,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     </div>
   );
 
+  // Banished Area Component
   const BanishedArea: React.FC<{ cards: GameCard[]; label: string }> = ({ cards, label }) => (
     <div {...getXRProps()} className="flex flex-col items-center space-y-1">
       <div
@@ -213,15 +361,14 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     </div>
   );
 
-  const ExtraDeckArea: React.FC<{ cards: GameCard[]; label: string; isOpponent?: boolean }> = ({ cards, label, isOpponent = false }) => (
+  // Extra Deck Area Component
+  const ExtraDeckArea: React.FC<{ cards: GameCard[]; label: string; isOpponent?: boolean }> = ({ cards, label, isOpponent: _isOpponent = false }) => (
     <div {...getXRProps()} className="flex flex-col items-center space-y-1">
       <div
         {...getXRProps()}
-        className={`w-10 h-14 bg-gradient-to-br from-emerald-700 to-emerald-900 border border-emerald-500 rounded flex items-center justify-center cursor-pointer hover:border-emerald-400/50 transition-all duration-200 ${
-          isOpponent ? 'rotate-180' : ''
-        }`}
+        className="w-10 h-14 bg-gradient-to-br from-indigo-700 to-indigo-900 border border-indigo-500 rounded flex items-center justify-center cursor-pointer hover:border-indigo-400/50 transition-all duration-200"
       >
-        <div {...getXRProps()} className="text-emerald-300 text-xs font-bold">
+        <div {...getXRProps()} className="text-indigo-300 text-xs font-bold">
           {cards.length}
         </div>
       </div>
@@ -231,207 +378,319 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     </div>
   );
 
-  const LifePointsDisplay: React.FC<{ lifePoints: number; playerName: string; isOpponent?: boolean }> = ({
-    lifePoints,
-    playerName,
-    isOpponent = false
-  }) => (
-    <div {...getXRProps()} className={`flex ${isOpponent ? 'flex-col' : 'flex-col-reverse'} items-center space-y-1`}>
-      <div {...getXRProps()} className="text-lg font-bold text-white">
-        {lifePoints}
+  // Life Points Display Component
+  const LifePointsDisplay: React.FC<{ lifePoints: number; label: string; isOpponent?: boolean }> = ({ lifePoints, label, isOpponent: _isOpponent = false }) => (
+    <div {...getXRProps()} className="flex flex-col items-center space-y-1">
+      <div
+        {...getXRProps()}
+        className="w-20 h-16 bg-gradient-to-br from-red-600 to-red-800 border border-red-500 rounded flex items-center justify-center cursor-pointer hover:border-red-400/50 transition-all duration-200"
+      >
+        <div {...getXRProps()} className="text-red-200 text-sm font-bold">
+          {lifePoints}
+        </div>
       </div>
-      <div {...getXRProps()} className="text-xs text-slate-300 font-medium">
-        {playerName}
-      </div>
-      <div {...getXRProps()} className="w-10 h-10 rounded-full bg-gradient-to-br from-red-600 to-red-800 border border-red-500 flex items-center justify-center">
-        <div {...getXRProps()} className="text-sm">❤️</div>
+      <div {...getXRProps()} className="text-[10px] text-slate-400 font-medium">
+        {label}
       </div>
     </div>
   );
 
-  return (
-    <div {...getXRProps()} className="min-h-screen bg-slate-900 relative overflow-hidden">
-      {/* Game Background */}
-      <div {...getXRProps()} className="absolute inset-0 opacity-30">
-        <div {...getXRProps()} className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-slate-800/40 to-blue-900/20" />
-      </div>
+  useEffect(() => {
+    console.log('GameBoard: Initializing...');
 
-      {/* Game Header */}
-      <div {...getXRProps()} className="relative bg-slate-800/90 backdrop-blur-lg border-b border-slate-700/50 p-4">
-        <div {...getXRProps()} className="flex justify-between items-center">
-          <div {...getXRProps()} className="flex items-center space-x-4">
-            <button
-              onClick={onEndGame}
-              {...getXRProps()}
-              className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white rounded-lg text-sm font-bold transition-all duration-300"
-            >
-              END DUEL
-            </button>
-            <div {...getXRProps()} className="text-slate-300 text-sm">
-              Mode: <span className="text-purple-400 font-semibold">{gameMode}</span>
-            </div>
-          </div>
-          
-          <div {...getXRProps()} className="flex items-center space-x-6">
-            <div {...getXRProps()} className="text-center">
-              <div {...getXRProps()} className="text-sm text-slate-400">Phase</div>
-              <div {...getXRProps()} className="text-lg font-bold text-purple-400">{gameState.currentPhase}</div>
-            </div>
-            <div {...getXRProps()} className="text-center">
-              <div {...getXRProps()} className="text-sm text-slate-400">Turn</div>
-              <div {...getXRProps()} className="text-lg font-bold text-blue-400">
-                {gameState.currentTurn === 'player' ? 'Your Turn' : 'Opponent\'s Turn'}
+    try {
+      const controller = new GameController();
+
+      controller.initialize({
+        onGameStateChange: (newGameState) => {
+          console.log('Game state changed:', newGameState);
+          setGameState(newGameState);
+          setIsAITurn(newGameState.currentTurn === 'opponent');
+        },
+        onAITurnStart: () => {
+          console.log('AI turn started');
+          setIsAITurn(true);
+        },
+        onAITurnEnd: () => {
+          console.log('AI turn ended');
+          setIsAITurn(false);
+        },
+        onGameEnd: (winner) => {
+          console.log('Game ended, winner:', winner);
+          // Handle game end
+        },
+      });
+
+      gameControllerRef.current = controller;
+
+      // Get initial game state immediately after initialization
+      const initialGameState = controller.getGameState();
+      console.log('Initial game state retrieved:', initialGameState);
+      setGameState(initialGameState);
+      setIsAITurn(initialGameState.currentTurn === 'opponent');
+
+    } catch (error) {
+      console.error('Failed to initialize game:', error);
+      setInitError(error instanceof Error ? error.message : 'Unknown error');
+    }
+  }, []);
+
+  // Error state
+  if (initError) {
+    return (
+      <div {...getXRProps()} className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div {...getXRProps()} className="text-center">
+          <div {...getXRProps()} className="text-red-400 text-xl mb-4">Game Initialization Error</div>
+          <div {...getXRProps()} className="text-slate-300">{initError}</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state
+  if (!gameState) {
+    return (
+      <div {...getXRProps()} className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading game...</div>
+      </div>
+    );
+  }
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDragEnd={handleDragEnd}
+    >
+      <div {...getXRProps()} className="min-h-screen bg-slate-900 relative overflow-hidden">
+        {/* Game Background */}
+        <div {...getXRProps()} className="absolute inset-0 opacity-30">
+          <div {...getXRProps()} className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-slate-800/40 to-blue-900/20" />
+        </div>
+
+        {/* Game Header */}
+        <div {...getXRProps()} className="relative bg-slate-800/90 backdrop-blur-lg border-b border-slate-700/50 p-4">
+          <div {...getXRProps()} className="flex justify-between items-center">
+            <div {...getXRProps()} className="flex items-center space-x-4">
+              <button
+                onClick={onEndGame}
+                {...getXRProps()}
+                className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white rounded-lg text-sm font-bold transition-all duration-300"
+              >
+                END DUEL
+              </button>
+              <div {...getXRProps()} className="text-slate-300 text-sm">
+                Mode: <span className="text-purple-400 font-semibold">{gameMode}</span>
               </div>
+            </div>
+
+            <div {...getXRProps()} className="flex items-center space-x-6">
+              <div {...getXRProps()} className="text-center">
+                <div {...getXRProps()} className="text-sm text-slate-400">Phase</div>
+                <div {...getXRProps()} className="text-lg font-bold text-purple-400">{gameState.currentPhase}</div>
+              </div>
+              <div {...getXRProps()} className="text-center">
+                <div {...getXRProps()} className="text-sm text-slate-400">Turn</div>
+                <div {...getXRProps()} className="text-lg font-bold text-blue-400">
+                  {gameState.currentTurn === 'player' ? 'Your Turn' : 'Opponent\'s Turn'}
+                </div>
+              </div>
+              <button
+                onClick={handleNextPhase}
+                disabled={isAITurn}
+                {...getXRProps()}
+                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${
+                  isAITurn
+                    ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white'
+                }`}
+              >
+                Next Phase
+              </button>
+              <button
+                onClick={handleEndTurn}
+                disabled={isAITurn}
+                {...getXRProps()}
+                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${
+                  isAITurn
+                    ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 text-white'
+                }`}
+              >
+                End Turn
+              </button>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Game Area */}
-      <div {...getXRProps()} className="relative p-2 h-screen overflow-hidden">
-        <div {...getXRProps()} className="h-full flex flex-col justify-between max-w-6xl mx-auto">
+        {/* Main Game Area */}
+        <div {...getXRProps()} className="relative p-2 h-screen overflow-hidden">
+          <div {...getXRProps()} className="h-full flex flex-col justify-between max-w-6xl mx-auto">
 
-          {/* Opponent's Area (Top) */}
-          <div {...getXRProps()} className="flex flex-col items-center space-y-2">
-            {/* Opponent Top Row - LP, Extra Deck, Deck, GY, Banished */}
-            <div {...getXRProps()} className="flex justify-between items-center w-full">
-              {/* Opponent Life Points (Left) */}
-              <div {...getXRProps()} className="flex justify-start">
+            {/* Opponent's Area (Top) */}
+            <div {...getXRProps()} className="flex flex-col items-center space-y-2">
+              {/* Opponent Top Row - LP, Extra Deck, Deck, GY, Banished */}
+              <div {...getXRProps()} className="flex justify-between items-center w-full">
                 <LifePointsDisplay
                   lifePoints={gameState.opponent.lifePoints}
-                  playerName="Opponent"
+                  label="Opponent LP"
                   isOpponent={true}
                 />
-              </div>
-
-              {/* Opponent Zones (Center) */}
-              <div {...getXRProps()} className="flex items-center space-x-2">
-                <ExtraDeckArea cards={gameState.opponent.extraDeck} label="EXTRA" isOpponent={true} />
-                <DeckArea cards={gameState.opponent.mainDeck} label="DECK" isOpponent={true} />
-                <GraveyardArea cards={gameState.opponent.graveyard} label="GY" />
-                <BanishedArea cards={gameState.opponent.banished} label="BANISHED" />
-              </div>
-
-              {/* Spacer for right side */}
-              <div {...getXRProps()} className="w-16"></div>
-            </div>
-
-            {/* Opponent Hand (Face Down) */}
-            <div {...getXRProps()} className="flex justify-center space-x-0.5">
-              {Array.from({ length: gameState.opponent.hand.length }).map((_, i) => (
-                <div
-                  key={i}
-                  {...getXRProps()}
-                  className="w-10 h-14 bg-slate-700 border border-slate-600 rounded rotate-180 hover:bg-slate-600/50 transition-all duration-200"
-                />
-              ))}
-            </div>
-
-            {/* Opponent Spell/Trap Zone */}
-            <div {...getXRProps()} className="grid grid-cols-5 gap-1 w-full max-w-3xl">
-              {gameState.opponent.spellTrapZones.map((card, i) => (
-                <CardSlot
-                  key={`opp-st-${i}`}
-                  card={card}
+                <ExtraDeckArea
+                  cards={gameState.opponent.extraDeck}
+                  label="Extra Deck"
                   isOpponent={true}
-                  zoneIndex={i}
-                  zoneType="spellTrap"
-                  isPlayerZone={false}
                 />
-              ))}
-            </div>
-
-            {/* Opponent Monster Zone */}
-            <div {...getXRProps()} className="grid grid-cols-5 gap-1 w-full max-w-3xl">
-              {gameState.opponent.monsterZones.map((card, i) => (
-                <CardSlot
-                  key={`opp-mon-${i}`}
-                  card={card}
-                  isMonster={true}
+                <DeckArea
+                  cards={gameState.opponent.mainDeck}
+                  label="Deck"
                   isOpponent={true}
-                  zoneIndex={i}
-                  zoneType="monster"
-                  isPlayerZone={false}
                 />
-              ))}
-            </div>
-          </div>
-
-          {/* Center Field Spell Zone */}
-          <div {...getXRProps()} className="flex justify-center items-center py-2">
-            <div {...getXRProps()} className="flex flex-col items-center space-y-1">
-              <CardSlot
-                card={gameState.fieldSpell ? { ...gameState.fieldSpell, position: 'monster' } as CardInPlay : null}
-                zoneIndex={0}
-                zoneType="monster"
-                isPlayerZone={true}
-              />
-              <div {...getXRProps()} className="text-center text-[10px] text-slate-400 font-medium">
-                FIELD SPELL ZONE
-              </div>
-            </div>
-          </div>
-
-          {/* Player's Area (Bottom) */}
-          <div {...getXRProps()} className="flex flex-col items-center space-y-2">
-            {/* Player Monster Zone */}
-            <div {...getXRProps()} className="grid grid-cols-5 gap-1 w-full max-w-3xl">
-              {gameState.player.monsterZones.map((card, i) => (
-                <CardSlot
-                  key={`player-mon-${i}`}
-                  card={card}
-                  isMonster={true}
-                  zoneIndex={i}
-                  zoneType="monster"
-                  isPlayerZone={true}
+                <GraveyardArea
+                  cards={gameState.opponent.graveyard}
+                  label="Graveyard"
                 />
-              ))}
-            </div>
-
-            {/* Player Spell/Trap Zone */}
-            <div {...getXRProps()} className="grid grid-cols-5 gap-1 w-full max-w-3xl">
-              {gameState.player.spellTrapZones.map((card, i) => (
-                <CardSlot
-                  key={`player-st-${i}`}
-                  card={card}
-                  zoneIndex={i}
-                  zoneType="spellTrap"
-                  isPlayerZone={true}
+                <BanishedArea
+                  cards={gameState.opponent.banished}
+                  label="Banished"
                 />
-              ))}
-            </div>
-
-            {/* Player Hand (Face Up) */}
-            <div {...getXRProps()} className="flex justify-center space-x-0.5">
-              {gameState.player.hand.map((card, i) => (
-                <HandCard key={`hand-${i}`} card={card} index={i} isPlayerHand={true} />
-              ))}
-              {/* Placeholder cards if hand is empty */}
-              {gameState.player.hand.length === 0 &&
-                Array.from({ length: 5 }).map((_, i) => (
-                  <HandCard key={`hand-placeholder-${i}`} card={{ name: `Card ${i + 1}` } as GameCard} index={i} isPlayerHand={true} />
-                ))
-              }
-            </div>
-
-            {/* Player Bottom Row - Extra Deck, Banished, GY, Deck, LP */}
-            <div {...getXRProps()} className="flex justify-between items-center w-full">
-              {/* Spacer for left side */}
-              <div {...getXRProps()} className="w-16"></div>
-
-              {/* Player Zones (Center) */}
-              <div {...getXRProps()} className="flex items-center space-x-2">
-                <ExtraDeckArea cards={gameState.player.extraDeck} label="EXTRA" />
-                <BanishedArea cards={gameState.player.banished} label="BANISHED" />
-                <GraveyardArea cards={gameState.player.graveyard} label="GY" />
-                <DeckArea cards={gameState.player.mainDeck} label="DECK" />
               </div>
 
-              {/* Player Life Points (Right) */}
-              <div {...getXRProps()} className="flex justify-end">
+              {/* Opponent Field Zones */}
+              <div {...getXRProps()} className="flex items-center space-x-1">
+                {/* Monster Zones (5) */}
+                {gameState.opponent.monsterZones.map((card, index) => (
+                  <CardSlot
+                    key={`opponent-monster-${index}`}
+                    card={card}
+                    isMonster={true}
+                    isOpponent={true}
+                    zoneIndex={index}
+                    zoneType="monster"
+                    isPlayerZone={false}
+                  />
+                ))}
+              </div>
+
+              <div {...getXRProps()} className="flex items-center space-x-1">
+                {/* Spell/Trap Zones (5) */}
+                {gameState.opponent.spellTrapZones.map((card, index) => (
+                  <CardSlot
+                    key={`opponent-spell-${index}`}
+                    card={card}
+                    isMonster={false}
+                    isOpponent={true}
+                    zoneIndex={index}
+                    zoneType="spellTrap"
+                    isPlayerZone={false}
+                  />
+                ))}
+              </div>
+
+              {/* Opponent Hand */}
+              <div {...getXRProps()} className="flex items-center space-x-1">
+                {gameState.opponent.hand.map((_card, index) => (
+                  <div
+                    key={`opponent-hand-${index}`}
+                    {...getXRProps()}
+                    className="w-12 h-16 bg-gradient-to-br from-slate-600 to-slate-800 border border-slate-500 rounded flex items-center justify-center shadow-xl"
+                  >
+                    <div {...getXRProps()} className="text-[10px] font-bold text-slate-400 text-center p-0.5 leading-tight">
+                      🎴
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Center Area - Game Log */}
+            <div {...getXRProps()} className="flex justify-center items-center py-2">
+              <div {...getXRProps()} className="bg-slate-800/50 backdrop-blur-sm border border-slate-600/50 rounded-lg p-3 min-h-[80px] w-full max-w-md">
+                <div {...getXRProps()} className="text-xs text-slate-400 font-medium mb-1">GAME LOG</div>
+                <div {...getXRProps()} className="space-y-1 text-xs text-slate-300">
+                  {gameState?.gameLog?.slice(-3).map((event, i) => (
+                    <div key={i} {...getXRProps()} className="text-[10px]">
+                      {event.message}
+                    </div>
+                  ))}
+                  {(!gameState?.gameLog || gameState.gameLog.length === 0) && (
+                    <div className="text-[10px] text-slate-500">No game events yet...</div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Player's Area (Bottom) */}
+            <div {...getXRProps()} className="flex flex-col items-center space-y-2">
+              {/* Player Hand */}
+              <div {...getXRProps()} className="flex items-center space-x-1">
+                {gameState.player.hand.map((card, index) => (
+                  <HandCard
+                    key={`player-hand-${index}`}
+                    card={card}
+                    index={index}
+                    isPlayerHand={true}
+                  />
+                ))}
+              </div>
+
+              {/* Player Field Zones */}
+              <div {...getXRProps()} className="flex items-center space-x-1">
+                {/* Monster Zones (5) */}
+                {gameState.player.monsterZones.map((card, index) => (
+                  <CardSlot
+                    key={`player-monster-${index}`}
+                    card={card}
+                    isMonster={true}
+                    isOpponent={false}
+                    zoneIndex={index}
+                    zoneType="monster"
+                    isPlayerZone={true}
+                  />
+                ))}
+              </div>
+
+              <div {...getXRProps()} className="flex items-center space-x-1">
+                {/* Spell/Trap Zones (5) */}
+                {gameState.player.spellTrapZones.map((card, index) => (
+                  <CardSlot
+                    key={`player-spell-${index}`}
+                    card={card}
+                    isMonster={false}
+                    isOpponent={false}
+                    zoneIndex={index}
+                    zoneType="spellTrap"
+                    isPlayerZone={true}
+                  />
+                ))}
+              </div>
+
+              {/* Player Bottom Row - LP, Extra Deck, Deck, GY, Banished */}
+              <div {...getXRProps()} className="flex justify-between items-center w-full">
                 <LifePointsDisplay
                   lifePoints={gameState.player.lifePoints}
-                  playerName="You"
+                  label="Your LP"
+                  isOpponent={false}
+                />
+                <ExtraDeckArea
+                  cards={gameState.player.extraDeck}
+                  label="Extra Deck"
+                  isOpponent={false}
+                />
+                <DeckArea
+                  cards={gameState.player.mainDeck}
+                  label="Deck"
+                  isOpponent={false}
+                />
+                <GraveyardArea
+                  cards={gameState.player.graveyard}
+                  label="Graveyard"
+                />
+                <BanishedArea
+                  cards={gameState.player.banished}
+                  label="Banished"
                 />
               </div>
             </div>
@@ -439,43 +698,17 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
         </div>
       </div>
 
-      {/* AI Turn Indicator */}
-      {isAITurn && (
-        <div {...getXRProps()} className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-600/90 text-white px-4 py-2 rounded-lg font-bold text-sm">
-          🤖 AI IS THINKING...
-        </div>
-      )}
-
-      {/* Action Buttons */}
-      <div {...getXRProps()} className="absolute bottom-4 right-4 flex space-x-2">
-        <button
-          onClick={handleNextPhase}
-          {...getXRProps()}
-          className="px-4 py-2 bg-gradient-to-r from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 text-white rounded-lg text-sm font-bold transition-all duration-300"
-        >
-          NEXT PHASE
-        </button>
-        <button
-          onClick={handleEndTurn}
-          {...getXRProps()}
-          className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white rounded-lg text-sm font-bold transition-all duration-300"
-        >
-          END TURN
-        </button>
-      </div>
-
-      {/* Game Log */}
-      <div {...getXRProps()} className="absolute bottom-4 left-4 bg-slate-800/90 backdrop-blur-lg border border-slate-700/50 p-3 rounded-lg max-w-md max-h-32 overflow-y-auto">
-        <div {...getXRProps()} className="text-xs text-slate-400 font-medium mb-1">GAME LOG</div>
-        <div {...getXRProps()} className="space-y-1 text-xs text-slate-300">
-          {gameState.gameLog.slice(-3).map((event, i) => (
-            <div key={i} {...getXRProps()} className="text-[10px]">
-              {event.message}
+      {/* Drag Overlay */}
+      <DragOverlay>
+        {draggedCard ? (
+          <div className="w-12 h-16 bg-gradient-to-br from-blue-600 to-blue-800 border border-blue-500 rounded flex items-center justify-center shadow-xl opacity-90 rotate-3">
+            <div className="text-[10px] font-bold text-white text-center p-0.5 leading-tight">
+              {draggedCard.name}
             </div>
-          ))}
-        </div>
-      </div>
-    </div>
+          </div>
+        ) : null}
+      </DragOverlay>
+    </DndContext>
   );
 };
 
