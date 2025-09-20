@@ -494,7 +494,7 @@ const DeckbuilderPage = () => {
                     {...getXRProps()}
                     className={`px-4 py-2 border text-sm tracking-wider ${
                       deckStats.total >= 40
-                        ? "border-slate-700 text-slate-100 hover:bg-slate-900"
+                        ? "border-red-600 text-[#D9D9D9] hover:bg-red-900"
                         : "border-slate-800 text-slate-500 cursor-not-allowed"
                     }`}
                   >
@@ -526,9 +526,7 @@ const DeckbuilderPage = () => {
                   <div
                     {...getXRProps()}
                     className={`text-xl font-bold ${
-                      deckStats.total >= 40
-                        ? "text-green-400"
-                        : "text-slate-100"
+                      deckStats.total >= 40 ? "text-[#D9D9D9]" : "text-red-500"
                     }`}
                   >
                     {deckStats.total}
@@ -543,7 +541,7 @@ const DeckbuilderPage = () => {
                 >
                   <div
                     {...getXRProps()}
-                    className="text-xl font-bold text-blue-400"
+                    className="text-xl font-bold text-[#D9D9D9]"
                   >
                     {deckStats.monsters}
                   </div>
@@ -557,7 +555,7 @@ const DeckbuilderPage = () => {
                 >
                   <div
                     {...getXRProps()}
-                    className="text-xl font-bold text-purple-400"
+                    className="text-xl font-bold text-[#D9D9D9]"
                   >
                     {deckStats.spells}
                   </div>
@@ -571,7 +569,7 @@ const DeckbuilderPage = () => {
                 >
                   <div
                     {...getXRProps()}
-                    className="text-xl font-bold text-orange-400"
+                    className="text-xl font-bold text-[#D9D9D9]"
                   >
                     {deckStats.traps}
                   </div>
@@ -677,15 +675,15 @@ const DeckbuilderPage = () => {
                                     ? `${card.name.substring(0, 15)}...`
                                     : card.name}
                                 </div>
-                                <div className="flex items-center justify-center gap-1">
+                                <div className="flex items-center justify-center gap-2 text-[10px] text-slate-400">
                                   <span>
                                     {card.cardType === "Monster"
-                                      ? "⚔️"
+                                      ? "M"
                                       : card.cardType === "Spell"
-                                      ? "✨"
+                                      ? "S"
                                       : card.cardType === "Trap"
-                                      ? "🪤"
-                                      : "🎴"}
+                                      ? "T"
+                                      : "C"}
                                   </span>
                                   <span>
                                     {card.cardType === "Monster" && card.level
@@ -697,7 +695,7 @@ const DeckbuilderPage = () => {
                               {inDeck > 0 && (
                                 <div
                                   {...getXRProps()}
-                                  className="absolute -top-2 -right-2 bg-purple-600 text-white w-6 h-6 flex items-center justify-center text-xs font-bold"
+                                  className="absolute -top-2 -right-2 bg-red-600 text-white w-6 h-6 flex items-center justify-center text-xs font-bold"
                                 >
                                   {inDeck}
                                 </div>
@@ -736,14 +734,11 @@ const DeckbuilderPage = () => {
                     {...getXRProps()}
                     className={`border border-dashed p-4 min-h-[300px] ${
                       isDragOver
-                        ? "border-purple-500 bg-purple-900/10"
+                        ? "border-red-600 bg-red-900/10"
                         : "border-slate-700"
                     }`}
                   >
                     <div {...getXRProps()} className="text-center mb-4">
-                      <div {...getXRProps()} className="text-2xl mb-2">
-                        🎯
-                      </div>
                       <p {...getXRProps()} className="text-slate-300 text-sm">
                         {isDragOver
                           ? "Drop card here!"
@@ -807,7 +802,7 @@ const DeckbuilderPage = () => {
                               >
                                 <span
                                   {...getXRProps()}
-                                  className="text-sm font-bold text-purple-400"
+                                  className="text-sm font-bold text-red-500"
                                 >
                                   ×{deckCard.quantity}
                                 </span>
