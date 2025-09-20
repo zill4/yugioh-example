@@ -18,6 +18,7 @@ export const sampleCards: BaseCard[] = [
     inStock: true,
     setCode: "SDK-001",
     cardNumber: "89631139",
+    monsterCategory: "Normal",
   },
   {
     id: "2",
@@ -35,6 +36,7 @@ export const sampleCards: BaseCard[] = [
     inStock: true,
     setCode: "LOB-005",
     cardNumber: "46986414",
+    monsterCategory: "Normal",
   },
   {
     id: "3",
@@ -52,6 +54,7 @@ export const sampleCards: BaseCard[] = [
     inStock: true,
     setCode: "LOB-070",
     cardNumber: "74677422",
+    monsterCategory: "Normal",
   },
   {
     id: "4",
@@ -70,6 +73,10 @@ export const sampleCards: BaseCard[] = [
     inStock: true,
     setCode: "LOB-124",
     cardNumber: "33396948",
+    monsterCategory: "Effect",
+    effectType: "Trigger",
+    effect:
+      "Win condition: If you have all 5 pieces of Exodia in your hand, you win the Duel.",
   },
   {
     id: "5",

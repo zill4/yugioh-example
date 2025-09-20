@@ -1,6 +1,10 @@
 import { GameEngine } from "./engine/GameEngine";
 import { DummyAI } from "./ai/DummyAI";
-import { type GameState, type GameAction } from "./types/GameTypes";
+import {
+  type GameState,
+  type GameAction,
+  type GamePhase,
+} from "./types/GameTypes";
 
 export interface GameControllerCallbacks {
   onGameStateChange: (gameState: GameState) => void;
@@ -64,6 +68,41 @@ export class GameController {
   // Execute a player action
   public executePlayerAction(action: GameAction): boolean {
     return this.gameEngine.executeAction(action);
+  }
+
+  // Activate a card effect
+  public activateEffect(cardId: string, effectId?: string): boolean {
+    return this.gameEngine.activateEffect("player", cardId, effectId);
+  }
+
+  // Normal Summon a monster
+  public normalSummon(cardId: string, zoneIndex?: number): boolean {
+    return this.gameEngine.executeAction({
+      type: "NORMAL_SUMMON",
+      player: "player",
+      cardId,
+      zoneIndex,
+    });
+  }
+
+  // Set a monster
+  public setMonster(cardId: string, zoneIndex?: number): boolean {
+    return this.gameEngine.executeAction({
+      type: "SET_MONSTER",
+      player: "player",
+      cardId,
+      zoneIndex,
+    });
+  }
+
+  // Special Summon a monster
+  public specialSummon(cardId: string, zoneIndex?: number): boolean {
+    return this.gameEngine.executeAction({
+      type: "SPECIAL_SUMMON",
+      player: "player",
+      cardId,
+      zoneIndex,
+    });
   }
 
   // Get available actions for the current phase

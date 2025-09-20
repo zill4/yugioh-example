@@ -51,9 +51,9 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
         // Attack with monster if it's on the field
         if (card.position === 'monster') {
           // Simple attack logic - attack first available target
-          const opponentMonsters = gameState.opponent.monsterZones.filter(m => m !== null);
+          const opponentMonsters = gameState.opponent.zones.mainMonsterZones.filter(m => m !== null);
           if (opponentMonsters.length > 0) {
-            const targetIndex = gameState.opponent.monsterZones.findIndex(m => m !== null);
+            const targetIndex = gameState.opponent.zones.mainMonsterZones.findIndex(m => m !== null);
             gameControllerRef.current.attack(card.id, targetIndex);
           } else {
             // Direct attack
@@ -111,7 +111,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
       }
 
       const playerState = currentGameState.player;
-      const targetZone = zoneType === 'monster' ? playerState.monsterZones : playerState.spellTrapZones;
+      const targetZone = zoneType === 'monster' ? playerState.zones.mainMonsterZones : playerState.zones.spellTrapZones;
       const zoneEmpty = targetZone[zoneIndex] === null;
       
       console.log('canDropCard: Zone empty check:', zoneEmpty, 'zone content:', targetZone[zoneIndex]);
@@ -179,7 +179,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
             gameControllerRef.current?.playCard(card.id, zoneIndex);
           } else if (card.position === 'monster') {
             console.log('Attacking with monster to zone', zoneIndex);
-            const targetMonster = gameState.opponent.monsterZones[zoneIndex];
+            const targetMonster = gameState.opponent.zones.mainMonsterZones[zoneIndex];
             if (targetMonster) {
               gameControllerRef.current?.attack(card.id, zoneIndex);
             } else {
@@ -558,7 +558,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
             
             {/* Top Row - Opponent Spell/Trap Zones */}
             <div {...getXRProps()} className="flex justify-center space-x-2 mb-2">
-              {gameState.opponent.spellTrapZones.map((card, index) => (
+              {gameState.opponent.zones.spellTrapZones.map((card, index) => (
                 <div key={`opponent-spell-${index}`} className="relative">
                   <CardSlot
                     card={card}
@@ -580,7 +580,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
 
             {/* Second Row - Opponent Monster Zones */}
             <div {...getXRProps()} className="flex justify-center space-x-2 mb-4">
-              {gameState.opponent.monsterZones.map((card, index) => (
+              {gameState.opponent.zones.mainMonsterZones.map((card, index) => (
                 <div key={`opponent-monster-${index}`} className="relative">
                   <CardSlot
                     card={card}
@@ -637,7 +637,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
 
             {/* Third Row - Player Monster Zones */}
             <div {...getXRProps()} className="flex justify-center space-x-2 mb-2">
-              {gameState.player.monsterZones.map((card, index) => (
+              {gameState.player.zones.mainMonsterZones.map((card, index) => (
                 <div key={`player-monster-${index}`} className="relative">
                   <CardSlot
                     card={card}
@@ -659,7 +659,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
 
             {/* Fourth Row - Player Spell/Trap Zones */}
             <div {...getXRProps()} className="flex justify-center space-x-2 mb-4">
-              {gameState.player.spellTrapZones.map((card, index) => (
+              {gameState.player.zones.spellTrapZones.map((card, index) => (
                 <div key={`player-spell-${index}`} className="relative">
                   <CardSlot
                     card={card}
