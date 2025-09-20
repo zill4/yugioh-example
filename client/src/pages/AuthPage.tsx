@@ -182,6 +182,7 @@ const AuthPage = () => {
                 value={formData.username}
                 onChange={handleInputChange}
                 disabled={isLoading}
+                 autoComplete="off"
                 className="w-full px-3 py-2 bg-black border border-slate-700 text-slate-100 placeholder-slate-500"
               />
             </div>
@@ -204,6 +205,7 @@ const AuthPage = () => {
                   value={formData.email}
                   onChange={handleInputChange}
                   disabled={isLoading}
+                   autoComplete="off"
                   className="w-full px-3 py-2 bg-black border border-slate-700 text-slate-100 placeholder-slate-500"
                 />
               </div>
@@ -226,6 +228,7 @@ const AuthPage = () => {
                 value={formData.password}
                 onChange={handleInputChange}
                 disabled={isLoading}
+                 autoComplete="off"
                 className="w-full px-3 py-2 bg-black border border-slate-700 text-slate-100 placeholder-slate-500"
               />
             </div>
@@ -248,41 +251,13 @@ const AuthPage = () => {
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
                   disabled={isLoading}
+                   autoComplete="off"
                   className="w-full px-3 py-2 bg-black border border-slate-700 text-slate-100 placeholder-slate-500"
                 />
               </div>
             )}
 
-            {isLogin && (
-              <div
-                {...getXRProps()}
-                className="flex items-center justify-between text-xs"
-              >
-                <label
-                  {...getXRProps()}
-                  className="flex items-center text-slate-300"
-                >
-                  <input
-                    type="checkbox"
-                    name="rememberMe"
-                    checked={formData.rememberMe}
-                    onChange={handleInputChange}
-                    disabled={isLoading}
-                    {...getXRProps()}
-                    className="mr-2"
-                  />
-                  Remember me
-                </label>
-                <button
-                  {...getXRProps()}
-                  type="button"
-                  className="text-slate-400 hover:text-white"
-                  disabled={isLoading}
-                >
-                  Forgot password?
-                </button>
-              </div>
-            )}
+
 
             <button
               {...getXRProps()}
@@ -308,31 +283,10 @@ const AuthPage = () => {
                 {...getXRProps()}
                 className="absolute inset-0 flex items-center"
               >
-                <div
-                  {...getXRProps()}
-                  className="w-full border-t border-slate-700"
-                />
-              </div>
-              <div
-                {...getXRProps()}
-                className="relative flex justify-center text-xs"
-              >
-                <span
-                  {...getXRProps()}
-                  className="px-2 bg-black text-slate-500"
-                >
-                  OR
-                </span>
-              </div>
-            </div>
 
-            <button
-              {...getXRProps()}
-              type="button"
-              className="w-full py-3 px-4 border border-slate-700 text-slate-100 bg-black hover:bg-slate-900 text-sm tracking-wider"
-            >
-              CONTINUE WITH KONAMI ID
-            </button>
+              </div>
+
+            </div>
           </form>
         </div>
       </div>

@@ -19,15 +19,15 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
       {/* Left Navigation */}
       <aside
         {...getXRProps()}
-        className="w-56 shrink-0 border-r border-slate-700 p-8"
+        className="w-32 shrink-0 border-r border-slate-700 p-8"
       >
         <div {...getXRProps()} className="space-y-6 select-none">
           <NavLink
             to="/cardshop"
             {...getXRProps()}
             className={({ isActive }) =>
-              `block text-3xl leading-tight tracking-wider font-extrabold ${
-                isActive ? "text-white" : "text-slate-300 hover:text-white"
+              `block text-xl leading-tight tracking-wider font-extrabold no-underline ${
+                isActive ? "text-red-500" : "text-slate-300 hover:text-white"
               }`
             }
           >
@@ -37,8 +37,8 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
             to="/deckbuilder"
             {...getXRProps()}
             className={({ isActive }) =>
-              `block text-3xl leading-tight tracking-wider font-extrabold ${
-                isActive ? "text-white" : "text-slate-300 hover:text-white"
+              `block text-xl leading-tight tracking-wider font-extrabold no-underline ${
+                isActive ? "text-red-500" : "text-slate-300 hover:text-white"
               }`
             }
           >
@@ -48,8 +48,8 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
             to="/game"
             {...getXRProps()}
             className={({ isActive }) =>
-              `block text-3xl leading-tight tracking-wider font-extrabold ${
-                isActive ? "text-white" : "text-slate-300 hover:text-white"
+              `block text-xl leading-tight tracking-wider font-extrabold no-underline ${
+                isActive ? "text-red-500" : "text-slate-300 hover:text-white"
               }`
             }
           >

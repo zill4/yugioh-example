@@ -370,6 +370,7 @@ const DeckbuilderPage = () => {
               onChange={(e) => setNewDeckName(e.target.value)}
               placeholder="Deck name..."
               {...getXRProps()}
+              autoComplete="off"
               className="px-3 py-2 bg-black border border-slate-700 text-slate-100 text-sm"
             />
             <button
@@ -703,6 +704,7 @@ const DeckbuilderPage = () => {
                         placeholder="Search cards..."
                         value={cardSearchTerm}
                         onChange={(e) => setCardSearchTerm(e.target.value)}
+                        autoComplete="off"
                         {...getXRProps()}
                         className="w-full px-3 py-2 bg-black border border-slate-700 text-slate-100"
                       />
