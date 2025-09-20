@@ -1,11 +1,10 @@
 @reference "tailwindcss";
 
-@tailwind base;
-@tailwind components;
+@import "tailwindcss/preflight";
 @tailwind utilities;
 
 :root {
-  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   color-scheme: dark;
@@ -24,7 +23,7 @@ body {
   min-height: 100vh;
   background: linear-gradient(135deg, #0f0f0f, #1a1a2e, #16213e, #0f0f0f);
   color: #e2e8f0;
-  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
 }
 
 #root {
@@ -42,7 +41,7 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(135deg, #7c3aed, #dc2626);
-  border-radius: 4px;
+  border-radius: 0;
   border: 1px solid rgba(15, 23, 42, 0.5);
 }
 
@@ -72,7 +71,7 @@ body {
 }
 
 /* Smooth transitions for all interactive elements */
-button, 
+button,
 a,
 input,
 select {
@@ -90,7 +89,8 @@ select:focus-visible {
 
 /* Loading animation keyframes */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -128,7 +128,7 @@ html.is-spatial {
     left: 0;
     right: 0;
     --xr-back: 50;
-    border-radius: 50px;
+    border-radius: 0;
   }
 
   /* Card List Spatial Styling */
@@ -167,7 +167,7 @@ html.is-spatial {
 
   /* Card Images in Spatial Mode */
   img[enable-xr] {
-    border-radius: 12px;
+    border-radius: 0;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     position: relative;
     --xr-back: 10;
@@ -282,7 +282,7 @@ html.is-spatial {
   /* No results message */
   .text-center.py-16 {
     --xr-background-material: translucent;
-    border-radius: 20px;
+    border-radius: 0;
     padding: 40px;
     --xr-back: 30;
     backdrop-filter: blur(20px);
@@ -299,7 +299,8 @@ html.is-spatial {
 
   /* Floating animations for cards */
   @keyframes float-card-1 {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0px);
     }
     50% {
@@ -308,7 +309,8 @@ html.is-spatial {
   }
 
   @keyframes float-card-2 {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0px);
     }
     50% {
@@ -328,7 +330,7 @@ html.is-spatial {
   .absolute.inset-0.bg-red-900\/80 {
     --xr-back: 25;
     backdrop-filter: blur(8px);
-    border-radius: 12px;
+    border-radius: 0;
   }
 
   /* Dnd-kit Drag and Drop Styles */
@@ -353,4 +355,9 @@ html.is-spatial {
     opacity: 0.9 !important;
     z-index: 1000 !important;
   }
+}
+
+/* Global sharp style: remove rounded corners */
+* {
+  border-radius: 0 !important;
 }
