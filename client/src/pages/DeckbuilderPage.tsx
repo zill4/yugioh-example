@@ -73,14 +73,8 @@ const deckTemplates: TemplateDeck[] = [
 ];
 
 const DeckbuilderPage = () => {
-  const {
-    user,
-    isAuthenticated,
-    getUserDecks,
-    saveDeck,
-    deleteDeck,
-    clearCorruptedData,
-  } = useAuth();
+  const { user, isAuthenticated, getUserDecks, saveDeck, clearCorruptedData } =
+    useAuth();
 
   useEffect(() => {
     try {
@@ -116,6 +110,9 @@ const DeckbuilderPage = () => {
     type: "success" | "error";
     text: string;
   } | null>(null);
+  const [showDecksPanel, setShowDecksPanel] = useState(false);
+  const [page, setPage] = useState(0);
+  const pageSize = 20;
 
   const userDecks = useMemo(
     () => (isAuthenticated ? getUserDecks() : []),
@@ -141,6 +138,22 @@ const DeckbuilderPage = () => {
       return matchesSearch && matchesType && matchesRarity;
     });
   }, [cardSearchTerm, cardFilterType, cardFilterRarity]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredCards.length / pageSize));
+  const pagedCards = useMemo(() => {
+    const start = page * pageSize;
+    const end = start + pageSize;
+    return filteredCards.slice(start, end);
+  }, [filteredCards, page, pageSize]);
+
+  useEffect(() => {
+    // Reset/clamp page when filters change
+    setPage(0);
+  }, [cardSearchTerm, cardFilterType, cardFilterRarity]);
+
+  useEffect(() => {
+    if (page > totalPages - 1) setPage(Math.max(0, totalPages - 1));
+  }, [totalPages, page]);
 
   const deckStats = useMemo(() => {
     if (!currentDeck || !Array.isArray(currentDeck.cards)) {
@@ -340,16 +353,90 @@ const DeckbuilderPage = () => {
 
   return (
     <Layout header="DECK BUILDER">
-      <div {...getXRProps()} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Deck List */}
+      {/* Top controls */}
+      <div {...getXRProps()} className="mb-4 flex items-center justify-between">
+        <button
+          onClick={() => setShowDecksPanel((v) => !v)}
+          {...getXRProps()}
+          className="px-3 py-2 border border-slate-700 text-[#D9D9D9] hover:bg-slate-900 text-xs tracking-wider"
+        >
+          {showDecksPanel ? "HIDE DECKS" : "MY DECKS"}
+        </button>
+        {showCreateForm ? (
+          <div {...getXRProps()} className="flex items-center gap-2">
+            <input
+              type="text"
+              value={newDeckName}
+              onChange={(e) => setNewDeckName(e.target.value)}
+              placeholder="Deck name..."
+              {...getXRProps()}
+              className="px-3 py-2 bg-black border border-slate-700 text-slate-100 text-sm"
+            />
+            <button
+              onClick={() => {
+                if (!isAuthenticated || !user || !newDeckName.trim()) return;
+                const newDeck: Deck = {
+                  id: `deck_${Date.now()}_${Math.random()
+                    .toString(36)
+                    .substr(2, 9)}`,
+                  name: String(newDeckName.trim()),
+                  userId: String(user.id),
+                  cards: [],
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                  isPublic: false,
+                  tags: [],
+                };
+                saveDeck(newDeck);
+                setNewDeckName("");
+                setShowCreateForm(false);
+                setSelectedDeck(newDeck.id);
+              }}
+              {...getXRProps()}
+              className="px-3 py-2 border border-red-600 text-[#D9D9D9] hover:bg-red-900 text-xs"
+            >
+              CREATE
+            </button>
+            <button
+              onClick={() => setShowCreateForm(false)}
+              {...getXRProps()}
+              className="px-3 py-2 border border-slate-700 text-slate-300 hover:bg-slate-900 text-xs"
+            >
+              CANCEL
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => (isAuthenticated ? setShowCreateForm(true) : null)}
+            {...getXRProps()}
+            className={`px-3 py-2 border text-xs tracking-wider ${
+              isAuthenticated
+                ? "border-slate-700 text-slate-100 hover:bg-slate-900"
+                : "border-slate-800 text-slate-500 cursor-not-allowed"
+            }`}
+            disabled={!isAuthenticated}
+          >
+            NEW DECK
+          </button>
+        )}
+      </div>
+
+      {/* Collapsible overlay panel for decks */}
+      {showDecksPanel && (
         <div
           {...getXRProps()}
-          className="lg:col-span-1 border border-slate-700 p-6"
+          className="border border-slate-700 p-3 mb-6 max-w-xl bg-black"
         >
-          <div {...getXRProps()} className="mb-4 text-slate-200 tracking-wider">
+          <div
+            {...getXRProps()}
+            className="mb-2 text-slate-300 text-xs tracking-widest"
+          >
             MY DECKS
           </div>
-          <div {...getXRProps()} className="space-y-2 mb-4">
+          <div
+            {...getXRProps()}
+            className="grid grid-cols-2 sm:grid-cols-3 gap-2"
+          >
             {Array.isArray(availableDecks) &&
               availableDecks.map((deck) => {
                 if (!deck || typeof deck !== "object" || !deck.id || !deck.name)
@@ -357,88 +444,107 @@ const DeckbuilderPage = () => {
                 return (
                   <button
                     key={deck.id}
-                    onClick={() => setSelectedDeck(deck.id)}
+                    onClick={() => {
+                      setSelectedDeck(deck.id);
+                      setShowDecksPanel(false);
+                    }}
                     {...getXRProps()}
-                    className={`w-full text-left px-3 py-2 border border-slate-700 ${
+                    className={`text-left px-2 py-2 border text-xs ${
                       selectedDeck === deck.id
-                        ? "bg-slate-900 text-white"
-                        : "text-slate-300 hover:text-white"
+                        ? "border-red-600 text-[#D9D9D9]"
+                        : "border-slate-700 text-slate-300 hover:bg-slate-900"
                     }`}
                   >
-                    <span className="mr-2">{(deck as any).icon || "🎴"}</span>
                     <span className="font-semibold">{String(deck.name)}</span>
                   </button>
                 );
               })}
           </div>
+        </div>
+      )}
 
-          {showCreateForm ? (
-            <div {...getXRProps()} className="space-y-2">
-              <input
-                type="text"
-                value={newDeckName}
-                onChange={(e) => setNewDeckName(e.target.value)}
-                placeholder="Enter deck name..."
+      <div
+        {...getXRProps()}
+        className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8"
+      >
+        {/* Large selected card preview and details */}
+        <div {...getXRProps()} className="border border-slate-700 p-6 ">
+          {selectedCard ? (
+            <div
+              {...getXRProps()}
+              className="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-4"
+            >
+              <div
                 {...getXRProps()}
-                className="w-full px-3 py-2 bg-black border border-slate-700 text-slate-100"
-              />
-              <div {...getXRProps()} className="flex gap-2">
-                <button
-                  onClick={() => {
-                    if (!isAuthenticated || !user || !newDeckName.trim())
-                      return;
-                    const newDeck: Deck = {
-                      id: `deck_${Date.now()}_${Math.random()
-                        .toString(36)
-                        .substr(2, 9)}`,
-                      name: String(newDeckName.trim()),
-                      userId: String(user.id),
-                      cards: [],
-                      createdAt: new Date().toISOString(),
-                      updatedAt: new Date().toISOString(),
-                      isPublic: false,
-                      tags: [],
-                    };
-                    saveDeck(newDeck);
-                    setNewDeckName("");
-                    setShowCreateForm(false);
-                    setSelectedDeck(newDeck.id);
-                  }}
-                  {...getXRProps()}
-                  className="flex-1 py-2 px-4 border border-slate-700 text-slate-100 hover:bg-slate-900"
-                >
-                  CREATE
-                </button>
-                <button
-                  onClick={() => setShowCreateForm(false)}
-                  {...getXRProps()}
-                  className="px-4 py-2 border border-slate-700 text-slate-300 hover:bg-slate-900"
-                >
-                  CANCEL
-                </button>
+                className="border border-slate-700 bg-black p-2"
+              >
+                <div className="w-full" style={{ aspectRatio: "3/4" }}>
+                  <img
+                    src={selectedCard.imageUrl}
+                    alt={selectedCard.name}
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src =
+                        "https://via.placeholder.com/600x900/0b0b0b/64748b?text=CARD";
+                    }}
+                  />
+                </div>
+              </div>
+              <div
+                {...getXRProps()}
+                className="text-sm text-slate-300 space-y-2"
+              >
+                <div className="text-lg font-bold text-[#D9D9D9]">
+                  {selectedCard.name}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="border border-slate-700 p-2">
+                    <div className="text-xs text-slate-400">TYPE</div>
+                    <div className="font-semibold">{selectedCard.cardType}</div>
+                  </div>
+                  <div className="border border-slate-700 p-2">
+                    <div className="text-xs text-slate-400">RARITY</div>
+                    <div className="font-semibold">{selectedCard.rarity}</div>
+                  </div>
+                  {selectedCard.level && (
+                    <div className="border border-slate-700 p-2">
+                      <div className="text-xs text-slate-400">LEVEL</div>
+                      <div className="font-semibold">{selectedCard.level}</div>
+                    </div>
+                  )}
+                  {selectedCard.attack !== undefined && (
+                    <div className="border border-slate-700 p-2">
+                      <div className="text-xs text-slate-400">ATK</div>
+                      <div className="font-semibold">{selectedCard.attack}</div>
+                    </div>
+                  )}
+                  {selectedCard.defense !== undefined && (
+                    <div className="border border-slate-700 p-2">
+                      <div className="text-xs text-slate-400">DEF</div>
+                      <div className="font-semibold">
+                        {selectedCard.defense}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="border border-slate-700 p-3 text-slate-300">
+                  <div className="text-xs text-slate-400 mb-1">EFFECT</div>
+                  <div className="leading-relaxed">
+                    {selectedCard.description}
+                  </div>
+                </div>
               </div>
             </div>
           ) : (
-            <button
-              onClick={() => (isAuthenticated ? setShowCreateForm(true) : null)}
-              {...getXRProps()}
-              className={`w-full py-3 px-4 border text-sm font-bold tracking-wider ${
-                isAuthenticated
-                  ? "border-slate-700 text-slate-100 hover:bg-slate-900"
-                  : "border-slate-800 text-slate-500 cursor-not-allowed"
-              }`}
-              disabled={!isAuthenticated}
-            >
-              {isAuthenticated ? "+ CREATE NEW DECK" : "LOGIN TO CREATE DECKS"}
-            </button>
+            <div className="text-slate-500 text-sm">
+              Select a card to preview its details.
+            </div>
           )}
         </div>
 
-        {/* Builder */}
-        <div
-          {...getXRProps()}
-          className="lg:col-span-2 border border-slate-700 p-6"
-        >
+        {/* Builder (filters + grid + drop zone) */}
+        <div {...getXRProps()} className="border border-slate-700 p-6">
           {currentDeck ? (
             <div>
               <div
@@ -628,13 +734,13 @@ const DeckbuilderPage = () => {
 
                   <div
                     {...getXRProps()}
-                    className="border border-slate-700 p-4 max-h-96 overflow-y-auto"
+                    className="border border-slate-700 p-4 max-h-[520px] overflow-y-auto"
                   >
                     <div
                       {...getXRProps()}
                       className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
                     >
-                      {filteredCards.slice(0, 20).map((card) => {
+                      {pagedCards.map((card) => {
                         const inDeck = getCardInDeck(card.id);
                         const maxCopies = 3;
                         const canAdd = inDeck < maxCopies;
@@ -715,12 +821,38 @@ const DeckbuilderPage = () => {
                         );
                       })}
                     </div>
-                    {filteredCards.length > 20 && (
+                    {filteredCards.length > pageSize && (
                       <div
                         {...getXRProps()}
-                        className="text-center mt-4 text-slate-400 text-sm"
+                        className="mt-4 flex items-center justify-between text-xs text-slate-400"
                       >
-                        Showing 20 of {filteredCards.length} cards
+                        <button
+                          onClick={() => setPage((p) => Math.max(0, p - 1))}
+                          {...getXRProps()}
+                          className="px-3 py-1 border border-slate-700 text-[#D9D9D9] hover:bg-slate-900"
+                          disabled={page === 0}
+                        >
+                          PREV
+                        </button>
+                        <div>
+                          Page {page + 1} / {totalPages} · Showing{" "}
+                          {Math.min(page * pageSize + 1, filteredCards.length)}-
+                          {Math.min(
+                            (page + 1) * pageSize,
+                            filteredCards.length
+                          )}{" "}
+                          of {filteredCards.length}
+                        </div>
+                        <button
+                          onClick={() =>
+                            setPage((p) => Math.min(totalPages - 1, p + 1))
+                          }
+                          {...getXRProps()}
+                          className="px-3 py-1 border border-slate-700 text-[#D9D9D9] hover:bg-slate-900"
+                          disabled={page >= totalPages - 1}
+                        >
+                          NEXT
+                        </button>
                       </div>
                     )}
                   </div>
@@ -732,14 +864,17 @@ const DeckbuilderPage = () => {
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                     {...getXRProps()}
-                    className={`border border-dashed p-4 min-h-[300px] ${
+                    className={`border border-dashed p-3 h-[calc(100vh-260px)] flex flex-col ${
                       isDragOver
                         ? "border-red-600 bg-red-900/10"
                         : "border-slate-700"
                     }`}
                   >
-                    <div {...getXRProps()} className="text-center mb-4">
-                      <p {...getXRProps()} className="text-slate-300 text-sm">
+                    <div {...getXRProps()} className="text-center mb-2">
+                      <p
+                        {...getXRProps()}
+                        className="text-slate-300 text-xs tracking-widest"
+                      >
                         {isDragOver
                           ? "Drop card here!"
                           : "Drag cards here to add to deck"}
@@ -747,7 +882,7 @@ const DeckbuilderPage = () => {
                     </div>
                     <div
                       {...getXRProps()}
-                      className="space-y-2 max-h-[250px] overflow-y-auto"
+                      className="space-y-1 flex-1 overflow-y-auto pr-1"
                     >
                       {currentDeck &&
                         currentDeck.cards &&
@@ -770,7 +905,7 @@ const DeckbuilderPage = () => {
                             <div
                               key={deckCard.cardId}
                               {...getXRProps()}
-                              className="flex items-center justify-between bg-black border border-slate-700 p-2"
+                              className="flex items-center justify-between bg-black border border-slate-700 py-1.5 px-2"
                             >
                               <div {...getXRProps()} className="flex-1 min-w-0">
                                 <div
@@ -779,15 +914,15 @@ const DeckbuilderPage = () => {
                                 >
                                   {card.name}
                                 </div>
-                                <div className="text-xs text-slate-400 flex items-center gap-1">
+                                <div className="text-[10px] text-slate-400 flex items-center gap-2">
                                   <span>
                                     {card.cardType === "Monster"
-                                      ? "⚔️"
+                                      ? "M"
                                       : card.cardType === "Spell"
-                                      ? "✨"
+                                      ? "S"
                                       : card.cardType === "Trap"
-                                      ? "🪤"
-                                      : "🎴"}
+                                      ? "T"
+                                      : "C"}
                                   </span>
                                   <span>
                                     {card.cardType === "Monster" && card.level
@@ -827,82 +962,6 @@ const DeckbuilderPage = () => {
                           No cards in deck yet
                         </div>
                       )}
-                    </div>
-                  </div>
-
-                  {selectedCard && (
-                    <div
-                      {...getXRProps()}
-                      className="border border-slate-700 p-4"
-                    >
-                      <div
-                        {...getXRProps()}
-                        className="text-lg font-bold text-slate-100 mb-2"
-                      >
-                        {selectedCard.name}
-                      </div>
-                      <div
-                        {...getXRProps()}
-                        className="space-y-1 text-sm text-slate-300"
-                      >
-                        <div>
-                          <strong>Type:</strong> {selectedCard.cardType}
-                        </div>
-                        {selectedCard.level && (
-                          <div>
-                            <strong>Level:</strong> {selectedCard.level}
-                          </div>
-                        )}
-                        {selectedCard.attack !== undefined && (
-                          <div>
-                            <strong>ATK:</strong> {selectedCard.attack}
-                          </div>
-                        )}
-                        {selectedCard.defense !== undefined && (
-                          <div>
-                            <strong>DEF:</strong> {selectedCard.defense}
-                          </div>
-                        )}
-                        <div>
-                          <strong>Rarity:</strong> {selectedCard.rarity}
-                        </div>
-                      </div>
-                      <p
-                        {...getXRProps()}
-                        className="text-xs text-slate-400 mt-2"
-                      >
-                        {selectedCard.description}
-                      </p>
-                    </div>
-                  )}
-
-                  <div
-                    {...getXRProps()}
-                    className="border border-slate-700 p-4 text-xs text-slate-400"
-                  >
-                    <div
-                      {...getXRProps()}
-                      className="font-bold text-slate-300 mb-2"
-                    >
-                      Keyboard Shortcuts
-                    </div>
-                    <div {...getXRProps()} className="space-y-1">
-                      <div>
-                        <kbd className="bg-slate-800 px-1">Ctrl+S</kbd> Save
-                        deck
-                      </div>
-                      <div>
-                        <kbd className="bg-slate-800 px-1">Esc</kbd> Clear
-                        selection
-                      </div>
-                      <div>
-                        <kbd className="bg-slate-800 px-1">Click</kbd> Select
-                        card
-                      </div>
-                      <div>
-                        <kbd className="bg-slate-800 px-1">Drag</kbd> Add to
-                        deck
-                      </div>
                     </div>
                   </div>
                 </div>
