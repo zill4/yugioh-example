@@ -380,6 +380,7 @@ const DeckbuilderPage = () => {
                 onChange={(e) => setNewDeckName(e.target.value)}
                 placeholder="Enter deck name..."
                 {...getXRProps()}
+                autoComplete="off"
                 className="w-full px-3 py-2 bg-black border border-slate-700 text-slate-100"
               />
               <div {...getXRProps()} className="flex gap-2">
@@ -597,6 +598,7 @@ const DeckbuilderPage = () => {
                         placeholder="Search cards..."
                         value={cardSearchTerm}
                         onChange={(e) => setCardSearchTerm(e.target.value)}
+                        autoComplete="off"
                         {...getXRProps()}
                         className="w-full px-3 py-2 bg-black border border-slate-700 text-slate-100"
                       />

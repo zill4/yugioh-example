@@ -48,6 +48,7 @@ const CardShop = () => {
             placeholder="Search cards..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            autoComplete="off"
             className="w-full px-2 py-1 bg-black border border-slate-700 text-slate-100 placeholder-slate-500"
           />
 
