@@ -234,12 +234,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
   // Card Slot Component
   const CardSlot: React.FC<{
     card: CardInPlay | null;
-    isMonster?: boolean;
     isOpponent?: boolean;
     zoneIndex: number;
     zoneType: 'monster' | 'spellTrap';
     isPlayerZone: boolean;
-  }> = React.memo(({ card, isMonster = false, isOpponent = false, zoneIndex, zoneType, isPlayerZone }) => {
+  }> = React.memo(({ card, isOpponent = false, zoneIndex, zoneType, isPlayerZone }) => {
     const isValidTarget = useMemo(() => 
       gameState ? isValidDropTarget(zoneType, zoneIndex) : false,
       [gameState?.currentPhase, gameState?.player, draggedCard, zoneType, zoneIndex, isValidDropTarget]
@@ -255,24 +254,24 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
           {...getXRProps()}
           onClick={card ? () => handleCardClick(card, isPlayerZone) : undefined}
           className={`
-            w-12 h-16 rounded border flex items-center justify-center
-            transition-all duration-200
+            w-24 h-32 rounded-md border-2 flex items-center justify-center
+            transition-all duration-200 relative
             ${card
-              ? `bg-gradient-to-br ${isMonster ? 'from-amber-600 to-amber-800 border-amber-500' : 'from-purple-600 to-purple-800 border-purple-500'} ${canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}`
-              : `bg-slate-700/50 border-slate-600 border-dashed hover:bg-slate-600/50 cursor-pointer`
+              ? `bg-white border-gray-800 shadow-lg ${canDrag ? 'cursor-grab active:cursor-grabbing hover:scale-105' : 'cursor-pointer'}`
+              : `bg-transparent border-transparent`
             }
             ${isAITurn && isPlayerZone ? 'opacity-50 cursor-not-allowed' : ''}
-            ${draggedCard && !card && isValidTarget && isPlayerZone ? 'bg-green-600/50 border-green-400 animate-pulse' : ''}
-            ${draggedCard && !card && !isValidTarget && isPlayerZone ? 'bg-red-600/30 border-red-400' : ''}
+            ${draggedCard && !card && isValidTarget && isPlayerZone ? 'bg-green-700/60 border-green-400 animate-pulse shadow-lg shadow-green-400/20' : ''}
+            ${draggedCard && !card && !isValidTarget && isPlayerZone ? 'bg-red-700/40 border-red-500' : ''}
           `}
         >
-          {card ? (
+          {card && (
             <DraggableCard card={card} isPlayerCard={isPlayerZone}>
               <div
                 {...getXRProps()}
                 className={`
-                  text-[10px] font-bold text-white text-center p-0.5 leading-tight select-none
-                  ${canDrag ? 'hover:scale-105 transition-transform' : ''}
+                  w-full h-full rounded-md overflow-hidden relative
+                  ${canDrag ? 'hover:scale-[1.02] transition-transform' : ''}
                 `}
                 style={{
                   userSelect: 'none',
@@ -281,13 +280,23 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                   msUserSelect: 'none',
                 }}
               >
-                {isOpponent ? '🎴' : card.name}
+                {isOpponent ? (
+                  <div className="w-full h-full bg-blue-900 border border-blue-700 rounded-md flex items-center justify-center">
+                    <div className="text-white text-lg">🎴</div>
+                  </div>
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-b from-white to-gray-100 border border-gray-800 rounded-md flex flex-col p-1">
+                    <div className="text-black text-[8px] font-bold text-center mb-1">{card.name}</div>
+                    <div className="flex-1 bg-gray-200 rounded mb-1"></div>
+                    {card.attack !== undefined && (
+                      <div className="text-[6px] text-black font-bold text-right">
+                        ATK/{card.attack} DEF/{card.defense || 0}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </DraggableCard>
-          ) : (
-            <div {...getXRProps()} className="text-slate-400 text-sm">
-              {isMonster ? '👹' : '✨'}
-            </div>
           )}
         </div>
       </DroppableZone>
@@ -303,9 +312,9 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
         <div
           {...getXRProps()}
           onClick={() => isPlayerHand && !isAITurn && handleCardClick(cardInPlay, true)}
-          className={`w-12 h-16 bg-gradient-to-br from-blue-600 to-blue-800 border border-blue-500 rounded flex items-center justify-center shadow-xl select-none ${
-            isAITurn && isPlayerHand ? 'opacity-50 cursor-not-allowed' : ''
-          } hover:scale-105 transition-all duration-200`}
+          className={`w-16 h-24 bg-gradient-to-b from-white to-gray-100 border-2 border-gray-800 rounded-md shadow-lg select-none ${
+            isAITurn && isPlayerHand ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110 hover:-translate-y-2'
+          } transition-all duration-200 relative overflow-hidden`}
           style={{
             userSelect: 'none',
             WebkitUserSelect: 'none',
@@ -313,100 +322,22 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
             msUserSelect: 'none',
           }}
         >
-          <div {...getXRProps()} className="text-[10px] font-bold text-white text-center p-0.5 leading-tight">
-            {card?.name || `Card ${index + 1}`}
+          <div {...getXRProps()} className="w-full h-full flex flex-col p-1">
+            <div className="text-black text-[7px] font-bold text-center mb-1">{card?.name || `Card ${index + 1}`}</div>
+            <div className="flex-1 bg-gray-200 rounded mb-1 flex items-center justify-center">
+              <div className="text-[6px] text-gray-600">Image</div>
+            </div>
+            {card?.attack !== undefined && (
+              <div className="text-[5px] text-black font-bold text-right">
+                ATK/{card.attack} DEF/{card.defense || 0}
+              </div>
+            )}
           </div>
         </div>
       </DraggableCard>
     );
   });
 
-  // Deck Area Component
-  const DeckArea: React.FC<{ cards: GameCard[]; label: string; isOpponent?: boolean }> = ({ cards, label, isOpponent: _isOpponent = false }) => (
-    <div {...getXRProps()} className="flex flex-col items-center space-y-1">
-      <div
-        {...getXRProps()}
-        className={`w-10 h-14 bg-gradient-to-br from-slate-700 to-slate-900 border border-slate-500 rounded flex items-center justify-center cursor-pointer hover:border-blue-400/50 transition-all duration-200 ${
-          _isOpponent ? 'rotate-180' : ''
-        }`}
-      >
-        <div {...getXRProps()} className="text-slate-300 text-xs font-bold">
-          {cards.length}
-        </div>
-      </div>
-      <div {...getXRProps()} className="text-[10px] text-slate-400 font-medium">
-        {label}
-      </div>
-    </div>
-  );
-
-  // Graveyard Area Component
-  const GraveyardArea: React.FC<{ cards: GameCard[]; label: string }> = ({ cards, label }) => (
-    <div {...getXRProps()} className="flex flex-col items-center space-y-1">
-      <div
-        {...getXRProps()}
-        className="w-10 h-14 bg-gradient-to-br from-gray-700 to-gray-900 border border-gray-500 rounded flex items-center justify-center cursor-pointer hover:border-gray-400/50 transition-all duration-200"
-      >
-        <div {...getXRProps()} className="text-gray-300 text-xs font-bold">
-          {cards.length}
-        </div>
-      </div>
-      <div {...getXRProps()} className="text-[10px] text-slate-400 font-medium">
-        {label}
-      </div>
-    </div>
-  );
-
-  // Banished Area Component
-  const BanishedArea: React.FC<{ cards: GameCard[]; label: string }> = ({ cards, label }) => (
-    <div {...getXRProps()} className="flex flex-col items-center space-y-1">
-      <div
-        {...getXRProps()}
-        className="w-10 h-14 bg-gradient-to-br from-orange-700 to-orange-900 border border-orange-500 rounded flex items-center justify-center cursor-pointer hover:border-orange-400/50 transition-all duration-200"
-      >
-        <div {...getXRProps()} className="text-orange-300 text-xs font-bold">
-          {cards.length}
-        </div>
-      </div>
-      <div {...getXRProps()} className="text-[10px] text-slate-400 font-medium">
-        {label}
-      </div>
-    </div>
-  );
-
-  // Extra Deck Area Component
-  const ExtraDeckArea: React.FC<{ cards: GameCard[]; label: string; isOpponent?: boolean }> = ({ cards, label, isOpponent: _isOpponent = false }) => (
-    <div {...getXRProps()} className="flex flex-col items-center space-y-1">
-      <div
-        {...getXRProps()}
-        className="w-10 h-14 bg-gradient-to-br from-indigo-700 to-indigo-900 border border-indigo-500 rounded flex items-center justify-center cursor-pointer hover:border-indigo-400/50 transition-all duration-200"
-      >
-        <div {...getXRProps()} className="text-indigo-300 text-xs font-bold">
-          {cards.length}
-        </div>
-      </div>
-      <div {...getXRProps()} className="text-[10px] text-slate-400 font-medium">
-        {label}
-      </div>
-    </div>
-  );
-
-  // Life Points Display Component
-  const LifePointsDisplay: React.FC<{ lifePoints: number; label: string; isOpponent?: boolean }> = ({ lifePoints, label, isOpponent: _isOpponent = false }) => (
-    <div {...getXRProps()} className="flex flex-col items-center space-y-1">
-      <div
-        {...getXRProps()}
-        className="w-20 h-16 bg-gradient-to-br from-red-600 to-red-800 border border-red-500 rounded flex items-center justify-center cursor-pointer hover:border-red-400/50 transition-all duration-200"
-      >
-        <div {...getXRProps()} className="text-red-200 text-sm font-bold">
-          {lifePoints}
-        </div>
-      </div>
-      <div {...getXRProps()} className="text-[10px] text-slate-400 font-medium">
-        {label}
-      </div>
-    </div>
-  );
 
   useEffect(() => {
     console.log('GameBoard: Initializing...');
@@ -484,11 +415,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <div {...getXRProps()} className="min-h-screen bg-slate-900 relative overflow-hidden">
-        {/* Game Background */}
-        <div {...getXRProps()} className="absolute inset-0 opacity-30">
-          <div {...getXRProps()} className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-slate-800/40 to-blue-900/20" />
-        </div>
+      <div {...getXRProps()} className="min-h-screen bg-black relative overflow-hidden">
 
         {/* Game Header */}
         <div {...getXRProps()} className="relative bg-slate-800/90 backdrop-blur-lg border-b border-slate-700/50 p-4">
@@ -546,172 +473,166 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
         </div>
 
         {/* Main Game Area */}
-        <div {...getXRProps()} className="relative p-2 h-screen overflow-hidden">
-          <div {...getXRProps()} className="h-full flex flex-col justify-between max-w-6xl mx-auto">
-
-            {/* Opponent's Area (Top) */}
-            <div {...getXRProps()} className="flex flex-col items-center space-y-2">
-              {/* Opponent Top Row - LP, Extra Deck, Deck, GY, Banished */}
-              <div {...getXRProps()} className="flex justify-between items-center w-full">
-                <LifePointsDisplay
-                  lifePoints={gameState.opponent.lifePoints}
-                  label="Opponent LP"
-                  isOpponent={true}
-                />
-                <ExtraDeckArea
-                  cards={gameState.opponent.extraDeck}
-                  label="Extra Deck"
-                  isOpponent={true}
-                />
-                <DeckArea
-                  cards={gameState.opponent.mainDeck}
-                  label="Deck"
-                  isOpponent={true}
-                />
-                <GraveyardArea
-                  cards={gameState.opponent.graveyard}
-                  label="Graveyard"
-                />
-                <BanishedArea
-                  cards={gameState.opponent.banished}
-                  label="Banished"
-                />
-              </div>
-
-              {/* Opponent Field Zones */}
-              <div {...getXRProps()} className="flex items-center space-x-1">
-                {/* Monster Zones (5) */}
-                {gameState.opponent.monsterZones.map((card, index) => (
+        <div {...getXRProps()} className="relative p-4 h-screen overflow-hidden bg-black">
+          <div {...getXRProps()} className="h-full flex flex-col justify-center max-w-6xl mx-auto">
+            
+            {/* Top Row - Opponent Spell/Trap Zones */}
+            <div {...getXRProps()} className="flex justify-center space-x-2 mb-2">
+              {gameState.opponent.spellTrapZones.map((card, index) => (
+                <div key={`opponent-spell-${index}`} className="relative">
                   <CardSlot
-                    key={`opponent-monster-${index}`}
                     card={card}
-                    isMonster={true}
-                    isOpponent={true}
-                    zoneIndex={index}
-                    zoneType="monster"
-                    isPlayerZone={false}
-                  />
-                ))}
-              </div>
-
-              <div {...getXRProps()} className="flex items-center space-x-1">
-                {/* Spell/Trap Zones (5) */}
-                {gameState.opponent.spellTrapZones.map((card, index) => (
-                  <CardSlot
-                    key={`opponent-spell-${index}`}
-                    card={card}
-                    isMonster={false}
                     isOpponent={true}
                     zoneIndex={index}
                     zoneType="spellTrap"
                     isPlayerZone={false}
                   />
-                ))}
-              </div>
-
-              {/* Opponent Hand */}
-              <div {...getXRProps()} className="flex items-center space-x-1">
-                {gameState.opponent.hand.map((_card, index) => (
-                  <div
-                    key={`opponent-hand-${index}`}
-                    {...getXRProps()}
-                    className="w-12 h-16 bg-gradient-to-br from-slate-600 to-slate-800 border border-slate-500 rounded flex items-center justify-center shadow-xl"
-                  >
-                    <div {...getXRProps()} className="text-[10px] font-bold text-slate-400 text-center p-0.5 leading-tight">
-                      🎴
+                  {!card && (
+                    <div className="absolute inset-0 bg-purple-600/80 border-2 border-purple-400 rounded-md flex items-center justify-center">
+                      <div className="text-white text-[10px] font-bold text-center leading-tight">
+                        SPELL/TRAP<br/>ZONE
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  )}
+                </div>
+              ))}
             </div>
 
-            {/* Center Area - Game Log */}
-            <div {...getXRProps()} className="flex justify-center items-center py-2">
-              <div {...getXRProps()} className="bg-slate-800/50 backdrop-blur-sm border border-slate-600/50 rounded-lg p-3 min-h-[80px] w-full max-w-md">
-                <div {...getXRProps()} className="text-xs text-slate-400 font-medium mb-1">GAME LOG</div>
-                <div {...getXRProps()} className="space-y-1 text-xs text-slate-300">
-                  {gameState?.gameLog?.slice(-3).map((event, i) => (
-                    <div key={i} {...getXRProps()} className="text-[10px]">
-                      {event.message}
+            {/* Second Row - Opponent Monster Zones */}
+            <div {...getXRProps()} className="flex justify-center space-x-2 mb-4">
+              {gameState.opponent.monsterZones.map((card, index) => (
+                <div key={`opponent-monster-${index}`} className="relative">
+                  <CardSlot
+                    card={card}
+                    isOpponent={true}
+                    zoneIndex={index}
+                    zoneType="monster"
+                    isPlayerZone={false}
+                  />
+                  {!card && (
+                    <div className="absolute inset-0 bg-green-600/80 border-2 border-green-400 rounded-md flex items-center justify-center">
+                      <div className="text-white text-[10px] font-bold text-center leading-tight">
+                        MONSTER<br/>ZONE
+                      </div>
                     </div>
-                  ))}
-                  {(!gameState?.gameLog || gameState.gameLog.length === 0) && (
-                    <div className="text-[10px] text-slate-500">No game events yet...</div>
                   )}
+                </div>
+              ))}
+            </div>
+
+            {/* Middle Section - Side Areas */}
+            <div {...getXRProps()} className="flex justify-between items-center mb-4">
+              {/* Left - Side Deck */}
+              <div {...getXRProps()} className="w-20 h-32 bg-cyan-400 border-2 border-cyan-300 rounded-lg flex items-center justify-center">
+                <div className="text-white text-xs font-bold text-center">
+                  SIDE<br/>DECK
+                </div>
+              </div>
+
+              {/* Right - Main Deck */}
+              <div {...getXRProps()} className="w-20 h-32 bg-red-800 border-2 border-red-600 rounded-lg flex items-center justify-center cursor-pointer hover:bg-red-700 transition-colors">
+                <div className="text-white text-xs font-bold text-center">
+                  DECK<br/>
+                  <span className="text-sm">{gameState.player.mainDeck.length}</span>
                 </div>
               </div>
             </div>
 
-            {/* Player's Area (Bottom) */}
-            <div {...getXRProps()} className="flex flex-col items-center space-y-2">
-              {/* Player Hand */}
-              <div {...getXRProps()} className="flex items-center space-x-1">
-                {gameState.player.hand.map((card, index) => (
-                  <HandCard
-                    key={`player-hand-${index}`}
-                    card={card}
-                    index={index}
-                    isPlayerHand={true}
-                  />
-                ))}
+            {/* Field Spell Zones */}
+            <div {...getXRProps()} className="absolute top-4 right-4">
+              <div className="w-16 h-24 bg-pink-400 border-2 border-pink-300 rounded-lg flex items-center justify-center">
+                <div className="text-white text-[10px] font-bold text-center">
+                  FIELD<br/>SPELL
+                </div>
               </div>
+            </div>
 
-              {/* Player Field Zones */}
-              <div {...getXRProps()} className="flex items-center space-x-1">
-                {/* Monster Zones (5) */}
-                {gameState.player.monsterZones.map((card, index) => (
+            <div {...getXRProps()} className="absolute bottom-32 left-4">
+              <div className="w-16 h-24 bg-pink-400 border-2 border-pink-300 rounded-lg flex items-center justify-center">
+                <div className="text-white text-[10px] font-bold text-center">
+                  FIELD<br/>SPELL
+                </div>
+              </div>
+            </div>
+
+            {/* Third Row - Player Monster Zones */}
+            <div {...getXRProps()} className="flex justify-center space-x-2 mb-2">
+              {gameState.player.monsterZones.map((card, index) => (
+                <div key={`player-monster-${index}`} className="relative">
                   <CardSlot
-                    key={`player-monster-${index}`}
                     card={card}
-                    isMonster={true}
                     isOpponent={false}
                     zoneIndex={index}
                     zoneType="monster"
                     isPlayerZone={true}
                   />
-                ))}
-              </div>
+                  {!card && (
+                    <div className="absolute inset-0 bg-green-600/80 border-2 border-green-400 rounded-md flex items-center justify-center">
+                      <div className="text-white text-[10px] font-bold text-center leading-tight">
+                        MONSTER<br/>ZONE
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
 
-              <div {...getXRProps()} className="flex items-center space-x-1">
-                {/* Spell/Trap Zones (5) */}
-                {gameState.player.spellTrapZones.map((card, index) => (
+            {/* Fourth Row - Player Spell/Trap Zones */}
+            <div {...getXRProps()} className="flex justify-center space-x-2 mb-4">
+              {gameState.player.spellTrapZones.map((card, index) => (
+                <div key={`player-spell-${index}`} className="relative">
                   <CardSlot
-                    key={`player-spell-${index}`}
                     card={card}
-                    isMonster={false}
                     isOpponent={false}
                     zoneIndex={index}
                     zoneType="spellTrap"
                     isPlayerZone={true}
                   />
-                ))}
-              </div>
+                  {!card && (
+                    <div className="absolute inset-0 bg-purple-600/80 border-2 border-purple-400 rounded-md flex items-center justify-center">
+                      <div className="text-white text-[10px] font-bold text-center leading-tight">
+                        SPELL/TRAP<br/>ZONE
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
 
-              {/* Player Bottom Row - LP, Extra Deck, Deck, GY, Banished */}
-              <div {...getXRProps()} className="flex justify-between items-center w-full">
-                <LifePointsDisplay
-                  lifePoints={gameState.player.lifePoints}
-                  label="Your LP"
-                  isOpponent={false}
+            {/* Bottom Row - Player Hand */}
+            <div {...getXRProps()} className="flex justify-center space-x-1 pt-4">
+              {gameState.player.hand.map((card, index) => (
+                <HandCard
+                  key={`player-hand-${index}`}
+                  card={card}
+                  index={index}
+                  isPlayerHand={true}
                 />
-                <ExtraDeckArea
-                  cards={gameState.player.extraDeck}
-                  label="Extra Deck"
-                  isOpponent={false}
-                />
-                <DeckArea
-                  cards={gameState.player.mainDeck}
-                  label="Deck"
-                  isOpponent={false}
-                />
-                <GraveyardArea
-                  cards={gameState.player.graveyard}
-                  label="Graveyard"
-                />
-                <BanishedArea
-                  cards={gameState.player.banished}
-                  label="Banished"
-                />
+              ))}
+            </div>
+
+            {/* Game Log - Bottom Left */}
+            <div {...getXRProps()} className="absolute bottom-4 left-4 bg-slate-800/80 backdrop-blur-sm border border-slate-600 rounded-lg p-2 w-48 min-h-[60px]">
+              <div {...getXRProps()} className="text-xs text-slate-400 font-medium mb-1">GAME LOG</div>
+              <div {...getXRProps()} className="space-y-1 text-xs text-slate-300 max-h-12 overflow-y-auto">
+                {gameState?.gameLog?.slice(-2).map((event, i) => (
+                  <div key={i} {...getXRProps()} className="text-[9px]">
+                    {event.message}
+                  </div>
+                ))}
+                {(!gameState?.gameLog || gameState.gameLog.length === 0) && (
+                  <div className="text-[9px] text-slate-500">No game events yet...</div>
+                )}
+              </div>
+            </div>
+
+            {/* Life Points - Top Left */}
+            <div {...getXRProps()} className="absolute top-4 left-4 text-white">
+              <div className="bg-slate-800/80 backdrop-blur-sm border border-slate-600 rounded-lg p-2 mb-2">
+                <div className="text-xs">Opponent LP: {gameState.opponent.lifePoints}</div>
+              </div>
+              <div className="bg-slate-800/80 backdrop-blur-sm border border-slate-600 rounded-lg p-2">
+                <div className="text-xs">Your LP: {gameState.player.lifePoints}</div>
               </div>
             </div>
           </div>
