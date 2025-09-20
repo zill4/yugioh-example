@@ -21,7 +21,7 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f0f0f, #1a1a2e, #16213e, #0f0f0f);
+  background: black;
   color: #e2e8f0;
   font-family: "Inter", "Segoe UI", system-ui, sans-serif;
 }
@@ -82,9 +82,9 @@ select {
 button:focus-visible:not(.layout-nav *),
 input:focus-visible:not(.layout-nav *),
 select:focus-visible:not(.layout-nav *) {
-  outline: 2px solid #a855f7;
+  outline: 2px solid #ed1f1f;
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.1);
+  box-shadow: 0 0 0 4px rgba(242, 8, 24, 0.1);
 }
 
 /* Navigation focus styles */
@@ -168,8 +168,8 @@ html.is-spatial {
     background: none !important;
     --xr-background-material: translucent;
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(139, 92, 246, 0.3);
-    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.2);
+    border: 1px solid rgba(248, 25, 25, 0.3);
+    box-shadow: 0 8px 32px rgba(246, 92, 92, 0.2);
   }
 
   /* Card Images in Spatial Mode */
@@ -217,13 +217,13 @@ html.is-spatial {
   button[enable-xr] {
     --xr-back: 15;
     backdrop-filter: blur(15px);
-    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
-    border: 1px solid rgba(139, 92, 246, 0.5);
+    box-shadow: 0 4px 15px rgba(246, 92, 92, 0.4);
+    border: 1px solid rgba(246, 92, 92, 0.5);
   }
 
   button[enable-xr]:hover {
     --xr-back: 25;
-    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+    box-shadow: 0 6px 20px rgba(246, 92, 92, 0.6);
     transform: translateZ(10px);
   }
 
@@ -252,7 +252,7 @@ html.is-spatial {
     transform-origin: center right;
     transform: translateZ(10px);
     backdrop-filter: blur(25px);
-    border: 1px solid rgba(139, 92, 246, 0.4);
+    border: 1px solid rgba(246, 92, 92, 0.4);
   }
 
   /* Search and Filter Spatial Layout */
@@ -393,7 +393,7 @@ html.is-spatial {
     left: 20px;
     transform: translateZ(200px);
     border-radius: 20px !important;
-    border: 1px solid rgba(148, 163, 184, 0.3) !important;
+    border: 1px solid gray !important;
     padding: 30px 25px !important;
     width: 220px;
     min-width: 220px;
