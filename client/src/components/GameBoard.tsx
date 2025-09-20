@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { getXRProps } from '../utils/xr';
 import { GameController } from '../game/GameController';
 import type { GameState, GameCard, CardInPlay } from '../game/types/GameTypes';
@@ -21,10 +21,14 @@ interface GameBoardProps {
 
 const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
   const [gameState, setGameState] = useState<GameState | null>(null);
-  const [isAITurn, setIsAITurn] = useState(false);
   const [initError, setInitError] = useState<string | null>(null);
   const [draggedCard, setDraggedCard] = useState<CardInPlay | null>(null);
   const gameControllerRef = useRef<GameController | null>(null);
+  
+  // Derive AI turn state from gameState to ensure consistency
+  const isAITurn = useMemo(() => {
+    return gameState?.currentTurn === 'opponent';
+  }, [gameState?.currentTurn]);
 
   // Dnd-kit sensors
   const sensors = useSensors(
@@ -35,8 +39,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     })
   );
 
-  // Game logic functions
-  const handleCardClick = (card: CardInPlay, isPlayerCard: boolean) => {
+  // Memoized game logic functions to prevent stale closures
+  const handleCardClick = useCallback((card: CardInPlay, isPlayerCard: boolean) => {
     if (!gameControllerRef.current || !gameState || isAITurn) return;
 
     if (!isPlayerCard) return;
@@ -58,41 +62,78 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
         }
         break;
     }
-  };
+  }, [gameState, isAITurn]);
 
-  const handleNextPhase = () => {
+  const handleNextPhase = useCallback(() => {
     if (!gameControllerRef.current || isAITurn) return;
     gameControllerRef.current.changePhase();
-  };
+  }, [isAITurn]);
 
-  const handleEndTurn = () => {
+  const handleEndTurn = useCallback(() => {
     if (!gameControllerRef.current || isAITurn) return;
     gameControllerRef.current.endTurn();
-  };
+  }, [isAITurn]);
 
-  // Dnd-kit drag handlers
-  const handleDragStart = (event: DragStartEvent) => {
+  // Memoized helper functions (declare first to avoid hoisting issues)
+  const canDropCard = useCallback((card: CardInPlay, targetId: string, currentGameState: GameState): boolean => {
+    const targetMatch = targetId.match(/zone-(\w+)-(\d+)/);
+    if (!targetMatch) return false;
+
+    const zoneType = targetMatch[1] as 'monster' | 'spellTrap';
+    const zoneIndex = parseInt(targetMatch[2]);
+
+    if (card.position === 'hand') {
+      if (currentGameState.currentPhase !== 'Main1' && currentGameState.currentPhase !== 'Main2') return false;
+      const playerState = currentGameState.player;
+      const targetZone = zoneType === 'monster' ? playerState.monsterZones : playerState.spellTrapZones;
+      return targetZone[zoneIndex] === null;
+    }
+
+    if (card.position === 'monster' && currentGameState.currentPhase === 'Battle') {
+      return zoneType === 'monster' && zoneIndex >= 0 && zoneIndex < 5;
+    }
+
+    return false;
+  }, []);
+
+  const canDragCard = useCallback((card: CardInPlay): boolean => {
+    console.log("Can drag card - Phase:", gameState?.currentPhase, "Turn:", gameState?.currentTurn, "isAITurn:", isAITurn);
+    if (!gameState || isAITurn) return false;
+    
+    if (card.position === 'hand') {
+      return gameState.currentPhase === 'Main1' || gameState.currentPhase === 'Main2';
+    } else if (card.position === 'monster') {
+      return gameState.currentPhase === 'Battle';
+    }
+
+    return false;
+  }, [gameState?.currentPhase, gameState?.currentTurn, isAITurn]);
+
+  // Memoized dnd-kit drag handlers
+  const handleDragStart = useCallback((event: DragStartEvent) => {
     const card = event.active.data.current as CardInPlay;
     console.log('Drag started:', card.name, card.position);
     setDraggedCard(card);
-  };
+  }, []);
 
-  const handleDragOver = (event: DragOverEvent) => {
+  const handleDragOver = useCallback((event: DragOverEvent) => {
+    if (!gameState) return;
+    
     const card = event.active.data.current as CardInPlay;
     const over = event.over;
 
-    if (over && canDropCard(card, over.id as string)) {
+    if (over && canDropCard(card, over.id as string, gameState)) {
       console.log('Valid drop target:', over.id);
     }
-  };
+  }, [gameState?.currentPhase, gameState?.player, canDropCard]);
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
     const card = event.active.data.current as CardInPlay;
     const over = event.over;
 
     console.log('Drag ended:', card.name, over ? `over ${over.id}` : 'over nothing');
 
-    if (over && canDropCard(card, over.id as string)) {
+    if (over && gameState && canDropCard(card, over.id as string, gameState)) {
       const overId = over.id as string;
       const zoneMatch = overId.match(/zone-(\w+)-(\d+)/);
 
@@ -105,7 +146,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
             gameControllerRef.current?.playCard(card.id, zoneIndex);
           } else if (card.position === 'monster') {
             console.log('Attacking with monster to zone', zoneIndex);
-            const targetMonster = gameState?.opponent.monsterZones[zoneIndex];
+            const targetMonster = gameState.opponent.monsterZones[zoneIndex];
             if (targetMonster) {
               gameControllerRef.current?.attack(card.id, zoneIndex);
             } else {
@@ -119,57 +160,23 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     }
 
     setDraggedCard(null);
-  };
+  }, [gameState?.opponent.monsterZones, canDropCard]);
 
-  // Helper functions
-  const canDragCard = (card: CardInPlay): boolean => {
-    if (!gameState || isAITurn) return false;
+  // (Functions moved above for proper declaration order)
 
-    if (card.position === 'hand') {
-      return gameState.currentPhase === 'Main1' || gameState.currentPhase === 'Main2';
-    } else if (card.position === 'monster') {
-      return gameState.currentPhase === 'Battle';
-    }
-
-    return false;
-  };
-
-  const canDropCard = (card: CardInPlay, targetId: string): boolean => {
-    if (!gameState) return false;
-
-    const targetMatch = targetId.match(/zone-(\w+)-(\d+)/);
-    if (!targetMatch) return false;
-
-    const zoneType = targetMatch[1] as 'monster' | 'spellTrap';
-    const zoneIndex = parseInt(targetMatch[2]);
-
-    if (card.position === 'hand') {
-      if (gameState.currentPhase !== 'Main1' && gameState.currentPhase !== 'Main2') return false;
-      const playerState = gameState.player;
-      const targetZone = zoneType === 'monster' ? playerState.monsterZones : playerState.spellTrapZones;
-      return targetZone[zoneIndex] === null;
-    }
-
-    if (card.position === 'monster' && gameState.currentPhase === 'Battle') {
-      return zoneType === 'monster' && zoneIndex >= 0 && zoneIndex < 5;
-    }
-
-    return false;
-  };
-
-  const isValidDropTarget = (_zoneType: 'monster' | 'spellTrap', zoneIndex: number): boolean => {
+  const isValidDropTarget = useCallback((_zoneType: 'monster' | 'spellTrap', zoneIndex: number): boolean => {
     if (!draggedCard || !gameState) return false;
 
     const targetMatch = `zone-${_zoneType}-${zoneIndex}`;
-    return canDropCard(draggedCard, targetMatch);
-  };
+    return canDropCard(draggedCard, targetMatch, gameState);
+  }, [draggedCard, gameState?.currentPhase, gameState?.player, canDropCard]);
 
-  // Draggable Card Component
+  // Draggable Card Component with proper memoization
   const DraggableCard: React.FC<{
     card: CardInPlay;
     isPlayerCard: boolean;
     children: React.ReactNode;
-  }> = ({ card, isPlayerCard: _isPlayerCard, children }) => {
+  }> = React.memo(({ card, isPlayerCard: _isPlayerCard, children }) => {
     const canDrag = canDragCard(card);
 
     const {
@@ -187,10 +194,10 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
       disabled: !canDrag,
     });
 
-    const style = {
+    const style = useMemo(() => ({
       transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
       opacity: isDragging ? 0.5 : 1,
-    };
+    }), [transform, isDragging]);
 
     return (
       <div
@@ -203,7 +210,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
         {children}
       </div>
     );
-  };
+  });
 
   // Droppable Zone Component
   const DroppableZone: React.FC<{
@@ -232,9 +239,15 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     zoneIndex: number;
     zoneType: 'monster' | 'spellTrap';
     isPlayerZone: boolean;
-  }> = ({ card, isMonster = false, isOpponent = false, zoneIndex, zoneType, isPlayerZone }) => {
-    const isValidTarget = gameState ? isValidDropTarget(zoneType, zoneIndex) : false;
-    const canDrag = card && isPlayerZone && canDragCard(card);
+  }> = React.memo(({ card, isMonster = false, isOpponent = false, zoneIndex, zoneType, isPlayerZone }) => {
+    const isValidTarget = useMemo(() => 
+      gameState ? isValidDropTarget(zoneType, zoneIndex) : false,
+      [gameState?.currentPhase, gameState?.player, draggedCard, zoneType, zoneIndex, isValidDropTarget]
+    );
+    const canDrag = useMemo(() => 
+      card && isPlayerZone && canDragCard(card),
+      [card, isPlayerZone, gameState?.currentPhase, gameState?.currentTurn, canDragCard]
+    );
 
     return (
       <DroppableZone id={`zone-${zoneType}-${zoneIndex}`}>
@@ -279,11 +292,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
         </div>
       </DroppableZone>
     );
-  };
+  });
 
-  // Hand Card Component
-  const HandCard: React.FC<{ card: GameCard; index: number; isPlayerHand: boolean }> = ({ card, index, isPlayerHand }) => {
-    const cardInPlay = { ...card, position: 'hand' } as CardInPlay;
+  // Hand Card Component with memoization
+  const HandCard: React.FC<{ card: GameCard; index: number; isPlayerHand: boolean }> = React.memo(({ card, index, isPlayerHand }) => {
+    const cardInPlay = useMemo(() => ({ ...card, position: 'hand' } as CardInPlay), [card]);
 
     return (
       <DraggableCard card={cardInPlay} isPlayerCard={isPlayerHand}>
@@ -306,7 +319,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
         </div>
       </DraggableCard>
     );
-  };
+  });
 
   // Deck Area Component
   const DeckArea: React.FC<{ cards: GameCard[]; label: string; isOpponent?: boolean }> = ({ cards, label, isOpponent: _isOpponent = false }) => (
@@ -405,15 +418,15 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
         onGameStateChange: (newGameState) => {
           console.log('Game state changed:', newGameState);
           setGameState(newGameState);
-          setIsAITurn(newGameState.currentTurn === 'opponent');
+          // Remove setIsAITurn call since it's now derived from gameState
         },
         onAITurnStart: () => {
           console.log('AI turn started');
-          setIsAITurn(true);
+          // Remove setIsAITurn(true) since it's now derived from gameState
         },
         onAITurnEnd: () => {
           console.log('AI turn ended');
-          setIsAITurn(false);
+          // Remove setIsAITurn(false) since it's now derived from gameState
         },
         onGameEnd: (winner) => {
           console.log('Game ended, winner:', winner);
@@ -427,13 +440,20 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
       const initialGameState = controller.getGameState();
       console.log('Initial game state retrieved:', initialGameState);
       setGameState(initialGameState);
-      setIsAITurn(initialGameState.currentTurn === 'opponent');
+      // Remove setIsAITurn call since it's now derived from gameState
 
     } catch (error) {
       console.error('Failed to initialize game:', error);
       setInitError(error instanceof Error ? error.message : 'Unknown error');
     }
-  }, []);
+
+    // Cleanup function to prevent memory leaks
+    return () => {
+      if (gameControllerRef.current) {
+        gameControllerRef.current = null;
+      }
+    };
+  }, []); // Empty dependency array is correct since this should only run once
 
   // Error state
   if (initError) {
