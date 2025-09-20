@@ -1,12 +1,12 @@
 import React from "react";
-import { getXRProps } from "../utils/xr";
+import { getXRPropsSimple } from "../utils/xr";
 import CardShop from "../components/CardShop";
 import Layout from "../components/Layout";
 
 const CardshopPage = () => {
   return (
     <Layout header="CARD SHOP">
-      <div {...getXRProps()}>
+      <div {...getXRPropsSimple()}>
         <CardShop />
       </div>
     </Layout>

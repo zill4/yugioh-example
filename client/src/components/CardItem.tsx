@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { getXRProps } from "../utils/xr";
+import { getXRInteractiveProps, getXRProps, getXRBackgroundStyles } from "../utils/xr";
 import type { BaseCard, MonsterCard } from "../types/Card";
 
 // Default placeholder image for cards with missing images
@@ -76,27 +76,24 @@ const CardItem: React.FC<CardItemProps> = ({ card }) => {
 
   return (
     <div
-      {...getXRProps()}
       onClick={handleCardClick}
-      className="group cursor-pointer transition-transform duration-200 hover:-translate-y-1"
+      {...getXRInteractiveProps("group transition-transform duration-200 hover:-translate-y-1")}
     >
       <div
-        {...getXRProps()}
-        className="relative bg-black border border-slate-700 overflow-hidden"
+        {...getXRProps("relative border border-slate-700 overflow-hidden")}
+        style={getXRBackgroundStyles()}
       >
         {/* Image */}
         <div className="relative aspect-[3/4] overflow-hidden">
           <img
             src={card.imageUrl}
             alt={card.name}
-            {...getXRProps()}
             className="w-full h-full object-contain p-2"
             onError={handleImageError}
           />
 
           {/* Rarity indicator (color symbol) */}
           <div
-            {...getXRProps()}
             title={card.rarity}
             className={`absolute top-2 right-2 w-3 h-3 border border-slate-600 ${getRarityColorClass(
               card.rarity || ""
@@ -106,8 +103,8 @@ const CardItem: React.FC<CardItemProps> = ({ card }) => {
           {/* Out of stock overlay */}
           {!card.inStock && (
             <div
-              {...getXRProps()}
-              className="absolute inset-0 bg-red-900/70 flex items-center justify-center"
+              className="absolute inset-0 flex items-center justify-center"
+              style={getXRBackgroundStyles({ backgroundColor: 'rgba(127, 29, 29, 0.7)' })}
             >
               <span className="text-red-100 text-[11px] font-bold tracking-wider">
                 UNAVAILABLE
@@ -117,8 +114,8 @@ const CardItem: React.FC<CardItemProps> = ({ card }) => {
 
           {/* Hover details overlay */}
           <div
-            {...getXRProps()}
-            className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-3 grid grid-rows-[auto_1fr_auto] text-[11px]"
+            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-3 grid grid-rows-[auto_1fr_auto] text-[11px]"
+            style={getXRBackgroundStyles({ backgroundColor: 'rgba(0, 0, 0, 0.7)' })}
           >
             <div className="text-slate-100 font-semibold leading-snug line-clamp-2">
               {card.name}

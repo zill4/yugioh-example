@@ -1,7 +1,7 @@
 import * as React from "react";
 import { sampleCards } from "../data/sampleCards";
 import CardList from "./CardList";
-import { getXRProps } from "../utils/xr";
+import { getXRProps, getXRInteractiveProps, getXRBackgroundStyles } from "../utils/xr";
 import { useState } from "react";
 
 const CardShop = () => {
@@ -34,70 +34,64 @@ const CardShop = () => {
   ].sort();
 
   return (
-    <div {...getXRProps()} className="relative">
+    <div {...getXRProps("relative")}>
       {/* Compact toolbar */}
-      <div {...getXRProps()} className="border border-slate-700 p-3 mb-3">
-        <div
-          {...getXRProps()}
-          className="grid grid-cols-1 md:grid-cols-4 gap-2 text-xs"
-        >
+      <div 
+        {...getXRProps("border border-slate-700 p-3 mb-3")}
+        style={getXRBackgroundStyles()}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-2 text-xs">
           <input
-            {...getXRProps()}
             id="search"
             type="text"
             placeholder="Search cards..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             autoComplete="off"
-            className="w-full px-2 py-1 bg-black border border-slate-700 text-slate-100 placeholder-slate-500"
+            {...getXRInteractiveProps("w-full px-2 py-1 border border-slate-700 text-slate-100 placeholder-slate-500")}
+            style={getXRBackgroundStyles()}
           />
 
           <select
-            {...getXRProps()}
             id="rarity"
             value={selectedRarity}
             onChange={(e) => setSelectedRarity(e.target.value)}
-            className="w-full px-2 py-1 bg-black border border-slate-700 text-slate-100"
+            {...getXRInteractiveProps("w-full px-2 py-1 border border-slate-700 text-slate-100")}
+            style={getXRBackgroundStyles()}
           >
-            <option value="all" className="bg-black">
-              All Rarities
-            </option>
+            <option value="all">All Rarities</option>
             {rarities.map((rarity) => (
-              <option key={rarity} value={rarity} className="bg-black">
+              <option key={rarity} value={rarity}>
                 {rarity}
               </option>
             ))}
           </select>
 
           <select
-            {...getXRProps()}
             id="cardType"
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="w-full px-2 py-1 bg-black border border-slate-700 text-slate-100"
+            {...getXRInteractiveProps("w-full px-2 py-1 border border-slate-700 text-slate-100")}
+            style={getXRBackgroundStyles()}
           >
-            <option value="all" className="bg-black">
-              All Types
-            </option>
+            <option value="all">All Types</option>
             {cardTypes.map((type) => (
-              <option key={type} value={type} className="bg-black">
+              <option key={type} value={type}>
                 {type}
               </option>
             ))}
           </select>
 
           <select
-            {...getXRProps()}
             id="set"
             value={selectedSet}
             onChange={(e) => setSelectedSet(e.target.value)}
-            className="w-full px-2 py-1 bg-black border border-slate-700 text-slate-100"
+            {...getXRInteractiveProps("w-full px-2 py-1 border border-slate-700 text-slate-100")}
+            style={getXRBackgroundStyles()}
           >
-            <option value="all" className="bg-black">
-              All Sets
-            </option>
+            <option value="all">All Sets</option>
             {sets.map((set) => (
-              <option key={set} value={set} className="bg-black">
+              <option key={set} value={set}>
                 {set === "SDP"
                   ? "STARTER DECK PEGASUS"
                   : set === "LOB"
@@ -117,10 +111,7 @@ const CardShop = () => {
         </div>
       </div>
 
-      <div
-        {...getXRProps()}
-        className="mb-2 text-right text-[10px] text-slate-500 tracking-widest"
-      >
+      <div className="mb-2 text-right text-[10px] text-slate-500 tracking-widest">
         {filteredCards.length} / {sampleCards.length} CARDS
       </div>
 

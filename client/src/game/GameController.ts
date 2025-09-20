@@ -1,10 +1,6 @@
 import { GameEngine } from "./engine/GameEngine";
 import { DummyAI } from "./ai/DummyAI";
-import {
-  type GameState,
-  type GameAction,
-  type GamePhase,
-} from "./types/GameTypes";
+import { type GameState, type GameAction } from "./types/GameTypes";
 
 export interface GameControllerCallbacks {
   onGameStateChange: (gameState: GameState) => void;

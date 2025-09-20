@@ -952,7 +952,7 @@ export class GameEngine {
 
   // Helper method to destroy spells and traps
   private destroySpellsAndTraps(
-    card: CardInPlay,
+    _card: CardInPlay,
     player: "player" | "opponent"
   ): void {
     const opponentKey = player === "player" ? "opponent" : "player";
@@ -995,7 +995,7 @@ export class GameEngine {
 
   // Helper method to draw cards
   private drawCards(
-    card: CardInPlay,
+    _card: CardInPlay,
     player: "player" | "opponent",
     count: number
   ): void {
@@ -1070,9 +1070,8 @@ export class GameEngine {
   }
 
   // Check if an effect can be activated
-  private canActivateEffect(card: CardInPlay, effectId?: string): boolean {
+  private canActivateEffect(card: CardInPlay, _effectId?: string): boolean {
     const currentPhase = this.gameState.currentPhase;
-    const currentTurn = this.gameState.currentTurn;
 
     // Check phase restrictions
     switch (currentPhase) {
@@ -1091,7 +1090,10 @@ export class GameEngine {
   }
 
   // Get spell speed of an effect
-  private getEffectSpellSpeed(card: CardInPlay, effectId?: string): SpellSpeed {
+  private getEffectSpellSpeed(
+    card: CardInPlay,
+    _effectId?: string
+  ): SpellSpeed {
     switch (card.effectType) {
       case "Continuous":
         return 1;
@@ -1386,7 +1388,7 @@ export class GameEngine {
   }
 
   // Get tribute count for tribute summons
-  private getTributeCount(playerState: PlayerState, required: number): number {
+  private getTributeCount(playerState: PlayerState, _required: number): number {
     const monsters = playerState.zones.mainMonsterZones.filter(
       (card) => card !== null
     );

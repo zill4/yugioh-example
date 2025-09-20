@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../contexts/UserContext";
-import { getXRProps } from "../utils/xr";
+import { getXRProps, getXRInteractiveProps, getXRBackgroundStyles } from "../utils/xr";
 
 interface LayoutProps {
   header?: string;
@@ -13,20 +13,20 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
 
   return (
     <div
-      {...getXRProps()}
-      className="min-h-screen bg-black text-slate-100 flex"
+      {...getXRProps("min-h-screen text-slate-100 flex")}
+      style={getXRBackgroundStyles()}
     >
       {/* Left Navigation */}
       <aside
-        {...getXRProps()}
-        className="w-32 shrink-0 border-r border-slate-700 p-8"
+        {...getXRProps("w-32 shrink-0 border-r border-slate-700 p-8")}
+        style={getXRBackgroundStyles()}
       >
-        <div {...getXRProps()} className="space-y-6 select-none">
+        <div className="space-y-6 select-none">
           <NavLink
             to="/cardshop"
-            {...getXRProps()}
+            {...getXRInteractiveProps("")}
             className={({ isActive }) =>
-              `block text-xl leading-tight tracking-wider font-extrabold no-underline ${
+              `block text-xl leading-tight tracking-wider font-extrabold no-underline cursor-pointer ${
                 isActive ? "text-red-500" : "text-slate-300 hover:text-white"
               }`
             }
@@ -35,9 +35,9 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
           </NavLink>
           <NavLink
             to="/deckbuilder"
-            {...getXRProps()}
+            {...getXRInteractiveProps("")}
             className={({ isActive }) =>
-              `block text-xl leading-tight tracking-wider font-extrabold no-underline ${
+              `block text-xl leading-tight tracking-wider font-extrabold no-underline cursor-pointer ${
                 isActive ? "text-red-500" : "text-slate-300 hover:text-white"
               }`
             }
@@ -46,9 +46,9 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
           </NavLink>
           <NavLink
             to="/game"
-            {...getXRProps()}
+            {...getXRInteractiveProps("")}
             className={({ isActive }) =>
-              `block text-xl leading-tight tracking-wider font-extrabold no-underline ${
+              `block text-xl leading-tight tracking-wider font-extrabold no-underline cursor-pointer ${
                 isActive ? "text-red-500" : "text-slate-300 hover:text-white"
               }`
             }
@@ -59,16 +59,16 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
       </aside>
 
       {/* Main */}
-      <div {...getXRProps()} className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col">
         {/* Top Right Auth */}
-        <div {...getXRProps()} className="flex items-center justify-end p-6">
+        <div className="flex items-center justify-end p-6">
           {isAuthenticated && user ? (
-            <div {...getXRProps()} className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-4 text-sm">
               <span className="text-slate-400">{user.profile.displayName}</span>
               <button
                 onClick={logout}
-                {...getXRProps()}
-                className="px-3 py-1 border border-slate-700 text-slate-200 hover:bg-slate-900"
+                {...getXRInteractiveProps("px-3 py-1 border border-slate-700 text-slate-200 hover:bg-slate-900")}
+                style={getXRBackgroundStyles()}
               >
                 LOGOUT
               </button>
@@ -76,8 +76,7 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
           ) : (
             <Link
               to="/auth"
-              {...getXRProps()}
-              className="text-slate-200 hover:text-white tracking-wider"
+              {...getXRInteractiveProps("text-slate-200 hover:text-white tracking-wider")}
             >
               SIGN-UP / LOGIN
             </Link>
@@ -85,12 +84,9 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
         </div>
 
         {/* Content */}
-        <main {...getXRProps()} className="flex-1 px-8 pb-12">
+        <main className="flex-1 px-8 pb-12">
           {header && (
-            <div
-              {...getXRProps()}
-              className="mb-4 text-sm tracking-widest text-slate-400"
-            >
+            <div className="mb-4 text-sm tracking-widest text-slate-400">
               {header}
             </div>
           )}

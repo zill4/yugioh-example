@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { getXRProps } from '../../utils/xr';
 import type { GameCard } from '../../game/types/GameTypes';
 
 interface CardActionModalProps {

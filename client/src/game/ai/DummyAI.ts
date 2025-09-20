@@ -72,13 +72,13 @@ export class DummyAI {
     const aiState = gameState.opponent;
 
     // Try to play monsters if we have space
-    if (aiState.monsterZones.some((zone) => zone === null)) {
+    if (aiState.zones.mainMonsterZones.some((zone) => zone === null)) {
       const monsterInHand = aiState.hand.find(
         (card) => card.type === "monster"
       );
       if (monsterInHand) {
         // Find empty monster zone
-        const emptyZoneIndex = aiState.monsterZones.findIndex(
+        const emptyZoneIndex = aiState.zones.mainMonsterZones.findIndex(
           (zone) => zone === null
         );
         if (emptyZoneIndex !== -1) {
@@ -95,10 +95,10 @@ export class DummyAI {
     }
 
     // Try to play spells if we have space
-    if (aiState.spellTrapZones.some((zone) => zone === null)) {
+    if (aiState.zones.spellTrapZones.some((zone) => zone === null)) {
       const spellInHand = aiState.hand.find((card) => card.type === "spell");
       if (spellInHand) {
-        const emptyZoneIndex = aiState.spellTrapZones.findIndex(
+        const emptyZoneIndex = aiState.zones.spellTrapZones.findIndex(
           (zone) => zone === null
         );
         if (emptyZoneIndex !== -1) {
@@ -129,7 +129,7 @@ export class DummyAI {
     const playerState = gameState.player;
 
     // Check if we have monsters that can attack
-    const attackableMonsters = aiState.monsterZones.filter(
+    const attackableMonsters = aiState.zones.mainMonsterZones.filter(
       (monster) =>
         monster &&
         monster.type === "monster" &&
@@ -143,7 +143,7 @@ export class DummyAI {
       if (!attacker) return;
 
       // Check if player has monsters to attack
-      const playerMonsters = playerState.monsterZones.filter(
+      const playerMonsters = playerState.zones.mainMonsterZones.filter(
         (monster) => monster !== null
       );
 

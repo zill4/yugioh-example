@@ -24,11 +24,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
   const [initError, setInitError] = useState<string | null>(null);
   const [draggedCard, setDraggedCard] = useState<CardInPlay | null>(null);
   const [selectedCard, setSelectedCard] = useState<CardInPlay | null>(null);
-  const [showCardActionModal, setShowCardActionModal] = useState(false);
-  const [showTargetingModal, setShowTargetingModal] = useState(false);
   const [targetingMode, setTargetingMode] = useState<'attack' | 'effect' | null>(null);
   const [pendingAction, setPendingAction] = useState<GameAction | null>(null);
-  const [availableTargets, setAvailableTargets] = useState<CardInPlay[]>([]);
   const gameControllerRef = useRef<GameController | null>(null);
   
   // Derive AI turn state from gameState to ensure consistency
@@ -63,7 +60,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
             player: 'player',
             cardId: card.id,
           });
-          setShowTargetingModal(true);
         }
         break;
 
@@ -77,28 +73,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
             player: 'player',
             cardId: card.id,
           });
-          setShowTargetingModal(true);
         }
-        break;
-    }
-  }, [gameState, isAITurn]);
-
-  // Enhanced card interaction handler
-  const handleCardAction = useCallback((card: CardInPlay, action: string) => {
-    if (!gameControllerRef.current || !gameState || isAITurn) return;
-
-    switch (action) {
-      case 'activate':
-        gameControllerRef.current.activateEffect(card.id);
-        break;
-      case 'summon':
-        gameControllerRef.current.normalSummon(card.id);
-        break;
-      case 'set':
-        gameControllerRef.current.setMonster(card.id);
-        break;
-      case 'special_summon':
-        gameControllerRef.current.specialSummon(card.id);
         break;
     }
   }, [gameState, isAITurn]);
@@ -223,7 +198,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
             // For monsters, show the action modal instead of direct play
             if (card.type === 'monster') {
               setSelectedCard(card);
-              setShowCardActionModal(true);
             } else {
               gameControllerRef.current?.playCard(card.id, zoneIndex);
             }
@@ -239,7 +213,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                 cardId: card.id,
                 zoneIndex: zoneIndex,
               });
-              setShowTargetingModal(true);
             } else {
               // Direct attack
               gameControllerRef.current?.attack(card.id);
@@ -462,7 +435,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     const handleHandCardClick = useCallback(() => {
       if (isPlayerHand && !isAITurn && gameState) {
         setSelectedCard(cardInPlay);
-        setShowCardActionModal(true);
       }
     }, [isPlayerHand, isAITurn, gameState, cardInPlay]);
 
@@ -529,7 +501,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     const handleNormalSummon = useCallback(() => {
       if (gameControllerRef.current) {
         gameControllerRef.current.normalSummon(selectedCard.id);
-        setShowCardActionModal(false);
         setSelectedCard(null);
       }
     }, [selectedCard.id]);
@@ -537,7 +508,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     const handleSetCard = useCallback(() => {
       if (gameControllerRef.current) {
         gameControllerRef.current.setMonster(selectedCard.id);
-        setShowCardActionModal(false);
         setSelectedCard(null);
       }
     }, [selectedCard.id]);
@@ -545,7 +515,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     const handleActivateSpellTrap = useCallback(() => {
       if (gameControllerRef.current) {
         gameControllerRef.current.activateEffect(selectedCard.id);
-        setShowCardActionModal(false);
         setSelectedCard(null);
       }
     }, [selectedCard.id]);
@@ -595,7 +564,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                   onClick={() => {
                     if (gameControllerRef.current) {
                       gameControllerRef.current.playCard(selectedCard.id);
-                      setShowCardActionModal(false);
                       setSelectedCard(null);
                     }
                   }}
@@ -609,7 +577,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
 
           <button
             onClick={() => {
-              setShowCardActionModal(false);
               setSelectedCard(null);
             }}
             className="w-full mt-4 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
@@ -648,7 +615,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
       if (pendingAction && gameControllerRef.current) {
         const actionWithTarget = { ...pendingAction, targetId: target.id };
         gameControllerRef.current.executePlayerAction(actionWithTarget);
-        setShowTargetingModal(false);
         setTargetingMode(null);
         setPendingAction(null);
       }
@@ -678,7 +644,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
 
           <button
             onClick={() => {
-              setShowTargetingModal(false);
               setTargetingMode(null);
               setPendingAction(null);
             }}

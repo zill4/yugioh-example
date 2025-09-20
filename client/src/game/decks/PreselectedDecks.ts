@@ -34,13 +34,6 @@ function convertToGameCard(baseCard: BaseCard): GameCard {
     level: baseCard.level,
     attribute: baseCard.attribute,
     monsterType: baseCard.monsterType,
-    cardType:
-      baseCard.cardType ||
-      (type === "monster"
-        ? "Normal Monster"
-        : type === "spell"
-        ? baseCard.spellType
-        : baseCard.trapType),
     effect: baseCard.description,
     imageUrl: baseCard.imageUrl,
   };
