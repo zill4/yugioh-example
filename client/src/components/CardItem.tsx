@@ -1,7 +1,5 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { getXRInteractiveProps, getXRBackgroundStyles } from "../utils/xr";
-import { useXRPerformanceMonitor } from "../hooks/usePerformanceMonitor";
 import type { BaseCard, MonsterCard } from "../types/Card";
 
 // Default placeholder image for cards with missing images
@@ -27,8 +25,6 @@ interface CardItemProps {
 }
 
 const CardItem: React.FC<CardItemProps> = React.memo(({ card }) => {
-  useXRPerformanceMonitor(`CardItem-${card.id}`);
-  
   const navigate = useNavigate();
   const [imageError, setImageError] = React.useState(false);
 
@@ -80,15 +76,16 @@ const CardItem: React.FC<CardItemProps> = React.memo(({ card }) => {
   return (
     <div
       onClick={handleCardClick}
-      {...getXRInteractiveProps("group transition-transform duration-200 hover:-translate-y-1")}
+      className="cardshop-card-item group transition-all duration-300 hover:scale-105 cursor-pointer"
     >
-      {/* Only the main card container needs XR props - inner elements are regular DOM */}
-      <div
-        className="relative border border-slate-700 overflow-hidden"
-        style={getXRBackgroundStyles()}
-      >
-        {/* Image */}
-        <div className="relative aspect-[3/4] overflow-hidden">
+      {/* Card container with rounded borders and translucent styling */}
+      <div className={`relative border border-slate-600/50 overflow-hidden bg-transparent backdrop-blur-sm hover:border-slate-500/70 transition-all duration-300 ${
+        process.env.XR_ENV === "avp" ? "" : "rounded-xl"
+      }`}>
+        {/* Image container */}
+        <div className={`relative aspect-[3/4] overflow-hidden ${
+          process.env.XR_ENV === "avp" ? "" : "rounded-xl"
+        }`}>
           <img
             src={card.imageUrl}
             alt={card.name}
@@ -96,31 +93,29 @@ const CardItem: React.FC<CardItemProps> = React.memo(({ card }) => {
             onError={handleImageError}
           />
 
-          {/* Rarity indicator (color symbol) */}
+          {/* Rarity indicator */}
           <div
             title={card.rarity}
-            className={`absolute top-2 right-2 w-3 h-3 border border-slate-600 ${getRarityColorClass(
+            className={`absolute top-3 right-3 w-3 h-3 rounded-full border border-slate-500/50 ${getRarityColorClass(
               card.rarity || ""
             )}`}
           />
 
           {/* Out of stock overlay */}
           {!card.inStock && (
-            <div
-              className="absolute inset-0 flex items-center justify-center"
-              style={{ backgroundColor: 'rgba(127, 29, 29, 0.7)' }}
-            >
+                  <div className={`absolute inset-0 bg-red-900/60 backdrop-blur-sm flex items-center justify-center ${
+                    process.env.XR_ENV === "avp" ? "" : "rounded-xl"
+                  }`}>
               <span className="text-red-100 text-[11px] font-bold tracking-wider">
                 UNAVAILABLE
               </span>
             </div>
           )}
 
-          {/* Hover details overlay - no XR needed for hover overlays */}
-          <div
-            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-3 grid grid-rows-[auto_1fr_auto] text-[11px]"
-            style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
-          >
+          {/* Hover details overlay */}
+                <div className={`absolute inset-0 bg-black/70 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 p-3 grid grid-rows-[auto_1fr_auto] text-[11px] ${
+                  process.env.XR_ENV === "avp" ? "" : "rounded-xl"
+                }`}>
             <div className="text-slate-100 font-semibold leading-snug line-clamp-2">
               {card.name}
             </div>

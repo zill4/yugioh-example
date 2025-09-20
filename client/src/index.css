@@ -78,13 +78,20 @@ select {
   transition: all 0.2s ease-in-out;
 }
 
-/* Focus styles for accessibility */
-button:focus-visible,
-input:focus-visible,
-select:focus-visible {
+/* Focus styles for accessibility - excluding navigation */
+button:focus-visible:not(.layout-nav *),
+input:focus-visible:not(.layout-nav *),
+select:focus-visible:not(.layout-nav *) {
   outline: 2px solid #a855f7;
   outline-offset: 2px;
   box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.1);
+}
+
+/* Navigation focus styles */
+.layout-nav a:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
 }
 
 /* Loading animation keyframes */
@@ -187,8 +194,8 @@ html.is-spatial {
     text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
   }
 
-  /* Card Names */
-  .text-slate-100 {
+  /* Card Names - excluding navigation */
+  .text-slate-100:not(.layout-nav *) {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
     color: #f1f5f9 !important;
   }
@@ -318,10 +325,10 @@ html.is-spatial {
     }
   }
 
-  /* Enhanced text visibility in spatial mode */
-  .text-slate-300,
-  .text-slate-400,
-  .text-slate-500 {
+  /* Enhanced text visibility in spatial mode - excluding navigation */
+  .text-slate-300:not(.layout-nav *),
+  .text-slate-400:not(.layout-nav *),
+  .text-slate-500:not(.layout-nav *) {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
     color: #cbd5e1 !important;
   }
@@ -360,4 +367,169 @@ html.is-spatial {
 /* Global sharp style: remove rounded corners */
 * {
   border-radius: 0 !important;
+}
+
+/* XR Spatial Environment Styles */
+html.is-spatial {
+  background-color: transparent;
+  --xr-background-material: transparent;
+
+  body {
+    background: none;
+  }
+
+  /* Main Layout Overrides - Make truly transparent */
+  .layout-container {
+    background: none !important;
+    --xr-background-material: transparent !important;
+  }
+
+  /* Left Navigation - Detached and further left */
+  .layout-nav {
+    background: none !important;
+    --xr-background-material: translucent !important;
+    position: fixed !important;
+    top: 80px;
+    left: 20px;
+    transform: translateZ(200px);
+    border-radius: 20px !important;
+    border: 1px solid rgba(148, 163, 184, 0.3) !important;
+    padding: 30px 25px !important;
+    width: 220px;
+    min-width: 220px;
+    height: fit-content;
+    z-index: 80;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Navigation Container */
+  .layout-nav .space-y-6 {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+  }
+
+  /* Navigation Text Override */
+  .layout-nav a {
+    color: white !important;
+    text-decoration: none !important;
+    text-shadow: none !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: block !important;
+    width: 100% !important;
+    text-align: left !important;
+    line-height: 1.2 !important;
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.05em !important;
+  }
+
+  .layout-nav a:hover {
+    color: white !important;
+    opacity: 0.8;
+    transform: none !important;
+  }
+
+  /* Main content area - adjust for detached nav */
+  .layout-main {
+    background: none !important;
+    --xr-background-material: transparent !important;
+    margin-left: 0 !important;
+    padding-left: 60px !important;
+    padding-bottom: 20px !important; /* Fix bottom padding */
+  }
+
+  /* CardShop Main Window */
+  .cardshop-main-window {
+    background: none !important;
+    --xr-background-material: transparent !important;
+    position: relative;
+    top: 20px;
+    margin-left: 0;
+    padding-bottom: 0 !important; /* Remove extra bottom padding */
+  }
+
+  /* Search Bar - Horizontal above content */
+  .cardshop-search-bar {
+    @apply mx-auto;
+    --xr-background-material: translucent;
+    width: 800px;
+    position: relative;
+    top: 0;
+    left: 0;
+    right: 0;
+    --xr-back: 30;
+    border-radius: 15px !important;
+    z-index: 90;
+    margin-bottom: 20px;
+  }
+
+  /* Filter Menu - Horizontal above cards */
+  .cardshop-filter-menu {
+    position: relative;
+    top: 0;
+    left: 0;
+    transform: none;
+    z-index: 85;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .cardshop-filter-menu-bg {
+    background: none;
+    --xr-background-material: translucent;
+    border-radius: 15px !important;
+    padding: 20px;
+    width: 100%;
+
+    button {
+      background: none;
+      border-radius: 8px !important;
+    }
+
+    select {
+      background: none;
+      --xr-background-material: translucent;
+      border-radius: 8px !important;
+    }
+  }
+
+  /* List Window - Remove flex-row, make vertical */
+  .list-window {
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+
+  .cardshop-grid-scene {
+    background: none !important;
+    --xr-background-material: transparent !important;
+    position: relative;
+    margin-top: 0;
+    padding-bottom: 0 !important; /* Remove extra bottom padding */
+  }
+
+  .cardshop-card-item {
+    background: none;
+    --xr-background-material: translucent;
+    border-radius: 12px !important;
+  }
+
+  .cardshop-stats {
+    --xr-background-material: translucent;
+    border-radius: 10px !important;
+    padding: 8px 16px;
+    position: relative;
+    --xr-back: 10;
+    display: inline-block;
+    margin-bottom: 15px;
+  }
+
+  /* Override any translucent backgrounds from Layout components */
+  .flex-1 {
+    background: none !important;
+    --xr-background-material: transparent !important;
+  }
 }

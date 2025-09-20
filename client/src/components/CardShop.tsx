@@ -1,9 +1,7 @@
 import * as React from "react";
 import { sampleCards } from "../data/sampleCards";
 import OptimizedCardGrid from "./VirtualizedCardGrid";
-import { getXRProps, getXRInteractiveProps, getXRBackgroundStyles } from "../utils/xr";
 import { useState, useMemo, useCallback, startTransition } from "react";
-import { useXRPerformanceMonitor, useBatchUpdateMonitor } from "../hooks/usePerformanceMonitor";
 
 // Create a state object to batch related filter updates
 interface FilterState {
@@ -14,10 +12,6 @@ interface FilterState {
 }
 
 const CardShop = React.memo(() => {
-  // Performance monitoring
-  useXRPerformanceMonitor('CardShop');
-  const { trackBatch } = useBatchUpdateMonitor('CardShop');
-
   // Batch related state for better performance
   const [filters, setFilters] = useState<FilterState>({
     searchTerm: "",
@@ -29,8 +23,8 @@ const CardShop = React.memo(() => {
   // Memoize expensive computations
   const { filteredCards, rarities, cardTypes, sets } = useMemo(() => {
     // Calculate filter options once
-    const rarities = [...new Set(sampleCards.map((card) => card.rarity))];
-    const cardTypes = [...new Set(sampleCards.map((card) => card.cardType))];
+    const rarities = [...new Set(sampleCards.map((card) => card.rarity).filter(Boolean))];
+    const cardTypes = [...new Set(sampleCards.map((card) => card.cardType).filter(Boolean))];
     const sets = [
       ...new Set(
         sampleCards.map((card) => card.setCode?.substring(0, 3) || "OTHER")
@@ -58,104 +52,156 @@ const CardShop = React.memo(() => {
 
   // Batch filter updates using startTransition
   const updateFilter = useCallback((key: keyof FilterState, value: string) => {
-    trackBatch();
     startTransition(() => {
       setFilters(prev => ({
         ...prev,
         [key]: value
       }));
     });
-  }, [trackBatch]);
+  }, []);
 
   return (
-    <div {...getXRProps("relative")}>
-      {/* Isolated filter scene - only re-renders when filters change */}
-      <div 
-        {...getXRProps("border border-slate-700 p-3 mb-3", { "data-scene": "filters" })}
-        style={getXRBackgroundStyles()}
-      >
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-2 text-xs">
+    <div enable-xr className="cardshop-main-window py-4">
+      {/* Floating Search Bar */}
+      <div className="cardshop-search-bar mb-6">
+        <div className="relative">
           <input
-            id="search"
             type="text"
             placeholder="Search cards..."
+            className={`w-full px-6 py-4 border focus:outline-none focus:ring-2 transition-all text-lg ${
+              process.env.XR_ENV === "avp"
+                ? "border-slate-600/50 bg-transparent text-slate-100 placeholder-slate-400 focus:ring-slate-500"
+                : "border-gray-300 bg-white text-gray-800 focus:ring-indigo-500 rounded-xl"
+            }`}
             value={filters.searchTerm}
             onChange={(e) => updateFilter('searchTerm', e.target.value)}
-            autoComplete="off"
-            {...getXRInteractiveProps("w-full px-2 py-1 border border-slate-700 text-slate-100 placeholder-slate-500")}
-            style={getXRBackgroundStyles()}
           />
-
-          <select
-            id="rarity"
-            value={filters.selectedRarity}
-            onChange={(e) => updateFilter('selectedRarity', e.target.value)}
-            {...getXRInteractiveProps("w-full px-2 py-1 border border-slate-700 text-slate-100")}
-            style={getXRBackgroundStyles()}
+          <svg
+            className={`absolute right-4 top-4 h-6 w-6 ${
+              process.env.XR_ENV === "avp" ? "text-slate-400" : "text-gray-400"
+            }`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
           >
-            <option value="all">All Rarities</option>
-            {rarities.map((rarity) => (
-              <option key={rarity} value={rarity}>
-                {rarity}
-              </option>
-            ))}
-          </select>
-
-          <select
-            id="cardType"
-            value={filters.selectedType}
-            onChange={(e) => updateFilter('selectedType', e.target.value)}
-            {...getXRInteractiveProps("w-full px-2 py-1 border border-slate-700 text-slate-100")}
-            style={getXRBackgroundStyles()}
-          >
-            <option value="all">All Types</option>
-            {cardTypes.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-
-          <select
-            id="set"
-            value={filters.selectedSet}
-            onChange={(e) => updateFilter('selectedSet', e.target.value)}
-            {...getXRInteractiveProps("w-full px-2 py-1 border border-slate-700 text-slate-100")}
-            style={getXRBackgroundStyles()}
-          >
-            <option value="all">All Sets</option>
-            {sets.map((set) => (
-              <option key={set} value={set}>
-                {set === "SDP"
-                  ? "STARTER DECK PEGASUS"
-                  : set === "LOB"
-                  ? "LEGEND OF BLUE EYES"
-                  : set === "MRL"
-                  ? "MAGIC RULER"
-                  : set === "SDK"
-                  ? "STARTER DECK KAIBA"
-                  : set === "SDY"
-                  ? "STARTER DECK YUGI"
-                  : set === "SDJ"
-                  ? "STARTER DECK JOEY"
-                  : set}
-              </option>
-            ))}
-          </select>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
         </div>
       </div>
 
-      {/* Stats display - no XR needed for simple text */}
-      <div className="mb-2 text-right text-[10px] text-slate-500 tracking-widest">
-        {filteredCards.length} / {sampleCards.length} CARDS
+      {/* Horizontal Filter Menu */}
+      <div enable-xr className="cardshop-filter-menu">
+        <div
+          enable-xr
+          className="cardshop-filter-menu-bg shadow-lg"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+            <select
+              value={filters.selectedRarity}
+              onChange={(e) => updateFilter('selectedRarity', e.target.value)}
+              className={`px-3 py-2 border text-sm focus:outline-none focus:ring-2 transition-all ${
+                process.env.XR_ENV === "avp"
+                  ? "border-slate-600/50 bg-transparent text-slate-100 focus:ring-slate-500"
+                  : "border-slate-600 bg-slate-800 text-slate-100 focus:ring-indigo-500 rounded-lg"
+              }`}
+            >
+              <option value="all">All Rarities</option>
+              {rarities.map((rarity) => (
+                <option key={rarity} value={rarity}>
+                  {rarity}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={filters.selectedType}
+              onChange={(e) => updateFilter('selectedType', e.target.value)}
+              className={`px-3 py-2 border text-sm focus:outline-none focus:ring-2 transition-all ${
+                process.env.XR_ENV === "avp"
+                  ? "border-slate-600/50 bg-transparent text-slate-100 focus:ring-slate-500"
+                  : "border-slate-600 bg-slate-800 text-slate-100 focus:ring-indigo-500 rounded-lg"
+              }`}
+            >
+              <option value="all">All Types</option>
+              {cardTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={filters.selectedSet}
+              onChange={(e) => updateFilter('selectedSet', e.target.value)}
+              className={`px-3 py-2 border text-sm focus:outline-none focus:ring-2 transition-all ${
+                process.env.XR_ENV === "avp"
+                  ? "border-slate-600/50 bg-transparent text-slate-100 focus:ring-slate-500"
+                  : "border-slate-600 bg-slate-800 text-slate-100 focus:ring-indigo-500 rounded-lg"
+              }`}
+            >
+              <option value="all">All Sets</option>
+              {sets.map((set) => (
+                <option key={set} value={set}>
+                  {set === "SDP"
+                    ? "STARTER DECK PEGASUS"
+                    : set === "LOB"
+                    ? "LEGEND OF BLUE EYES"
+                    : set === "MRL"
+                    ? "MAGIC RULER"
+                    : set === "SDK"
+                    ? "STARTER DECK KAIBA"
+                    : set === "SDY"
+                    ? "STARTER DECK YUGI"
+                    : set === "SDJ"
+                    ? "STARTER DECK JOEY"
+                    : set}
+                </option>
+              ))}
+            </select>
+
+            {/* Clear Filters Button */}
+            {(filters.searchTerm || filters.selectedRarity !== 'all' || filters.selectedType !== 'all' || filters.selectedSet !== 'all') && (
+              <button
+                enable-xr
+                className={`px-4 py-2 transition-all text-sm font-medium ${
+                  process.env.XR_ENV === "avp"
+                    ? "text-slate-300 hover:text-white border border-slate-600/50 hover:border-slate-500/70"
+                    : "bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-white rounded-lg"
+                }`}
+                onClick={() => {
+                  setFilters({
+                    searchTerm: "",
+                    selectedRarity: "all",
+                    selectedType: "all",
+                    selectedSet: "all"
+                  });
+                }}
+              >
+                Clear Filters
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Isolated card grid scene - uses virtualization for performance */}
-      <div {...getXRProps("", { "data-scene": "card-grid" })}>
-        <OptimizedCardGrid 
-          cards={filteredCards}
-          containerHeight={800}
-        />
+      <div className="list-window">
+        {/* Stats Display */}
+        <div className="cardshop-stats mb-4 text-right text-sm tracking-wider text-slate-400">
+          {filteredCards.length} / {sampleCards.length} CARDS
+        </div>
+
+        {/* Card Grid Scene */}
+        <div className="cardshop-grid-scene">
+          <OptimizedCardGrid 
+            cards={filteredCards}
+            containerHeight={600}
+          />
+        </div>
       </div>
     </div>
   );

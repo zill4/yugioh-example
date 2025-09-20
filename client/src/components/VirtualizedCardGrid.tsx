@@ -38,20 +38,20 @@ const OptimizedCardGrid: React.FC<OptimizedCardGridProps> = React.memo(({
   }
 
   return (
-    <div {...getXRProps("w-full")} style={{ maxHeight: `${containerHeight}px`, overflowY: 'auto' }}>
-      {/* Optimized grid with minimal XR overhead */}
-      <div className="grid grid-cols-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+    <div className="w-full h-full overflow-y-auto overflow-x-hidden" style={{ maxHeight: `${containerHeight}px` }}>
+      {/* Optimized grid - no XR props needed, inherits from parent */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 p-2">
         {visibleCards.map(card => (
           <CardItem key={card.id} card={card} />
         ))}
       </div>
       
-      {/* Load more button - only spatialize interactive elements */}
+      {/* Load more button */}
       {hasMore && (
-        <div className="text-center py-8">
+        <div className="text-center py-6">
           <button
             onClick={loadMore}
-            {...getXRProps("px-6 py-2 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-900 transition-colors")}
+            className="px-6 py-3 rounded-lg border border-slate-600/50 text-slate-300 hover:text-white hover:border-slate-500 transition-colors cursor-pointer bg-transparent backdrop-blur-sm"
           >
             LOAD MORE CARDS ({cards.length - visibleCount} remaining)
           </button>

@@ -24,12 +24,12 @@ export const getXRProps = (
   if (isXREnvironment()) {
     return {
       "enable-xr": true,
-      className: className || undefined,
+      className: className || "",
       ...additionalProps,
     };
   }
   return {
-    className: className || undefined,
+    className: className || "",
     ...additionalProps,
   };
 };
