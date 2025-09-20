@@ -77,22 +77,52 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
   // Memoized helper functions (declare first to avoid hoisting issues)
   const canDropCard = useCallback((card: CardInPlay, targetId: string, currentGameState: GameState): boolean => {
     const targetMatch = targetId.match(/zone-(\w+)-(\d+)/);
-    if (!targetMatch) return false;
+    if (!targetMatch) {
+      console.log('canDropCard: Invalid target ID format:', targetId);
+      return false;
+    }
 
     const zoneType = targetMatch[1] as 'monster' | 'spellTrap';
     const zoneIndex = parseInt(targetMatch[2]);
 
+    console.log('canDropCard check:', {
+      cardName: card.name,
+      cardPosition: card.position,
+      cardType: card.type,
+      targetZoneType: zoneType,
+      zoneIndex,
+      currentPhase: currentGameState.currentPhase
+    });
+
     if (card.position === 'hand') {
-      if (currentGameState.currentPhase !== 'Main1' && currentGameState.currentPhase !== 'Main2') return false;
+      // Check if it's the right phase
+      if (currentGameState.currentPhase !== 'Main1' && currentGameState.currentPhase !== 'Main2') {
+        console.log('canDropCard: Wrong phase for playing cards:', currentGameState.currentPhase);
+        return false;
+      }
+
+      // Check card type matches zone type
+      const isMonsterCard = card.type === 'monster';
+      const isMonsterZone = zoneType === 'monster';
+      
+      if (isMonsterCard !== isMonsterZone) {
+        console.log('canDropCard: Card type mismatch - card is monster:', isMonsterCard, 'zone is monster:', isMonsterZone);
+        return false;
+      }
+
       const playerState = currentGameState.player;
       const targetZone = zoneType === 'monster' ? playerState.monsterZones : playerState.spellTrapZones;
-      return targetZone[zoneIndex] === null;
+      const zoneEmpty = targetZone[zoneIndex] === null;
+      
+      console.log('canDropCard: Zone empty check:', zoneEmpty, 'zone content:', targetZone[zoneIndex]);
+      return zoneEmpty;
     }
 
     if (card.position === 'monster' && currentGameState.currentPhase === 'Battle') {
       return zoneType === 'monster' && zoneIndex >= 0 && zoneIndex < 5;
     }
 
+    console.log('canDropCard: No matching condition found');
     return false;
   }, []);
 
@@ -111,29 +141,32 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
 
   // Memoized dnd-kit drag handlers
   const handleDragStart = useCallback((event: DragStartEvent) => {
-    const card = event.active.data.current as CardInPlay;
-    console.log('Drag started:', card.name, card.position);
+    const cardData = event.active.data.current;
+    const card = cardData?.card as CardInPlay;
+    console.log('Drag started:', card?.name, card?.position, cardData);
     setDraggedCard(card);
   }, []);
 
   const handleDragOver = useCallback((event: DragOverEvent) => {
     if (!gameState) return;
     
-    const card = event.active.data.current as CardInPlay;
+    const cardData = event.active.data.current;
+    const card = cardData?.card as CardInPlay;
     const over = event.over;
 
-    if (over && canDropCard(card, over.id as string, gameState)) {
-      console.log('Valid drop target:', over.id);
+    if (over && card && canDropCard(card, over.id as string, gameState)) {
+      console.log('Valid drop target:', over.id, 'for card:', card.name);
     }
   }, [gameState?.currentPhase, gameState?.player, canDropCard]);
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
-    const card = event.active.data.current as CardInPlay;
+    const cardData = event.active.data.current;
+    const card = cardData?.card as CardInPlay;
     const over = event.over;
 
-    console.log('Drag ended:', card.name, over ? `over ${over.id}` : 'over nothing');
+    console.log('Drag ended:', card?.name, over ? `over ${over.id}` : 'over nothing', 'cardData:', cardData);
 
-    if (over && gameState && canDropCard(card, over.id as string, gameState)) {
+    if (over && card && gameState && canDropCard(card, over.id as string, gameState)) {
       const overId = over.id as string;
       const zoneMatch = overId.match(/zone-(\w+)-(\d+)/);
 
@@ -142,7 +175,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
 
         try {
           if (card.position === 'hand') {
-            console.log('Playing card from hand to zone', zoneIndex);
+            console.log('Playing card from hand to zone', zoneIndex, 'card:', card.name);
             gameControllerRef.current?.playCard(card.id, zoneIndex);
           } else if (card.position === 'monster') {
             console.log('Attacking with monster to zone', zoneIndex);
@@ -157,10 +190,12 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
           console.error('Error handling drop:', error);
         }
       }
+    } else {
+      console.log('Drop failed - card:', card?.name, 'over:', over?.id, 'canDrop:', card && gameState ? canDropCard(card, over?.id as string, gameState) : false);
     }
 
     setDraggedCard(null);
-  }, [gameState?.opponent.monsterZones, canDropCard]);
+  }, [gameState, canDropCard]);
 
   // (Functions moved above for proper declaration order)
 
@@ -216,17 +251,24 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
   const DroppableZone: React.FC<{
     id: string;
     children: React.ReactNode;
-  }> = ({ id, children }) => {
+    isPlayerZone?: boolean;
+  }> = ({ id, children, isPlayerZone = false }) => {
     const { setNodeRef, isOver } = useDroppable({
       id,
     });
 
+    // Only show highlight for player zones
+    const shouldHighlight = isOver && draggedCard && isPlayerZone;
+
     return (
       <div
         ref={setNodeRef}
-        className={isOver ? 'drop-zone-hover' : ''}
+        className={`relative ${isOver ? 'drop-zone-hover' : ''}`}
       >
         {children}
+        {shouldHighlight && (
+          <div className="absolute inset-0 bg-yellow-400/30 border-2 border-yellow-400 rounded-md animate-pulse pointer-events-none z-10" />
+        )}
       </div>
     );
   };
@@ -249,7 +291,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     );
 
     return (
-      <DroppableZone id={`zone-${zoneType}-${zoneIndex}`}>
+      <DroppableZone id={`zone-${zoneType}-${zoneIndex}`} isPlayerZone={isPlayerZone}>
         <div
           {...getXRProps()}
           onClick={card ? () => handleCardClick(card, isPlayerZone) : undefined}
@@ -287,7 +329,27 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                 ) : (
                   <div className="w-full h-full bg-gradient-to-b from-white to-gray-100 border border-gray-800 rounded-md flex flex-col p-1">
                     <div className="text-black text-[8px] font-bold text-center mb-1">{card.name}</div>
-                    <div className="flex-1 bg-gray-200 rounded mb-1"></div>
+                    <div className="flex-1 bg-gradient-to-br from-blue-100 to-purple-200 rounded mb-1 flex items-center justify-center relative overflow-hidden">
+                      {card.imageUrl ? (
+                        <img 
+                          src={card.imageUrl} 
+                          alt={card.name}
+                          className="w-full h-full object-cover rounded"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <>
+                          {card.type === 'monster' ? (
+                            <div className="text-4xl opacity-60">👹</div>
+                          ) : card.type === 'spell' ? (
+                            <div className="text-3xl opacity-60">✨</div>
+                          ) : (
+                            <div className="text-3xl opacity-60">🃏</div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded"></div>
+                        </>
+                      )}
+                    </div>
                     {card.attack !== undefined && (
                       <div className="text-[6px] text-black font-bold text-right">
                         ATK/{card.attack} DEF/{card.defense || 0}
@@ -324,8 +386,26 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
         >
           <div {...getXRProps()} className="w-full h-full flex flex-col p-1">
             <div className="text-black text-[7px] font-bold text-center mb-1">{card?.name || `Card ${index + 1}`}</div>
-            <div className="flex-1 bg-gray-200 rounded mb-1 flex items-center justify-center">
-              <div className="text-[6px] text-gray-600">Image</div>
+            <div className="flex-1 bg-gradient-to-br from-blue-100 to-purple-200 rounded mb-1 flex items-center justify-center relative overflow-hidden">
+              {card?.imageUrl ? (
+                <img 
+                  src={card.imageUrl} 
+                  alt={card.name}
+                  className="w-full h-full object-cover rounded"
+                  loading="lazy"
+                />
+              ) : (
+                <>
+                  {card?.type === 'monster' ? (
+                    <div className="text-2xl opacity-60">👹</div>
+                  ) : card?.type === 'spell' ? (
+                    <div className="text-xl opacity-60">✨</div>
+                  ) : (
+                    <div className="text-xl opacity-60">🃏</div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded"></div>
+                </>
+              )}
             </div>
             {card?.attack !== undefined && (
               <div className="text-[5px] text-black font-bold text-right">
@@ -488,7 +568,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                     isPlayerZone={false}
                   />
                   {!card && (
-                    <div className="absolute inset-0 bg-purple-600/80 border-2 border-purple-400 rounded-md flex items-center justify-center">
+                    <div className="absolute inset-0 bg-purple-600/80 border-2 border-purple-400 rounded-md flex items-center justify-center pointer-events-none">
                       <div className="text-white text-[10px] font-bold text-center leading-tight">
                         SPELL/TRAP<br/>ZONE
                       </div>
@@ -510,7 +590,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                     isPlayerZone={false}
                   />
                   {!card && (
-                    <div className="absolute inset-0 bg-green-600/80 border-2 border-green-400 rounded-md flex items-center justify-center">
+                    <div className="absolute inset-0 bg-green-600/80 border-2 border-green-400 rounded-md flex items-center justify-center pointer-events-none">
                       <div className="text-white text-[10px] font-bold text-center leading-tight">
                         MONSTER<br/>ZONE
                       </div>
@@ -567,7 +647,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                     isPlayerZone={true}
                   />
                   {!card && (
-                    <div className="absolute inset-0 bg-green-600/80 border-2 border-green-400 rounded-md flex items-center justify-center">
+                    <div className="absolute inset-0 bg-green-600/80 border-2 border-green-400 rounded-md flex items-center justify-center pointer-events-none">
                       <div className="text-white text-[10px] font-bold text-center leading-tight">
                         MONSTER<br/>ZONE
                       </div>
@@ -589,7 +669,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                     isPlayerZone={true}
                   />
                   {!card && (
-                    <div className="absolute inset-0 bg-purple-600/80 border-2 border-purple-400 rounded-md flex items-center justify-center">
+                    <div className="absolute inset-0 bg-purple-600/80 border-2 border-purple-400 rounded-md flex items-center justify-center pointer-events-none">
                       <div className="text-white text-[10px] font-bold text-center leading-tight">
                         SPELL/TRAP<br/>ZONE
                       </div>

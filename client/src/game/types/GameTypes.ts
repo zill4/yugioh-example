@@ -24,6 +24,7 @@ export interface GameCard {
   monsterType?: string;
   cardType?: string;
   effect?: string;
+  imageUrl?: string;
 }
 
 export interface CardInPlay extends GameCard {

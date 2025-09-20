@@ -1,113 +1,60 @@
 import type { GameCard } from "../types/GameTypes";
+import { sampleCards } from "../../data/sampleCards";
+import type { BaseCard } from "../../types/Card";
 
-// Sample Monster Cards
-export const sampleMonsters: GameCard[] = [
-  {
-    id: "blue-eyes-white-dragon",
-    name: "Blue-Eyes White Dragon",
-    type: "monster",
-    attack: 3000,
-    defense: 2500,
-    level: 8,
-    attribute: "LIGHT",
-    monsterType: "Dragon",
-    cardType: "Normal Monster",
-  },
-  {
-    id: "dark-magician",
-    name: "Dark Magician",
-    type: "monster",
-    attack: 2500,
-    defense: 2100,
-    level: 7,
-    attribute: "DARK",
-    monsterType: "Spellcaster",
-    cardType: "Normal Monster",
-  },
-  {
-    id: "summoned-skull",
-    name: "Summoned Skull",
-    type: "monster",
-    attack: 2500,
-    defense: 1200,
-    level: 6,
-    attribute: "DARK",
-    monsterType: "Fiend",
-    cardType: "Normal Monster",
-  },
-  {
-    id: "celtic-guardian",
-    name: "Celtic Guardian",
-    type: "monster",
-    attack: 1400,
-    defense: 1200,
-    level: 4,
-    attribute: "EARTH",
-    monsterType: "Warrior",
-    cardType: "Normal Monster",
-  },
-  {
-    id: "harpie-lady",
-    name: "Harpie Lady",
-    type: "monster",
-    attack: 1300,
-    defense: 1400,
-    level: 4,
-    attribute: "WIND",
-    monsterType: "Winged Beast",
-    cardType: "Normal Monster",
-  },
-];
+// Convert BaseCard to GameCard format
+function convertToGameCard(baseCard: BaseCard): GameCard {
+  let type: "monster" | "spell" | "trap";
 
-// Sample Spell Cards
-export const sampleSpells: GameCard[] = [
-  {
-    id: "dark-hole",
-    name: "Dark Hole",
-    type: "spell",
-    cardType: "Normal Spell",
-  },
-  {
-    id: "pot-of-greed",
-    name: "Pot of Greed",
-    type: "spell",
-    cardType: "Normal Spell",
-  },
-  {
-    id: "mystical-space-typhoon",
-    name: "Mystical Space Typhoon",
-    type: "spell",
-    cardType: "Quick-Play Spell",
-  },
-  {
-    id: "swords-of-revealing-light",
-    name: "Swords of Revealing Light",
-    type: "spell",
-    cardType: "Normal Spell",
-  },
-];
+  if (baseCard.cardType === "Monster") {
+    type = "monster";
+  } else if (baseCard.cardType === "Spell") {
+    type = "spell";
+  } else if (baseCard.cardType === "Trap") {
+    type = "trap";
+  } else {
+    // Fallback based on properties
+    if (baseCard.attack !== undefined || baseCard.defense !== undefined) {
+      type = "monster";
+    } else if (baseCard.spellType) {
+      type = "spell";
+    } else if (baseCard.trapType) {
+      type = "trap";
+    } else {
+      type = "monster"; // Default fallback
+    }
+  }
 
-// Sample Trap Cards
-export const sampleTraps: GameCard[] = [
-  {
-    id: "mirror-force",
-    name: "Mirror Force",
-    type: "trap",
-    cardType: "Normal Trap",
-  },
-  {
-    id: "solemn-judgment",
-    name: "Solemn Judgment",
-    type: "trap",
-    cardType: "Counter Trap",
-  },
-  {
-    id: "torrential-tribute",
-    name: "Torrential Tribute",
-    type: "trap",
-    cardType: "Normal Trap",
-  },
-];
+  return {
+    id: baseCard.id,
+    name: baseCard.name,
+    type,
+    attack: baseCard.attack,
+    defense: baseCard.defense,
+    level: baseCard.level,
+    attribute: baseCard.attribute,
+    monsterType: baseCard.monsterType,
+    cardType:
+      baseCard.cardType ||
+      (type === "monster"
+        ? "Normal Monster"
+        : type === "spell"
+        ? baseCard.spellType
+        : baseCard.trapType),
+    effect: baseCard.description,
+    imageUrl: baseCard.imageUrl,
+  };
+}
+
+// Convert all sample cards to game cards
+const gameCards = sampleCards.map(convertToGameCard);
+
+// Filter cards by type
+export const sampleMonsters = gameCards.filter(
+  (card) => card.type === "monster"
+);
+export const sampleSpells = gameCards.filter((card) => card.type === "spell");
+export const sampleTraps = gameCards.filter((card) => card.type === "trap");
 
 // Preselected Player Deck (Blue-Eyes Deck)
 export const playerDeck: GameCard[] = [
