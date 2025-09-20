@@ -1,9 +1,22 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getXRProps } from '../utils/xr';
+import GameBoard from '../components/GameBoard';
 
 const GamePage = () => {
   const [selectedGameMode, setSelectedGameMode] = useState<string>('');
+  const [isGameActive, setIsGameActive] = useState<boolean>(false);
+
+  const handleStartDuel = () => {
+    if (selectedGameMode) {
+      setIsGameActive(true);
+    }
+  };
+
+  const handleEndDuel = () => {
+    setIsGameActive(false);
+    setSelectedGameMode('');
+  };
 
   const gameModes = [
     {
@@ -35,6 +48,16 @@ const GamePage = () => {
       color: 'from-green-600 to-green-800 border-green-500'
     }
   ];
+
+  // If game is active, render the GameBoard
+  if (isGameActive && selectedGameMode) {
+    return (
+      <GameBoard 
+        gameMode={gameModes.find(mode => mode.id === selectedGameMode)?.title || selectedGameMode}
+        onEndGame={handleEndDuel}
+      />
+    );
+  }
 
   return (
     <div {...getXRProps()} className="min-h-screen relative overflow-hidden">
@@ -138,6 +161,7 @@ const GamePage = () => {
               
               <div {...getXRProps()} className="flex justify-center gap-4">
                 <button
+                  onClick={handleStartDuel}
                   {...getXRProps()}
                   className="px-8 py-3 bg-gradient-to-r from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 text-white rounded-xl text-lg font-bold transition-all duration-300 shadow-xl border border-green-500/30 hover:border-green-400/50 tracking-wider"
                 >
