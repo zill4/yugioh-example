@@ -7,7 +7,7 @@ interface CardListProps {
   cards: BaseCard[];
 }
 
-const CardList: React.FC<CardListProps> = ({ cards }) => {
+const CardList: React.FC<CardListProps> = React.memo(({ cards }) => {
   if (cards.length === 0) {
     return (
       <div {...getXRProps("text-center py-16")}>
@@ -25,6 +25,6 @@ const CardList: React.FC<CardListProps> = ({ cards }) => {
       ))}
     </div>
   );
-};
+});
 
 export default CardList;

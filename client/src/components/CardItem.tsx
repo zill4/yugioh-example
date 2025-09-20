@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { getXRInteractiveProps, getXRProps, getXRBackgroundStyles } from "../utils/xr";
+import { getXRInteractiveProps, getXRBackgroundStyles } from "../utils/xr";
+import { useXRPerformanceMonitor } from "../hooks/usePerformanceMonitor";
 import type { BaseCard, MonsterCard } from "../types/Card";
 
 // Default placeholder image for cards with missing images
@@ -25,24 +26,26 @@ interface CardItemProps {
   card: BaseCard;
 }
 
-const CardItem: React.FC<CardItemProps> = ({ card }) => {
+const CardItem: React.FC<CardItemProps> = React.memo(({ card }) => {
+  useXRPerformanceMonitor(`CardItem-${card.id}`);
+  
   const navigate = useNavigate();
   const [imageError, setImageError] = React.useState(false);
 
-  const handleCardClick = () => {
+  const handleCardClick = React.useCallback(() => {
     navigate(`/card/${card.id}`);
-  };
+  }, [navigate, card.id]);
 
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+  const handleImageError = React.useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
     if (!imageError) {
       setImageError(true);
       const target = e.target as HTMLImageElement;
       // Use the default placeholder that won't cause repeated requests
       target.src = DEFAULT_CARD_IMAGE;
     }
-  };
+  }, [imageError]);
 
-  const getRarityColorClass = (rarity: string) => {
+  const getRarityColorClass = React.useCallback((rarity: string) => {
     switch (rarity) {
       case "Common":
         return "bg-slate-500";
@@ -59,9 +62,9 @@ const CardItem: React.FC<CardItemProps> = ({ card }) => {
       default:
         return "bg-slate-500";
     }
-  };
+  }, []);
 
-  const getCardTypeIcon = (cardType: string) => {
+  const getCardTypeIcon = React.useCallback((cardType: string) => {
     switch (cardType) {
       case "Monster":
         return "⚔";
@@ -72,15 +75,16 @@ const CardItem: React.FC<CardItemProps> = ({ card }) => {
       default:
         return "◈";
     }
-  };
+  }, []);
 
   return (
     <div
       onClick={handleCardClick}
       {...getXRInteractiveProps("group transition-transform duration-200 hover:-translate-y-1")}
     >
+      {/* Only the main card container needs XR props - inner elements are regular DOM */}
       <div
-        {...getXRProps("relative border border-slate-700 overflow-hidden")}
+        className="relative border border-slate-700 overflow-hidden"
         style={getXRBackgroundStyles()}
       >
         {/* Image */}
@@ -104,7 +108,7 @@ const CardItem: React.FC<CardItemProps> = ({ card }) => {
           {!card.inStock && (
             <div
               className="absolute inset-0 flex items-center justify-center"
-              style={getXRBackgroundStyles({ backgroundColor: 'rgba(127, 29, 29, 0.7)' })}
+              style={{ backgroundColor: 'rgba(127, 29, 29, 0.7)' }}
             >
               <span className="text-red-100 text-[11px] font-bold tracking-wider">
                 UNAVAILABLE
@@ -112,10 +116,10 @@ const CardItem: React.FC<CardItemProps> = ({ card }) => {
             </div>
           )}
 
-          {/* Hover details overlay */}
+          {/* Hover details overlay - no XR needed for hover overlays */}
           <div
             className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-3 grid grid-rows-[auto_1fr_auto] text-[11px]"
-            style={getXRBackgroundStyles({ backgroundColor: 'rgba(0, 0, 0, 0.7)' })}
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
           >
             <div className="text-slate-100 font-semibold leading-snug line-clamp-2">
               {card.name}
@@ -153,6 +157,6 @@ const CardItem: React.FC<CardItemProps> = ({ card }) => {
       </div>
     </div>
   );
-};
+});
 
 export default CardItem;

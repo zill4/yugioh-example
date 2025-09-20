@@ -1,43 +1,77 @@
 import * as React from "react";
 import { sampleCards } from "../data/sampleCards";
-import CardList from "./CardList";
+import OptimizedCardGrid from "./VirtualizedCardGrid";
 import { getXRProps, getXRInteractiveProps, getXRBackgroundStyles } from "../utils/xr";
-import { useState } from "react";
+import { useState, useMemo, useCallback, startTransition } from "react";
+import { useXRPerformanceMonitor, useBatchUpdateMonitor } from "../hooks/usePerformanceMonitor";
 
-const CardShop = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedRarity, setSelectedRarity] = useState<string>("all");
-  const [selectedType, setSelectedType] = useState<string>("all");
-  const [selectedSet, setSelectedSet] = useState<string>("all");
+// Create a state object to batch related filter updates
+interface FilterState {
+  searchTerm: string;
+  selectedRarity: string;
+  selectedType: string;
+  selectedSet: string;
+}
 
-  const filteredCards = sampleCards.filter((card) => {
-    const matchesSearch =
-      card.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      card.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      false;
-    const matchesRarity =
-      selectedRarity === "all" || card.rarity === selectedRarity;
-    const matchesType =
-      selectedType === "all" || card.cardType === selectedType;
-    const matchesSet =
-      selectedSet === "all" || card.setCode?.startsWith(selectedSet) || false;
+const CardShop = React.memo(() => {
+  // Performance monitoring
+  useXRPerformanceMonitor('CardShop');
+  const { trackBatch } = useBatchUpdateMonitor('CardShop');
 
-    return matchesSearch && matchesRarity && matchesType && matchesSet;
+  // Batch related state for better performance
+  const [filters, setFilters] = useState<FilterState>({
+    searchTerm: "",
+    selectedRarity: "all",
+    selectedType: "all",
+    selectedSet: "all"
   });
 
-  const rarities = [...new Set(sampleCards.map((card) => card.rarity))];
-  const cardTypes = [...new Set(sampleCards.map((card) => card.cardType))];
-  const sets = [
-    ...new Set(
-      sampleCards.map((card) => card.setCode?.substring(0, 3) || "OTHER")
-    ),
-  ].sort();
+  // Memoize expensive computations
+  const { filteredCards, rarities, cardTypes, sets } = useMemo(() => {
+    // Calculate filter options once
+    const rarities = [...new Set(sampleCards.map((card) => card.rarity))];
+    const cardTypes = [...new Set(sampleCards.map((card) => card.cardType))];
+    const sets = [
+      ...new Set(
+        sampleCards.map((card) => card.setCode?.substring(0, 3) || "OTHER")
+      ),
+    ].sort();
+
+    // Filter cards based on current filters
+    const filteredCards = sampleCards.filter((card) => {
+      const matchesSearch =
+        card.name.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        card.description?.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        false;
+      const matchesRarity =
+        filters.selectedRarity === "all" || card.rarity === filters.selectedRarity;
+      const matchesType =
+        filters.selectedType === "all" || card.cardType === filters.selectedType;
+      const matchesSet =
+        filters.selectedSet === "all" || card.setCode?.startsWith(filters.selectedSet) || false;
+
+      return matchesSearch && matchesRarity && matchesType && matchesSet;
+    });
+
+    return { filteredCards, rarities, cardTypes, sets };
+  }, [filters]);
+
+  // Batch filter updates using startTransition
+  const updateFilter = useCallback((key: keyof FilterState, value: string) => {
+    trackBatch();
+    startTransition(() => {
+      setFilters(prev => ({
+        ...prev,
+        [key]: value
+      }));
+    });
+  }, [trackBatch]);
 
   return (
     <div {...getXRProps("relative")}>
-      {/* Compact toolbar */}
+      {/* Isolated filter scene - only re-renders when filters change */}
       <div 
-        {...getXRProps("border border-slate-700 p-3 mb-3")}
+        {...getXRProps("border border-slate-700 p-3 mb-3", { "data-scene": "filters" })}
         style={getXRBackgroundStyles()}
       >
         <div className="grid grid-cols-1 md:grid-cols-4 gap-2 text-xs">
@@ -45,8 +79,8 @@ const CardShop = () => {
             id="search"
             type="text"
             placeholder="Search cards..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={filters.searchTerm}
+            onChange={(e) => updateFilter('searchTerm', e.target.value)}
             autoComplete="off"
             {...getXRInteractiveProps("w-full px-2 py-1 border border-slate-700 text-slate-100 placeholder-slate-500")}
             style={getXRBackgroundStyles()}
@@ -54,8 +88,8 @@ const CardShop = () => {
 
           <select
             id="rarity"
-            value={selectedRarity}
-            onChange={(e) => setSelectedRarity(e.target.value)}
+            value={filters.selectedRarity}
+            onChange={(e) => updateFilter('selectedRarity', e.target.value)}
             {...getXRInteractiveProps("w-full px-2 py-1 border border-slate-700 text-slate-100")}
             style={getXRBackgroundStyles()}
           >
@@ -69,8 +103,8 @@ const CardShop = () => {
 
           <select
             id="cardType"
-            value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value)}
+            value={filters.selectedType}
+            onChange={(e) => updateFilter('selectedType', e.target.value)}
             {...getXRInteractiveProps("w-full px-2 py-1 border border-slate-700 text-slate-100")}
             style={getXRBackgroundStyles()}
           >
@@ -84,8 +118,8 @@ const CardShop = () => {
 
           <select
             id="set"
-            value={selectedSet}
-            onChange={(e) => setSelectedSet(e.target.value)}
+            value={filters.selectedSet}
+            onChange={(e) => updateFilter('selectedSet', e.target.value)}
             {...getXRInteractiveProps("w-full px-2 py-1 border border-slate-700 text-slate-100")}
             style={getXRBackgroundStyles()}
           >
@@ -111,14 +145,20 @@ const CardShop = () => {
         </div>
       </div>
 
+      {/* Stats display - no XR needed for simple text */}
       <div className="mb-2 text-right text-[10px] text-slate-500 tracking-widest">
         {filteredCards.length} / {sampleCards.length} CARDS
       </div>
 
-      {/* Card Grid */}
-      <CardList cards={filteredCards} />
+      {/* Isolated card grid scene - uses virtualization for performance */}
+      <div {...getXRProps("", { "data-scene": "card-grid" })}>
+        <OptimizedCardGrid 
+          cards={filteredCards}
+          containerHeight={800}
+        />
+      </div>
     </div>
   );
-};
+});
 
 export default CardShop;
