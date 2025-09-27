@@ -452,19 +452,29 @@ export class GameEngine {
     const currentIndex = phases.indexOf(this.gameState.currentPhase);
     const nextIndex = (currentIndex + 1) % phases.length;
 
-    // Create new gameState object with updated phase (immutable update)
-    this.gameState = {
-      ...this.gameState,
-      currentPhase: phases[nextIndex],
-    };
+    // Check if we're transitioning from End phase to Draw phase (end of turn)
+    if (this.gameState.currentPhase === "End") {
+      // End the current turn instead of just changing phase
+      return this.endTurn();
+    }
 
+    // Calculate the next phase
+    const nextPhase = phases[nextIndex];
+
+    // Add game event for the phase change
     this.addGameEvent(
       this.gameState.currentTurn,
       "phase_change",
-      `Phase changed to ${this.gameState.currentPhase}`
+      `Phase changed to ${nextPhase}`
     );
 
-    // Handle phase-specific logic
+    // Create new gameState object with updated phase (immutable update)
+    this.gameState = {
+      ...this.gameState,
+      currentPhase: nextPhase,
+    };
+
+    // Handle phase-specific logic for the new phase
     this.handlePhaseLogic();
 
     this.notifyGameStateChange();
@@ -630,10 +640,19 @@ export class GameEngine {
   private endTurn(): boolean {
     const nextPlayer =
       this.gameState.currentTurn === "player" ? "opponent" : "player";
-
-    // Reset monster states for next turn
     const currentPlayerKey =
       this.gameState.currentTurn === "player" ? "player" : "opponent";
+
+    // Add turn end event before changing state
+    this.addGameEvent(
+      this.gameState.currentTurn,
+      "turn_end",
+      `${
+        this.gameState.currentTurn === "player" ? "Your" : "Opponent's"
+      } turn ended`
+    );
+
+    // Reset monster states for next turn
     const currentPlayerState = this.gameState[currentPlayerKey];
     const zones = { ...currentPlayerState.zones };
 
@@ -661,14 +680,6 @@ export class GameEngine {
       turnNumber: this.gameState.turnNumber + 1,
       [currentPlayerKey]: updatedCurrentPlayerState,
     };
-
-    this.addGameEvent(
-      this.gameState.currentTurn,
-      "turn_end",
-      `${
-        this.gameState.currentTurn === "player" ? "Your" : "Opponent's"
-      } turn ended`
-    );
 
     this.notifyGameStateChange();
     return true;

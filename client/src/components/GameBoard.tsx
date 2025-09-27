@@ -15,6 +15,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
   const [selectedCard, setSelectedCard] = useState<CardInPlay | null>(null);
   const [targetingMode, setTargetingMode] = useState<'attack' | 'effect' | null>(null);
   const [pendingAction, setPendingAction] = useState<GameAction | null>(null);
+  const [validTargets, setValidTargets] = useState<CardInPlay[]>([]);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const gameControllerRef = useRef<GameController | null>(null);
   
   // Derive AI turn state from gameState to ensure consistency
@@ -29,35 +31,78 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
 
     if (!isPlayerCard) return;
 
+    // If a card is already selected, this might be a target selection
+    if (selectedCard) {
+      handleTargetClick(card);
+      return;
+    }
+
     switch (gameState.currentPhase) {
       case 'Main1':
       case 'Main2':
-        // Attack with monster if it's on the field
-        if (card.position === 'monster') {
-          // Show targeting modal for attack
-          setTargetingMode('attack');
-          setPendingAction({
-            type: 'ATTACK',
-            player: 'player',
-            cardId: card.id,
-          });
-        }
-        break;
-
       case 'Battle':
-        // Attack with monster if it's on the field
-        if (card.position === 'monster') {
-          // Show targeting modal for attack
+        // Select monster for attack if it's on the field
+        if (card.position === 'monster' && !card.attackUsed && !card.summonedThisTurn) {
+          setSelectedCard(card);
           setTargetingMode('attack');
-          setPendingAction({
-            type: 'ATTACK',
-            player: 'player',
-            cardId: card.id,
-          });
+
+          // Calculate valid targets for attack
+          const targets = gameState.opponent.zones.mainMonsterZones.filter(target => target !== null) as CardInPlay[];
+          setValidTargets(targets);
+
+          // If no monsters to attack, can do direct attack
+          if (targets.length === 0) {
+            setShowConfirmation(true);
+            setPendingAction({
+              type: 'DIRECT_ATTACK',
+              player: 'player',
+              cardId: card.id,
+            });
+          }
         }
         break;
     }
-  }, [gameState, isAITurn]);
+  }, [gameState, isAITurn, selectedCard]);
+
+  const handleTargetClick = useCallback((target: CardInPlay) => {
+    if (!selectedCard || !targetingMode) return;
+
+    // Check if this target is valid
+    const isValidTarget = validTargets.some(validTarget => validTarget.id === target.id);
+
+    if (!isValidTarget) return;
+
+    // Create the action with target
+    const action: GameAction = {
+      type: targetingMode === 'attack' ? 'ATTACK' : 'ACTIVATE_EFFECT',
+      player: 'player',
+      cardId: selectedCard.id,
+      targetId: target.id,
+    };
+
+    setPendingAction(action);
+    setShowConfirmation(true);
+    setValidTargets([]);
+  }, [selectedCard, targetingMode, validTargets]);
+
+  const handleConfirmAction = useCallback(() => {
+    if (!pendingAction || !gameControllerRef.current) return;
+
+    gameControllerRef.current.executePlayerAction(pendingAction);
+    setSelectedCard(null);
+    setTargetingMode(null);
+    setPendingAction(null);
+    setShowConfirmation(false);
+    setValidTargets([]);
+  }, [pendingAction]);
+
+  const handleCancelAction = useCallback(() => {
+    setSelectedCard(null);
+    setTargetingMode(null);
+    setPendingAction(null);
+    setShowConfirmation(false);
+    setValidTargets([]);
+  }, []);
 
   const handleNextPhase = useCallback(() => {
     if (!gameControllerRef.current || isAITurn) return;
@@ -82,10 +127,22 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     zoneIndex: number;
     zoneType: 'monster' | 'spellTrap';
     isPlayerZone: boolean;
-  }> = React.memo(({ card, isOpponent = false, zoneIndex, zoneType, isPlayerZone }) => {
-    const isValidTarget = useMemo(() =>
-      gameState ? true : false,
-      [gameState?.currentPhase, gameState?.player, zoneType, zoneIndex]
+  }> = React.memo(({ card, isOpponent = false, isPlayerZone }) => {
+    const isSelected = selectedCard?.id === card?.id;
+    const isValidTarget = useMemo(() => {
+      if (!card || !validTargets.length) return false;
+      return validTargets.some(target => target.id === card.id);
+    }, [card, validTargets]);
+
+    const isPlayerCard = isPlayerZone && !isOpponent;
+    const canSelectForAttack = useMemo(() =>
+      isPlayerCard &&
+      card?.position === 'monster' &&
+      !card.attackUsed &&
+      !card.summonedThisTurn &&
+      gameState &&
+      ['Main1', 'Main2', 'Battle'].includes(gameState.currentPhase),
+      [isPlayerCard, card, gameState]
     );
 
 
@@ -99,7 +156,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
 
     return (
         <div
-          
           onClick={card ? () => handleCardClick(card, isPlayerZone) : undefined}
           className={`
             w-24 h-32 rounded-md border-2 flex items-center justify-center
@@ -109,6 +165,9 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
               : `bg-transparent border-transparent`
             }
             ${isAITurn && isPlayerZone ? 'opacity-50 cursor-not-allowed' : ''}
+            ${isSelected ? 'ring-4 ring-yellow-400 ring-opacity-75 bg-yellow-100' : ''}
+            ${isValidTarget ? 'ring-2 ring-blue-400 ring-opacity-75 bg-blue-50' : ''}
+            ${canSelectForAttack && !isSelected ? 'hover:ring-2 hover:ring-green-400 hover:bg-green-50' : ''}
             ${ !card && isValidTarget && isPlayerZone ? 'bg-green-700/60 border-green-400 animate-pulse shadow-lg shadow-green-400/20' : ''}
             ${ !card && !isValidTarget && isPlayerZone ? 'bg-red-700/40 border-red-500' : ''}
           `}
@@ -348,47 +407,23 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     );
   };
 
-  // Targeting Modal Component
+  // Targeting Modal Component (only for target selection, not confirmation)
   const TargetingModal: React.FC = () => {
-    if (!targetingMode || !gameState) return null;
-
-    const getTargets = () => {
-      switch (targetingMode) {
-        case 'attack':
-          return gameState.opponent.zones.mainMonsterZones.filter(card => card !== null) as CardInPlay[];
-        case 'effect':
-          // For now, return all valid targets - this would be more specific based on the effect
-          return [
-            ...gameState.opponent.zones.mainMonsterZones,
-            ...gameState.opponent.zones.spellTrapZones,
-            ...gameState.player.zones.mainMonsterZones,
-            ...gameState.player.zones.spellTrapZones,
-          ].filter(card => card !== null) as CardInPlay[];
-        default:
-          return [];
-      }
-    };
-
-    const targets = getTargets();
+    if (!targetingMode || !gameState || !selectedCard || showConfirmation) return null;
 
     const handleTargetSelect = useCallback((target: CardInPlay) => {
-      if (pendingAction && gameControllerRef.current) {
-        const actionWithTarget = { ...pendingAction, targetId: target.id };
-        gameControllerRef.current.executePlayerAction(actionWithTarget);
-        setTargetingMode(null);
-        setPendingAction(null);
-      }
-    }, [pendingAction]);
+      handleTargetClick(target);
+    }, [handleTargetClick]);
 
     return (
       <div className={`fixed inset-0 ${process.env.XR_ENV === 'avp' ? '' : 'bg-black/50'} flex items-center justify-center z-50`}>
         <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
           <h3 className="text-lg font-bold mb-4 text-center">
-            Select Target for {targetingMode === 'attack' ? 'Attack' : 'Effect'}
+            Select Target for Attack
           </h3>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {targets.map((target, index) => (
+            {validTargets.map((target, index) => (
               <button
                 key={index}
                 onClick={() => handleTargetSelect(target)}
@@ -403,14 +438,60 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
           </div>
 
           <button
-            onClick={() => {
-              setTargetingMode(null);
-              setPendingAction(null);
-            }}
+            onClick={handleCancelAction}
             className="w-full mt-4 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
           >
             Cancel
           </button>
+        </div>
+      </div>
+    );
+  };
+
+  // Confirmation Modal Component
+  const ConfirmationModal: React.FC = () => {
+    if (!showConfirmation || !pendingAction || !selectedCard) return null;
+
+    const getActionDescription = () => {
+      switch (pendingAction.type) {
+        case 'ATTACK':
+          const target = gameState?.opponent.zones.mainMonsterZones.find(card => card?.id === pendingAction.targetId);
+          return `Attack ${target?.name || 'target'} with ${selectedCard.name}`;
+        case 'DIRECT_ATTACK':
+          return `Direct attack with ${selectedCard.name}`;
+        default:
+          return 'Perform action';
+      }
+    };
+
+    return (
+      <div className={`fixed inset-0 ${process.env.XR_ENV === 'avp' ? '' : 'bg-black/50'} flex items-center justify-center z-50`}>
+        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <h3 className="text-lg font-bold mb-4 text-center">Confirm Action</h3>
+
+          <div className="text-center mb-6">
+            <div className="text-gray-700 mb-2">{getActionDescription()}</div>
+            {selectedCard.type === 'monster' && (
+              <div className="text-sm text-gray-600">
+                ATK: {selectedCard.attack}
+              </div>
+            )}
+          </div>
+
+          <div className="flex space-x-4">
+            <button
+              onClick={handleConfirmAction}
+              className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+            >
+              Confirm
+            </button>
+            <button
+              onClick={handleCancelAction}
+              className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -754,6 +835,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     {/* Modals */}
     <CardActionModal />
     <TargetingModal />
+    <ConfirmationModal />
     </>
   );
 };

@@ -13,10 +13,13 @@ export class GameController {
   private gameEngine: GameEngine;
   private ai: DummyAI;
   private callbacks?: GameControllerCallbacks;
+  private isAITurnInProgress: boolean = false;
 
   constructor() {
     this.gameEngine = new GameEngine();
     this.ai = new DummyAI(this.gameEngine);
+    // Set callback for when AI turn ends
+    this.ai.setOnTurnEnd(() => this.endAITurn());
   }
 
   // Initialize the game controller with callbacks
@@ -30,19 +33,33 @@ export class GameController {
       console.log(
         "GameController: Game state changed, current turn:",
         gameState.currentTurn,
+        "phase:",
+        gameState.currentPhase,
         "isInitial:",
-        isInitialState
+        isInitialState,
+        "isAITurnInProgress:",
+        this.isAITurnInProgress
       );
+
+      // Update our flag based on the actual game state
+      const wasAITurnInProgress = this.isAITurnInProgress;
+      this.isAITurnInProgress =
+        gameState.currentTurn === "opponent" && !gameState.winner;
+
+      // Notify UI of game state change first
       this.callbacks?.onGameStateChange(gameState);
 
       // Check if it's AI's turn (but skip on initial state to prevent double initialization)
       if (
         gameState.currentTurn === "opponent" &&
         !gameState.winner &&
-        !isInitialState
+        !isInitialState &&
+        !wasAITurnInProgress &&
+        this.isAITurnInProgress
       ) {
         console.log("GameController: Starting AI turn");
         this.callbacks?.onAITurnStart();
+        // Start AI immediately to avoid race conditions
         this.ai.startTurn();
       }
 
@@ -108,14 +125,29 @@ export class GameController {
 
   // Start a new game
   public startNewGame(): void {
+    // Reset AI turn flag
+    this.isAITurnInProgress = false;
+
     // Create new game engine and AI
     this.gameEngine = new GameEngine();
     this.ai = new DummyAI(this.gameEngine);
+    // Set callback for when AI turn ends
+    this.ai.setOnTurnEnd(() => this.endAITurn());
 
     // Re-initialize with callbacks
     if (this.callbacks) {
       this.initialize(this.callbacks);
     }
+  }
+
+  // End AI turn (called by AI when it finishes)
+  public endAITurn(): void {
+    console.log(
+      "GameController: Ending AI turn - isAITurnInProgress was:",
+      this.isAITurnInProgress
+    );
+    this.isAITurnInProgress = false;
+    this.callbacks?.onAITurnEnd();
   }
 
   // Draw a card (player action)

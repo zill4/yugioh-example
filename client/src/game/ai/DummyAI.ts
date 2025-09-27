@@ -3,14 +3,24 @@ import { GameEngine } from "../engine/GameEngine";
 export class DummyAI {
   private gameEngine: GameEngine;
   private aiTimeout?: NodeJS.Timeout;
+  private onTurnEnd?: () => void;
 
   constructor(gameEngine: GameEngine) {
     this.gameEngine = gameEngine;
   }
 
+  // Set callback for when AI turn ends
+  public setOnTurnEnd(callback: () => void): void {
+    this.onTurnEnd = () => {
+      console.log("DummyAI: onTurnEnd callback being called");
+      callback();
+    };
+  }
+
   // Start AI turn
   public startTurn(): void {
     console.log("DummyAI: Starting turn");
+    // Execute immediately to avoid race conditions with automatic phase logic
     this.executeTurn();
   }
 
@@ -23,30 +33,64 @@ export class DummyAI {
 
   // Execute AI turn logic
   private async executeTurn(): Promise<void> {
-    const gameState = this.gameEngine.getGameState();
-
-    // Wait a bit for dramatic effect
-    await this.delay(1000);
+    console.log("DummyAI: executeTurn started");
 
     try {
-      // Execute actions based on current phase
-      switch (gameState.currentPhase) {
-        case "Draw":
-          await this.handleDrawPhase();
-          break;
-        case "Main1":
-          await this.handleMainPhase();
-          break;
-        case "Battle":
-          await this.handleBattlePhase();
-          break;
-        case "Main2":
-          await this.handleMainPhase(true); // Main 2
-          break;
-        case "End":
-          await this.handleEndPhase();
-          break;
+      // Keep processing phases until we reach the End phase or turn ends
+      let currentPhase = this.gameEngine.getGameState().currentPhase;
+      let phaseCount = 0;
+      const maxPhases = 10; // Prevent infinite loops
+
+      while (currentPhase !== "End" && phaseCount < maxPhases) {
+        console.log("DummyAI: About to handle phase:", currentPhase);
+        phaseCount++;
+
+        // Execute actions based on current phase
+        switch (currentPhase) {
+          case "Draw":
+            await this.handleDrawPhase();
+            break;
+          case "Standby":
+            await this.handleStandbyPhase();
+            break;
+          case "Main1":
+            await this.handleMainPhase();
+            break;
+          case "Battle":
+            await this.handleBattlePhase();
+            break;
+          case "Main2":
+            await this.handleMainPhase(true); // Main 2
+            break;
+          case "End":
+            // End phase just ends the turn, no need to call handler
+            console.log(
+              "DummyAI: Reached End phase, turn will end automatically"
+            );
+            // End the turn
+            this.gameEngine.executeAction({
+              type: "END_TURN",
+              player: "opponent",
+            });
+            return; // Exit the loop since turn will end
+        }
+
+        // Get updated game state after handling the phase
+        const updatedGameState = this.gameEngine.getGameState();
+        currentPhase = updatedGameState.currentPhase;
+
+        console.log(
+          "DummyAI: After handling phase, current phase is:",
+          currentPhase
+        );
       }
+
+      console.log("DummyAI: All phases completed, calling onTurnEnd");
+      // Signal that AI turn has ended
+      if (this.onTurnEnd) {
+        this.onTurnEnd();
+      }
+      console.log("DummyAI: executeTurn completed");
     } catch (error) {
       console.error("AI Error:", error);
       // Fallback: just end turn if something goes wrong
@@ -54,16 +98,38 @@ export class DummyAI {
         type: "END_TURN",
         player: "opponent",
       });
+      // Signal that AI turn has ended even on error
+      if (this.onTurnEnd) {
+        this.onTurnEnd();
+      }
     }
   }
 
   // Handle draw phase
   private async handleDrawPhase(): Promise<void> {
-    // AI automatically draws if possible
+    console.log("DummyAI: Handling Draw phase - starting");
+
+    // The draw phase logic is handled automatically by the GameEngine
+    // Move to next phase
+    await this.delay(1000);
+    console.log("DummyAI: Calling changePhase from Draw to Standby");
     this.gameEngine.executeAction({
       type: "CHANGE_PHASE",
       player: "opponent",
     });
+    console.log("DummyAI: Draw phase completed");
+  }
+
+  // Handle standby phase
+  private async handleStandbyPhase(): Promise<void> {
+    // AI has nothing to do in standby phase, just wait a bit
+    await this.delay(1500);
+    console.log("DummyAI: Calling changePhase from Standby to Main1");
+    this.gameEngine.executeAction({
+      type: "CHANGE_PHASE",
+      player: "opponent",
+    });
+    console.log("DummyAI: Standby phase completed");
   }
 
   // Handle main phases (Main1 and Main2)
@@ -82,14 +148,13 @@ export class DummyAI {
           (zone) => zone === null
         );
         if (emptyZoneIndex !== -1) {
-          await this.delay(500);
+          await this.delay(1500);
           this.gameEngine.executeAction({
             type: "PLAY_CARD",
             player: "opponent",
             cardId: monsterInHand.id,
             zoneIndex: emptyZoneIndex,
           });
-          return; // Only play one card per main phase for simplicity
         }
       }
     }
@@ -102,24 +167,25 @@ export class DummyAI {
           (zone) => zone === null
         );
         if (emptyZoneIndex !== -1) {
-          await this.delay(500);
+          await this.delay(1500);
           this.gameEngine.executeAction({
             type: "PLAY_CARD",
             player: "opponent",
             cardId: spellInHand.id,
             zoneIndex: emptyZoneIndex,
           });
-          return;
         }
       }
     }
 
-    // If nothing to play, proceed to next phase
-    await this.delay(300);
+    // Main phase completed, move to next phase
+    await this.delay(2000);
+    console.log("DummyAI: Calling changePhase from Main to next phase");
     this.gameEngine.executeAction({
       type: "CHANGE_PHASE",
       player: "opponent",
     });
+    console.log("DummyAI: Main phase completed");
   }
 
   // Handle battle phase
@@ -128,19 +194,29 @@ export class DummyAI {
     const aiState = gameState.opponent;
     const playerState = gameState.player;
 
-    // Check if we have monsters that can attack
+    // Check if we have monsters that can attack (haven't attacked this turn and not summoned this turn)
     const attackableMonsters = aiState.zones.mainMonsterZones.filter(
       (monster) =>
         monster &&
         monster.type === "monster" &&
-        monster.battlePosition === "attack"
+        monster.battlePosition === "attack" &&
+        !monster.attackUsed &&
+        !monster.summonedThisTurn
     );
 
     if (attackableMonsters.length > 0) {
       // Attack with first available monster
       const attacker = attackableMonsters[0];
 
-      if (!attacker) return;
+      if (!attacker) {
+        // No valid attacker, proceed to next phase
+        await this.delay(300);
+        this.gameEngine.executeAction({
+          type: "CHANGE_PHASE",
+          player: "opponent",
+        });
+        return;
+      }
 
       // Check if player has monsters to attack
       const playerMonsters = playerState.zones.mainMonsterZones.filter(
@@ -149,7 +225,7 @@ export class DummyAI {
 
       if (playerMonsters.length > 0) {
         // Attack the first player monster
-        await this.delay(500);
+        await this.delay(2000);
         this.gameEngine.executeAction({
           type: "ATTACK",
           player: "opponent",
@@ -158,31 +234,23 @@ export class DummyAI {
         });
       } else {
         // Direct attack if no monsters to block
-        await this.delay(500);
+        await this.delay(2000);
         this.gameEngine.executeAction({
           type: "DIRECT_ATTACK",
           player: "opponent",
           cardId: attacker.id,
         });
       }
-    } else {
-      // No monsters to attack with, proceed to next phase
-      await this.delay(300);
-      this.gameEngine.executeAction({
-        type: "CHANGE_PHASE",
-        player: "opponent",
-      });
     }
-  }
 
-  // Handle end phase
-  private async handleEndPhase(): Promise<void> {
-    // AI automatically ends turn
-    await this.delay(300);
+    // Battle phase completed, move to next phase
+    await this.delay(2000);
+    console.log("DummyAI: Calling changePhase from Battle to Main2");
     this.gameEngine.executeAction({
-      type: "END_TURN",
+      type: "CHANGE_PHASE",
       player: "opponent",
     });
+    console.log("DummyAI: Battle phase completed");
   }
 
   // Helper function for delays
