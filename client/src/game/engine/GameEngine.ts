@@ -578,13 +578,12 @@ export class GameEngine {
     );
     zones.mainMonsterZones = mainMonsterZones;
 
-    // Reset normal summon flag
+    // Only reset hasSetMonster flag (hasNormalSummoned is reset only at end of turn)
     this.gameState = {
       ...this.gameState,
       [playerKey]: {
         ...playerState,
         zones,
-        hasNormalSummoned: false,
         hasSetMonster: false,
       },
     };
