@@ -72,18 +72,23 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
 
     if (!isValidTarget) return;
 
-    // Create the action with target
+    // Find the zone index of the target monster
+    const targetZoneIndex = gameState?.opponent.zones.mainMonsterZones.findIndex(
+      monster => monster?.id === target.id
+    );
+
+    // Create the action with target zone index
     const action: GameAction = {
       type: targetingMode === 'attack' ? 'ATTACK' : 'ACTIVATE_EFFECT',
       player: 'player',
       cardId: selectedCard.id,
-      targetId: target.id,
+      targetId: targetZoneIndex !== undefined && targetZoneIndex !== -1 ? targetZoneIndex.toString() : undefined,
     };
 
     setPendingAction(action);
     setShowConfirmation(true);
     setValidTargets([]);
-  }, [selectedCard, targetingMode, validTargets]);
+  }, [selectedCard, targetingMode, validTargets, gameState]);
 
   const handleConfirmAction = useCallback(() => {
     if (!pendingAction || !gameControllerRef.current) return;
@@ -186,12 +191,51 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                 }}
               >
                 {isOpponent ? (
-                  <div className="w-full h-full bg-blue-900 border border-blue-700 rounded-md flex items-center justify-center">
-                    <div className="text-white text-lg">🎴</div>
-                    {card.faceDown && (
-                      <div className="absolute top-1 right-1">
-                        <div className="w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
+                  <div className={`w-full h-full border border-gray-800 rounded-md flex flex-col p-1 ${
+                    card.faceDown ? 'bg-gradient-to-b from-purple-900 to-purple-800' : 'bg-gradient-to-b from-blue-900 to-blue-800'
+                  }`}>
+                    {card.faceDown ? (
+                      <div className="flex-1 flex items-center justify-center">
+                        <div className="text-yellow-300 text-2xl">🂠</div>
+                        <div className="absolute top-1 right-1">
+                          <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                        </div>
                       </div>
+                    ) : (
+                      <>
+                        <div className="text-white text-[8px] font-bold text-center mb-1">{card.name}</div>
+                        <div className="flex-1 bg-gradient-to-br from-blue-100 to-purple-200 rounded mb-1 flex items-center justify-center relative overflow-hidden">
+                          {card.imageUrl ? (
+                            <img
+                              src={card.imageUrl}
+                              alt={card.name}
+                              className="w-full h-full object-cover rounded opacity-80"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <>
+                              {card.type === 'monster' ? (
+                                <div className="text-4xl opacity-60">👹</div>
+                              ) : card.type === 'spell' ? (
+                                <div className="text-3xl opacity-60">✨</div>
+                              ) : (
+                                <div className="text-3xl opacity-60">🃏</div>
+                              )}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded"></div>
+                            </>
+                          )}
+                        </div>
+                        {card.attack !== undefined && (
+                          <div className="text-[6px] text-white font-bold text-right">
+                            ATK/{card.attack} DEF/{card.defense || 0}
+                          </div>
+                        )}
+                        {card.type === 'monster' && (
+                          <div className="text-[5px] text-gray-300 text-center mt-1">
+                            {getCardStatus(card).join(' • ')}
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 ) : (
@@ -455,7 +499,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     const getActionDescription = () => {
       switch (pendingAction.type) {
         case 'ATTACK':
-          const target = gameState?.opponent.zones.mainMonsterZones.find(card => card?.id === pendingAction.targetId);
+          const targetIndex = pendingAction.targetId ? parseInt(pendingAction.targetId) : -1;
+          const target = targetIndex !== -1 ? gameState?.opponent.zones.mainMonsterZones[targetIndex] : null;
           return `Attack ${target?.name || 'target'} with ${selectedCard.name}`;
         case 'DIRECT_ATTACK':
           return `Direct attack with ${selectedCard.name}`;

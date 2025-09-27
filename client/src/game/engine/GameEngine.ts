@@ -90,13 +90,18 @@ export class GameEngine {
 
   // Execute a game action
   public executeAction(action: GameAction): boolean {
-    const { type, player, cardId, zoneIndex } = action;
+    const { type, player, cardId, zoneIndex, targetId } = action;
 
     switch (type) {
       case "PLAY_CARD":
         return this.playCard(player, cardId!, zoneIndex);
       case "ATTACK":
-        return this.attack(player, cardId!, zoneIndex);
+        // For ATTACK, targetId contains the zone index as a string
+        return this.attack(
+          player,
+          cardId!,
+          targetId ? parseInt(targetId) : undefined
+        );
       case "DIRECT_ATTACK":
         return this.directAttack(player, cardId!);
       case "CHANGE_PHASE":
