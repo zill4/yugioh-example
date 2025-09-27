@@ -634,10 +634,10 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
 
             {/* Middle Section - Side Areas */}
             <div  className="flex justify-between items-center mb-4">
-              {/* Left - Side Deck */}
+              {/* Left - Opponent Life Points */}
               <div  className="w-20 h-32 bg-cyan-400 border-2 border-cyan-300 rounded-lg flex items-center justify-center">
                 <div className="text-white text-xs font-bold text-center">
-                  SIDE<br/>DECK
+                  Opponent<br/>{gameState.opponent.lifePoints}
                 </div>
               </div>
 
