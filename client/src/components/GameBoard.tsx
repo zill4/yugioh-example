@@ -280,7 +280,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     }, [selectedCard.id]);
 
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className={`fixed inset-0 ${process.env.XR_ENV === 'avp' ? '' : 'bg-black/50'} flex items-center justify-center z-50`}>
         <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
           <h3 className="text-lg font-bold mb-4 text-center">{selectedCard.name}</h3>
 
@@ -381,7 +381,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     }, [pendingAction]);
 
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className={`fixed inset-0 ${process.env.XR_ENV === 'avp' ? '' : 'bg-black/50'} flex items-center justify-center z-50`}>
         <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
           <h3 className="text-lg font-bold mb-4 text-center">
             Select Target for {targetingMode === 'attack' ? 'Attack' : 'Effect'}
@@ -487,7 +487,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
 
   return (
     <>
-      <div  className="min-h-screen bg-black relative overflow-hidden">
+      <div  className={`min-h-screen ${process.env.XR_ENV === 'avp' ? '' : 'bg-black'} relative overflow-hidden`}>
 
         {/* Game Header */}
         <div  className="relative bg-slate-800/90 backdrop-blur-lg border-b border-slate-700/50 p-4">
@@ -585,7 +585,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
         </div>
 
         {/* Main Game Area */}
-        <div  className="relative p-4 h-screen overflow-hidden bg-black">
+        <div  className={`relative p-4 h-screen overflow-hidden ${process.env.XR_ENV === 'avp' ? '' : 'bg-black'}`}>
           <div  className="h-full flex flex-col justify-center max-w-6xl mx-auto">
             
             {/* Top Row - Opponent Spell/Trap Zones */}
