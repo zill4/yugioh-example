@@ -41,7 +41,7 @@ export class DummyAI {
       let phaseCount = 0;
       const maxPhases = 10; // Prevent infinite loops
 
-      while (currentPhase !== "End" && phaseCount < maxPhases) {
+      while (phaseCount < maxPhases) {
         console.log("DummyAI: About to handle phase:", currentPhase);
         phaseCount++;
 
@@ -64,14 +64,15 @@ export class DummyAI {
             break;
           case "End":
             // End phase just ends the turn, no need to call handler
-            console.log(
-              "DummyAI: Reached End phase, turn will end automatically"
-            );
+            console.log("DummyAI: Reached End phase, calling END_TURN");
             // End the turn
             this.gameEngine.executeAction({
               type: "END_TURN",
               player: "opponent",
             });
+            // Wait a bit to ensure the turn transition completes
+            await this.delay(500);
+            console.log("DummyAI: End phase completed, exiting executeTurn");
             return; // Exit the loop since turn will end
         }
 

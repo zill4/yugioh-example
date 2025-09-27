@@ -7,6 +7,7 @@ export interface GameControllerCallbacks {
   onGameEnd: (winner: "player" | "opponent") => void;
   onAITurnStart: () => void;
   onAITurnEnd: () => void;
+  onPlayerTurnStart: () => void;
 }
 
 export class GameController {
@@ -14,6 +15,7 @@ export class GameController {
   private ai: DummyAI;
   private callbacks?: GameControllerCallbacks;
   private isAITurnInProgress: boolean = false;
+  private currentTurn: "player" | "opponent" = "player";
 
   constructor() {
     this.gameEngine = new GameEngine();
@@ -41,10 +43,22 @@ export class GameController {
         this.isAITurnInProgress
       );
 
-      // Update our flag based on the actual game state
+      // Track turn changes (capture old values first)
+      const wasPlayerTurn = this.currentTurn === "player";
       const wasAITurnInProgress = this.isAITurnInProgress;
+      const isPlayerTurn =
+        gameState.currentTurn === "player" && !gameState.winner;
+
+      // Update our internal state
+      this.currentTurn = gameState.currentTurn;
       this.isAITurnInProgress =
         gameState.currentTurn === "opponent" && !gameState.winner;
+
+      // Check if player's turn just started (do this before setting isInitialState to false)
+      if (isPlayerTurn && !wasPlayerTurn && !isInitialState) {
+        console.log("GameController: Player turn started");
+        this.callbacks?.onPlayerTurnStart();
+      }
 
       // Notify UI of game state change first
       this.callbacks?.onGameStateChange(gameState);
@@ -125,8 +139,9 @@ export class GameController {
 
   // Start a new game
   public startNewGame(): void {
-    // Reset AI turn flag
+    // Reset AI turn flag and turn tracking
     this.isAITurnInProgress = false;
+    this.currentTurn = "player";
 
     // Create new game engine and AI
     this.gameEngine = new GameEngine();

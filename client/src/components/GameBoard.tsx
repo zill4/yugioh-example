@@ -518,6 +518,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
           console.log('AI turn ended');
           // Remove setIsAITurn(false) since it's now derived from gameState
         },
+        onPlayerTurnStart: () => {
+          console.log('Player turn started');
+          // Player turn has started, UI will automatically enable player actions
+          // since isAITurn is derived from gameState.currentTurn
+        },
         onGameEnd: (winner) => {
           console.log('Game ended, winner:', winner);
           // Handle game end
