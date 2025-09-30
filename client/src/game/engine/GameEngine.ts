@@ -6,8 +6,6 @@ import {
   type CardInPlay,
   type GameAction,
   type GameZones,
-  type ChainLink,
-  type SpellSpeed,
 } from "../types/GameTypes";
 import { playerDeck, aiDeck, shuffleDeck } from "../decks/PreselectedDecks";
 
@@ -32,14 +30,9 @@ export class GameEngine {
       hand: shuffledPlayerDeck.slice(0, 5), // Draw 5 cards
       zones: {
         mainMonsterZones: Array(5).fill(null),
-        extraMonsterZones: Array(2).fill(null),
-        spellTrapZones: Array(5).fill(null),
-        fieldZone: null,
-        pendulumZones: { left: null, right: null },
       },
       graveyard: [],
       banished: [],
-      extraDeck: [],
       mainDeck: shuffledPlayerDeck.slice(5), // Rest of deck
     };
 
@@ -48,26 +41,19 @@ export class GameEngine {
       hand: shuffledAIDeck.slice(0, 5),
       zones: {
         mainMonsterZones: Array(5).fill(null),
-        extraMonsterZones: Array(2).fill(null),
-        spellTrapZones: Array(5).fill(null),
-        fieldZone: null,
-        pendulumZones: { left: null, right: null },
       },
       graveyard: [],
       banished: [],
-      extraDeck: [],
       mainDeck: shuffledAIDeck.slice(5),
     };
 
     return {
-      currentPhase: "Draw",
+      currentPhase: "Main",
       currentTurn: "player",
       turnNumber: 1,
       player: playerState,
       opponent: aiState,
       gameLog: [],
-      chains: [],
-      pendingEffects: [],
     };
   }
 
@@ -93,8 +79,6 @@ export class GameEngine {
     const { type, player, cardId, zoneIndex, targetId } = action;
 
     switch (type) {
-      case "PLAY_CARD":
-        return this.playCard(player, cardId!, zoneIndex);
       case "ATTACK":
         // For ATTACK, targetId contains the zone index as a string
         return this.attack(
@@ -112,123 +96,9 @@ export class GameEngine {
         return this.normalSummon(player, cardId!, zoneIndex);
       case "SET_MONSTER":
         return this.setMonster(player, cardId!, zoneIndex);
-      case "SPECIAL_SUMMON":
-        return this.specialSummon(player, cardId!, zoneIndex);
       default:
         return false;
     }
-  }
-
-  // Play a card from hand to field
-  private playCard(
-    player: "player" | "opponent",
-    cardId: string,
-    zoneIndex?: number
-  ): boolean {
-    const playerKey = player === "player" ? "player" : "opponent";
-    const playerState = this.gameState[playerKey];
-    const cardIndex = playerState.hand.findIndex((card) => card.id === cardId);
-
-    if (cardIndex === -1) return false;
-
-    const card = playerState.hand[cardIndex];
-
-    // Determine target zone and index
-    let targetIndex: number | undefined;
-    let targetZone: keyof GameZones;
-    let isFieldZone = false;
-
-    if (card.type === "monster") {
-      targetZone = "mainMonsterZones";
-      targetIndex = zoneIndex ?? this.findEmptyMonsterZone(playerState);
-    } else if (card.spellType === "Field") {
-      targetZone = "fieldZone";
-      isFieldZone = true;
-    } else {
-      targetZone = "spellTrapZones";
-      targetIndex = zoneIndex ?? this.findEmptySpellTrapZone(playerState);
-    }
-
-    if (
-      (targetIndex === -1 && !isFieldZone) ||
-      (isFieldZone && playerState.zones.fieldZone !== null)
-    ) {
-      return false;
-    }
-
-    // Create card in play
-    const cardInPlay: CardInPlay = {
-      ...card,
-      position:
-        card.type === "monster"
-          ? "monster"
-          : card.spellType === "Field"
-          ? "field"
-          : "spellTrap",
-      zoneIndex: isFieldZone ? undefined : targetIndex,
-      battlePosition: card.type === "monster" ? "attack" : undefined,
-      faceDown:
-        card.type === "trap" ||
-        (card.type === "spell" && card.spellType !== "Field"),
-      faceUp: card.type === "spell" && card.spellType === "Field",
-      summonedThisTurn: card.type === "monster",
-    };
-
-    // Create new player state with updated zones and hand (immutable update)
-    const newHand = [...playerState.hand];
-    newHand.splice(cardIndex, 1);
-
-    const newZones = { ...playerState.zones };
-
-    if (isFieldZone) {
-      newZones.fieldZone = cardInPlay;
-    } else if (targetIndex !== undefined) {
-      const zoneArray = newZones[targetZone] as (CardInPlay | null)[];
-      const newZoneArray = [...zoneArray];
-      newZoneArray[targetIndex] = cardInPlay;
-      (newZones as any)[targetZone] = newZoneArray;
-
-      // Update pendulum zones if applicable
-      if (
-        targetZone === "spellTrapZones" &&
-        card.type === "monster" &&
-        card.monsterCategory === "Pendulum"
-      ) {
-        if (targetIndex === 0) {
-          newZones.pendulumZones = {
-            ...newZones.pendulumZones,
-            left: cardInPlay,
-          };
-        } else if (targetIndex === 4) {
-          newZones.pendulumZones = {
-            ...newZones.pendulumZones,
-            right: cardInPlay,
-          };
-        }
-      }
-    }
-
-    const newPlayerState: PlayerState = {
-      ...playerState,
-      hand: newHand,
-      zones: newZones,
-    };
-
-    // Update game state (immutable update)
-    this.gameState = {
-      ...this.gameState,
-      [playerKey]: newPlayerState,
-    };
-
-    // Add to game log
-    this.addGameEvent(
-      player,
-      "card_played",
-      `${player === "player" ? "You" : "Opponent"} played ${card.name}`
-    );
-
-    this.notifyGameStateChange();
-    return true;
   }
 
   // Find empty monster zone
@@ -236,11 +106,6 @@ export class GameEngine {
     return playerState.zones.mainMonsterZones.findIndex(
       (zone) => zone === null
     );
-  }
-
-  // Find empty spell/trap zone
-  private findEmptySpellTrapZone(playerState: PlayerState): number {
-    return playerState.zones.spellTrapZones.findIndex((zone) => zone === null);
   }
 
   // Execute an attack
@@ -387,11 +252,6 @@ export class GameEngine {
       if (monster?.id === cardId) return monster;
     }
 
-    // Search extra monster zones
-    for (const monster of playerState.zones.extraMonsterZones) {
-      if (monster?.id === cardId) return monster;
-    }
-
     return null;
   }
 
@@ -446,19 +306,12 @@ export class GameEngine {
 
   // Change game phase
   private changePhase(): boolean {
-    const phases: GamePhase[] = [
-      "Draw",
-      "Standby",
-      "Main1",
-      "Battle",
-      "Main2",
-      "End",
-    ];
+    const phases: GamePhase[] = ["Main", "Battle"];
     const currentIndex = phases.indexOf(this.gameState.currentPhase);
     const nextIndex = (currentIndex + 1) % phases.length;
 
-    // Check if we're transitioning from End phase to Draw phase (end of turn)
-    if (this.gameState.currentPhase === "End") {
+    // Check if we're transitioning from Battle phase (end of turn)
+    if (this.gameState.currentPhase === "Battle") {
       // End the current turn instead of just changing phase
       return this.endTurn();
     }
@@ -492,77 +345,13 @@ export class GameEngine {
     const currentTurn = this.gameState.currentTurn;
 
     switch (currentPhase) {
-      case "Draw":
-        this.handleDrawPhase(currentTurn);
-        break;
-      case "Standby":
-        this.handleStandbyPhase(currentTurn);
-        break;
-      case "Main1":
+      case "Main":
         this.handleMainPhase(currentTurn);
         break;
       case "Battle":
         this.handleBattlePhase(currentTurn);
         break;
-      case "Main2":
-        this.handleMainPhase(currentTurn);
-        break;
-      case "End":
-        this.handleEndPhase(currentTurn);
-        break;
     }
-  }
-
-  // Handle draw phase logic
-  private handleDrawPhase(player: "player" | "opponent"): void {
-    const playerKey = player === "player" ? "player" : "opponent";
-    const playerState = this.gameState[playerKey];
-
-    // First turn player doesn't draw
-    if (this.gameState.turnNumber === 1 && player === "player") {
-      return;
-    }
-
-    if (playerState.mainDeck.length === 0) {
-      // Player loses due to no cards to draw
-      const winner = player === "player" ? "opponent" : "player";
-      this.gameState = {
-        ...this.gameState,
-        winner,
-      };
-      this.onGameEnd?.(winner);
-      return;
-    }
-
-    // Draw a card
-    const newMainDeck = [...playerState.mainDeck];
-    const drawnCard = newMainDeck.pop()!;
-    const newHand = [...playerState.hand, drawnCard];
-
-    this.gameState = {
-      ...this.gameState,
-      [playerKey]: {
-        ...playerState,
-        mainDeck: newMainDeck,
-        hand: newHand,
-      },
-    };
-
-    this.addGameEvent(
-      player,
-      "card_played",
-      `${player === "player" ? "You" : "Opponent"} drew ${drawnCard.name}`
-    );
-  }
-
-  // Handle standby phase logic
-  private handleStandbyPhase(player: "player" | "opponent"): void {
-    // Handle effects that activate during standby phase
-    this.addGameEvent(
-      player,
-      "phase_change",
-      `${player === "player" ? "Your" : "Opponent's"} Standby Phase`
-    );
   }
 
   // Handle main phase logic
@@ -604,42 +393,6 @@ export class GameEngine {
     );
   }
 
-  // Handle end phase logic
-  private handleEndPhase(player: "player" | "opponent"): void {
-    // Discard down to 6 cards in hand
-    const playerKey = player === "player" ? "player" : "opponent";
-    const playerState = this.gameState[playerKey];
-
-    if (playerState.hand.length > 6) {
-      const cardsToDiscard = playerState.hand.length - 6;
-      const newHand = playerState.hand.slice(0, 6);
-      const discardedCards = playerState.hand.slice(6);
-
-      this.gameState = {
-        ...this.gameState,
-        [playerKey]: {
-          ...playerState,
-          hand: newHand,
-          graveyard: [...playerState.graveyard, ...discardedCards],
-        },
-      };
-
-      this.addGameEvent(
-        player,
-        "phase_change",
-        `${
-          player === "player" ? "You" : "Opponent"
-        } discarded ${cardsToDiscard} card(s) to the Graveyard`
-      );
-    }
-
-    this.addGameEvent(
-      player,
-      "phase_change",
-      `${player === "player" ? "Your" : "Opponent's"} End Phase`
-    );
-  }
-
   // End current turn
   private endTurn(): boolean {
     const nextPlayer =
@@ -676,13 +429,49 @@ export class GameEngine {
       hasSetMonster: false,
     };
 
+    // Auto-draw a card for the next player
+    const nextPlayerKey = nextPlayer === "player" ? "player" : "opponent";
+    const nextPlayerState = this.gameState[nextPlayerKey];
+    const newTurnNumber = this.gameState.turnNumber + 1;
+    const shouldDraw = !(newTurnNumber === 1 && nextPlayer === "player");
+
+    let updatedNextPlayerState = nextPlayerState;
+    if (shouldDraw && nextPlayerState.mainDeck.length > 0) {
+      const newMainDeck = [...nextPlayerState.mainDeck];
+      const drawnCard = newMainDeck.pop()!;
+      const newHand = [...nextPlayerState.hand, drawnCard];
+
+      updatedNextPlayerState = {
+        ...nextPlayerState,
+        mainDeck: newMainDeck,
+        hand: newHand,
+      };
+
+      this.addGameEvent(
+        nextPlayer,
+        "card_played",
+        `${nextPlayer === "player" ? "You" : "Opponent"} drew ${drawnCard.name}`
+      );
+    } else if (shouldDraw && nextPlayerState.mainDeck.length === 0) {
+      // Player loses due to no cards to draw
+      const winner = nextPlayer === "player" ? "opponent" : "player";
+      this.gameState = {
+        ...this.gameState,
+        winner,
+      };
+      this.notifyGameStateChange();
+      this.onGameEnd?.(winner);
+      return false;
+    }
+
     // Create new gameState object with all updates (immutable update)
     this.gameState = {
       ...this.gameState,
       currentTurn: nextPlayer,
-      currentPhase: "Draw",
-      turnNumber: this.gameState.turnNumber + 1,
+      currentPhase: "Main",
+      turnNumber: newTurnNumber,
       [currentPlayerKey]: updatedCurrentPlayerState,
+      [nextPlayerKey]: updatedNextPlayerState,
     };
 
     this.notifyGameStateChange();
@@ -759,36 +548,11 @@ export class GameEngine {
     const playerState = this.gameState[playerKey];
 
     switch (currentPhase) {
-      case "Draw":
-        // First turn player doesn't draw
-        if (!(this.gameState.turnNumber === 1 && currentTurn === "player")) {
-          actions.push("DRAW_CARD");
-        }
-        break;
-
-      case "Standby":
-        // Effects can activate here
-        actions.push("ACTIVATE_EFFECT");
-        break;
-
-      case "Main1":
-      case "Main2":
+      case "Main":
         // Normal summon/set
         if (!playerState.hasNormalSummoned) {
           actions.push("NORMAL_SUMMON", "SET_MONSTER");
         }
-
-        // Special summons
-        actions.push("SPECIAL_SUMMON");
-
-        // Play spells/traps
-        actions.push("PLAY_SPELL", "PLAY_TRAP", "SET_SPELL", "SET_TRAP");
-
-        // Change positions
-        actions.push("CHANGE_POSITION");
-
-        // Activate effects
-        actions.push("ACTIVATE_EFFECT");
         break;
 
       case "Battle":
@@ -800,332 +564,16 @@ export class GameEngine {
           actions.push("ATTACK", "DIRECT_ATTACK");
         }
         break;
-
-      case "End":
-        // Effects can activate here
-        actions.push("ACTIVATE_EFFECT");
-        break;
     }
 
     // Always available actions
-    if (currentPhase !== "End") {
-      actions.push("CHANGE_PHASE");
-    }
+    actions.push("CHANGE_PHASE");
     actions.push("END_TURN");
 
     return actions;
   }
 
-  // Activate a card effect
-  public activateEffect(
-    player: "player" | "opponent",
-    cardId: string,
-    effectId?: string
-  ): boolean {
-    const playerKey = player === "player" ? "player" : "opponent";
-    const playerState = this.gameState[playerKey];
-
-    // Find the card in any zone
-    const card = this.findCardById(playerState, cardId);
-    if (!card) return false;
-
-    // Check if effect can be activated in current phase
-    if (!this.canActivateEffect(card, effectId)) return false;
-
-    // Check spell speed compatibility
-    const effectSpellSpeed = this.getEffectSpellSpeed(card, effectId);
-    if (!this.canActivateInChain(effectSpellSpeed)) return false;
-
-    // Create chain link
-    const chainLink: ChainLink = {
-      id: `chain_${Date.now()}_${Math.random()}`,
-      cardId: cardId,
-      player,
-      spellSpeed: effectSpellSpeed,
-      effect: effectId || card.effect || "Card effect",
-      resolved: false,
-    };
-
-    // Add to chains
-    const newChains = [...this.gameState.chains, chainLink];
-    this.gameState = {
-      ...this.gameState,
-      chains: newChains,
-    };
-
-    this.addGameEvent(
-      player,
-      "effect_activated",
-      `${player === "player" ? "You" : "Opponent"} activated ${
-        card.name
-      } effect (Chain Link ${newChains.length})`
-    );
-
-    // Check if chain is complete and resolve if needed
-    if (this.isChainComplete()) {
-      this.resolveChain();
-    }
-
-    this.notifyGameStateChange();
-    return true;
-  }
-
-  // Check if an effect can be activated in the current chain
-  private canActivateInChain(spellSpeed: SpellSpeed): boolean {
-    const currentChains = this.gameState.chains;
-
-    if (currentChains.length === 0) {
-      // First effect in chain can always activate
-      return true;
-    }
-
-    const lastChainLink = currentChains[currentChains.length - 1];
-
-    // Can only chain if spell speed is equal or higher
-    return spellSpeed >= lastChainLink.spellSpeed;
-  }
-
-  // Check if chain is complete (both players pass)
-  private isChainComplete(): boolean {
-    // Simplified: for now, we'll auto-resolve chains with more than 1 link
-    // In a full implementation, this would wait for both players to pass
-    return this.gameState.chains.length > 1;
-  }
-
-  // Resolve the current chain
-  private resolveChain(): void {
-    const chains = [...this.gameState.chains];
-    chains.reverse(); // Resolve in reverse order (last activated first)
-
-    this.addGameEvent(
-      this.gameState.currentTurn,
-      "chain_resolved",
-      `Chain resolved with ${chains.length} links`
-    );
-
-    // Process each chain link
-    for (const chainLink of chains) {
-      this.resolveChainLink(chainLink);
-    }
-
-    // Clear chains
-    this.gameState = {
-      ...this.gameState,
-      chains: [],
-    };
-  }
-
-  // Resolve a single chain link
-  private resolveChainLink(chainLink: ChainLink): void {
-    const playerKey = chainLink.player === "player" ? "player" : "opponent";
-    const playerState = this.gameState[playerKey];
-
-    // Find the card
-    const card = this.findCardById(playerState, chainLink.cardId);
-    if (!card) return;
-
-    // Mark as resolved
-    chainLink.resolved = true;
-
-    // Apply the effect based on card type and effect
-    this.applyCardEffect(card, chainLink.effect, chainLink.player);
-
-    this.addGameEvent(
-      chainLink.player,
-      "chain_resolved",
-      `${card.name} effect resolved`
-    );
-  }
-
-  // Apply a card effect
-  private applyCardEffect(
-    card: CardInPlay,
-    effect: string,
-    player: "player" | "opponent"
-  ): void {
-    // This is where specific card effects would be implemented
-    // For now, we'll handle some basic effects
-    const effectLower = effect.toLowerCase();
-
-    if (effectLower.includes("destroy") && effectLower.includes("spell")) {
-      // Destroy spell/trap cards
-      this.destroySpellsAndTraps(card, player);
-    } else if (effectLower.includes("draw")) {
-      // Draw cards
-      this.drawCards(card, player, 1);
-    } else if (effectLower.includes("damage")) {
-      // Deal damage
-      const damage = this.extractDamageFromEffect(effect);
-      this.dealEffectDamage(player, damage);
-    }
-
-    // Handle continuous effects
-    if (card.effectType === "Continuous") {
-      // Apply continuous effects - this would be more complex in a full implementation
-    }
-  }
-
-  // Helper method to destroy spells and traps
-  private destroySpellsAndTraps(
-    _card: CardInPlay,
-    player: "player" | "opponent"
-  ): void {
-    const opponentKey = player === "player" ? "opponent" : "player";
-    const opponentState = this.gameState[opponentKey];
-
-    const zones = { ...opponentState.zones };
-    const spellTrapZones = zones.spellTrapZones as (CardInPlay | null)[];
-    const destroyedCards: CardInPlay[] = [];
-
-    // Destroy all face-up spell/trap cards
-    for (let i = 0; i < spellTrapZones.length; i++) {
-      const cardInZone = spellTrapZones[i];
-      if (
-        cardInZone &&
-        cardInZone.faceUp &&
-        (cardInZone.type === "spell" || cardInZone.type === "trap")
-      ) {
-        destroyedCards.push(cardInZone);
-        spellTrapZones[i] = null;
-      }
-    }
-
-    zones.spellTrapZones = spellTrapZones;
-
-    this.gameState = {
-      ...this.gameState,
-      [opponentKey]: {
-        ...opponentState,
-        zones,
-        graveyard: [...opponentState.graveyard, ...destroyedCards],
-      },
-    };
-
-    this.addGameEvent(
-      player,
-      "card_destroyed",
-      `${destroyedCards.length} Spell/Trap card(s) destroyed`
-    );
-  }
-
-  // Helper method to draw cards
-  private drawCards(
-    _card: CardInPlay,
-    player: "player" | "opponent",
-    count: number
-  ): void {
-    const playerKey = player === "player" ? "player" : "opponent";
-    const playerState = this.gameState[playerKey];
-
-    let newPlayerState = playerState;
-
-    for (let i = 0; i < count && newPlayerState.mainDeck.length > 0; i++) {
-      const newMainDeck = [...newPlayerState.mainDeck];
-      const drawnCard = newMainDeck.pop()!;
-      const newHand = [...newPlayerState.hand, drawnCard];
-
-      newPlayerState = {
-        ...newPlayerState,
-        mainDeck: newMainDeck,
-        hand: newHand,
-      };
-    }
-
-    this.gameState = {
-      ...this.gameState,
-      [playerKey]: newPlayerState,
-    };
-
-    this.addGameEvent(
-      player,
-      "card_played",
-      `${player === "player" ? "You" : "Opponent"} drew ${count} card(s)`
-    );
-  }
-
-  // Helper method to deal effect damage
-  private dealEffectDamage(
-    player: "player" | "opponent",
-    damage: number
-  ): void {
-    const playerKey = player === "player" ? "player" : "opponent";
-    const playerState = this.gameState[playerKey];
-
-    const newLifePoints = Math.max(0, playerState.lifePoints - damage);
-
-    this.gameState = {
-      ...this.gameState,
-      [playerKey]: {
-        ...playerState,
-        lifePoints: newLifePoints,
-      },
-    };
-
-    this.addGameEvent(
-      player,
-      "damage",
-      `${damage} damage dealt (${newLifePoints} LP remaining)`
-    );
-
-    // Check for game end
-    if (newLifePoints <= 0) {
-      const winner = player === "player" ? "opponent" : "player";
-      this.gameState = {
-        ...this.gameState,
-        winner,
-      };
-      this.onGameEnd?.(winner);
-    }
-  }
-
-  // Extract damage value from effect text
-  private extractDamageFromEffect(effect: string): number {
-    const match = effect.match(/(\d+)/);
-    return match ? parseInt(match[1], 10) : 0;
-  }
-
-  // Check if an effect can be activated
-  private canActivateEffect(card: CardInPlay, _effectId?: string): boolean {
-    const currentPhase = this.gameState.currentPhase;
-
-    // Check phase restrictions
-    switch (currentPhase) {
-      case "Draw":
-      case "Standby":
-      case "End":
-        return card.effectType === "Trigger" || card.effectType === "Quick";
-      case "Main1":
-      case "Main2":
-        return true; // Most effects can activate in main phases
-      case "Battle":
-        return card.effectType === "Quick" || card.effectType === "Trigger";
-      default:
-        return false;
-    }
-  }
-
-  // Get spell speed of an effect
-  private getEffectSpellSpeed(
-    card: CardInPlay,
-    _effectId?: string
-  ): SpellSpeed {
-    switch (card.effectType) {
-      case "Continuous":
-        return 1;
-      case "Ignition":
-        return 1;
-      case "Trigger":
-        return 1;
-      case "Quick":
-        return 2;
-      case "Flip":
-        return 1;
-      default:
-        return 1;
-    }
-  }
-
-  // Find a card by ID in any zone
+  // Find a card by ID in any zone (normal monsters only)
   private findCardById(
     playerState: PlayerState,
     cardId: string
@@ -1134,26 +582,10 @@ export class GameEngine {
     const handCard = playerState.hand.find((card) => card.id === cardId);
     if (handCard) return handCard as CardInPlay;
 
-    // Check zones
-    const zones = playerState.zones;
-
-    // Main monster zones
-    for (const card of zones.mainMonsterZones) {
+    // Check main monster zones
+    for (const card of playerState.zones.mainMonsterZones) {
       if (card?.id === cardId) return card;
     }
-
-    // Extra monster zones
-    for (const card of zones.extraMonsterZones) {
-      if (card?.id === cardId) return card;
-    }
-
-    // Spell/Trap zones
-    for (const card of zones.spellTrapZones) {
-      if (card?.id === cardId) return card;
-    }
-
-    // Field zone
-    if (zones.fieldZone?.id === cardId) return zones.fieldZone;
 
     return null;
   }
@@ -1171,11 +603,7 @@ export class GameEngine {
     if (playerState.hasNormalSummoned) return false;
 
     // Check if it's the correct phase
-    if (
-      this.gameState.currentPhase !== "Main1" &&
-      this.gameState.currentPhase !== "Main2"
-    )
-      return false;
+    if (this.gameState.currentPhase !== "Main") return false;
 
     // Find the card in hand
     const cardIndex = playerState.hand.findIndex((card) => card.id === cardId);
@@ -1270,11 +698,7 @@ export class GameEngine {
     if (playerState.hasSetMonster) return false;
 
     // Check if it's the correct phase
-    if (
-      this.gameState.currentPhase !== "Main1" &&
-      this.gameState.currentPhase !== "Main2"
-    )
-      return false;
+    if (this.gameState.currentPhase !== "Main") return false;
 
     // Find the card in hand
     const cardIndex = playerState.hand.findIndex((card) => card.id === cardId);
@@ -1327,75 +751,6 @@ export class GameEngine {
       player,
       "summon",
       `${player === "player" ? "You" : "Opponent"} Set ${card.name}`
-    );
-
-    this.notifyGameStateChange();
-    return true;
-  }
-
-  // Special Summon a monster
-  public specialSummon(
-    player: "player" | "opponent",
-    cardId: string,
-    zoneIndex?: number
-  ): boolean {
-    const playerKey = player === "player" ? "player" : "opponent";
-    const playerState = this.gameState[playerKey];
-
-    // Find the card (could be in hand, deck, graveyard, etc.)
-    const card = this.findCardById(playerState, cardId);
-    if (!card || card.type !== "monster") return false;
-
-    // Find empty monster zone
-    const targetZoneIndex = zoneIndex ?? this.findEmptyMonsterZone(playerState);
-    if (targetZoneIndex === -1) return false;
-
-    // Create card in play
-    const cardInPlay: CardInPlay = {
-      ...card,
-      position: "monster",
-      zoneIndex: targetZoneIndex,
-      battlePosition: "attack",
-      faceDown: false,
-      faceUp: true,
-      summonedThisTurn: true,
-    };
-
-    // Remove from current location and add to field
-    let updatedPlayerState = playerState;
-
-    // If in hand, remove from hand
-    if (playerState.hand.some((c) => c.id === cardId)) {
-      const cardIndex = playerState.hand.findIndex((c) => c.id === cardId);
-      const newHand = [...playerState.hand];
-      newHand.splice(cardIndex, 1);
-      updatedPlayerState = { ...updatedPlayerState, hand: newHand };
-    }
-
-    const newZones = { ...updatedPlayerState.zones };
-    const zoneArray = newZones.mainMonsterZones as (CardInPlay | null)[];
-    const newZoneArray = [...zoneArray];
-    newZoneArray[targetZoneIndex] = cardInPlay;
-    newZones.mainMonsterZones = newZoneArray;
-
-    // Update player state
-    const finalPlayerState = {
-      ...updatedPlayerState,
-      zones: newZones,
-    };
-
-    // Update game state
-    this.gameState = {
-      ...this.gameState,
-      [playerKey]: finalPlayerState,
-    };
-
-    this.addGameEvent(
-      player,
-      "summon",
-      `${player === "player" ? "You" : "Opponent"} Special Summoned ${
-        card.name
-      }`
     );
 
     this.notifyGameStateChange();

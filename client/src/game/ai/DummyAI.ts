@@ -36,10 +36,10 @@ export class DummyAI {
     console.log("DummyAI: executeTurn started");
 
     try {
-      // Keep processing phases until we reach the End phase or turn ends
+      // Keep processing phases until turn ends
       let currentPhase = this.gameEngine.getGameState().currentPhase;
       let phaseCount = 0;
-      const maxPhases = 10; // Prevent infinite loops
+      const maxPhases = 3; // Prevent infinite loops (Main -> Battle -> end turn)
 
       while (phaseCount < maxPhases) {
         console.log("DummyAI: About to handle phase:", currentPhase);
@@ -47,32 +47,20 @@ export class DummyAI {
 
         // Execute actions based on current phase
         switch (currentPhase) {
-          case "Draw":
-            await this.handleDrawPhase();
-            break;
-          case "Standby":
-            await this.handleStandbyPhase();
-            break;
-          case "Main1":
+          case "Main":
             await this.handleMainPhase();
             break;
           case "Battle":
             await this.handleBattlePhase();
-            break;
-          case "Main2":
-            await this.handleMainPhase(true); // Main 2
-            break;
-          case "End":
-            // End phase just ends the turn, no need to call handler
-            console.log("DummyAI: Reached End phase, calling END_TURN");
-            // End the turn
+            // After battle phase, end the turn
+            console.log("DummyAI: Battle phase completed, calling END_TURN");
             this.gameEngine.executeAction({
               type: "END_TURN",
               player: "opponent",
             });
             // Wait a bit to ensure the turn transition completes
             await this.delay(500);
-            console.log("DummyAI: End phase completed, exiting executeTurn");
+            console.log("DummyAI: Turn ended, exiting executeTurn");
             return; // Exit the loop since turn will end
         }
 
@@ -106,40 +94,16 @@ export class DummyAI {
     }
   }
 
-  // Handle draw phase
-  private async handleDrawPhase(): Promise<void> {
-    console.log("DummyAI: Handling Draw phase - starting");
-
-    // The draw phase logic is handled automatically by the GameEngine
-    // Move to next phase
-    await this.delay(1000);
-    console.log("DummyAI: Calling changePhase from Draw to Standby");
-    this.gameEngine.executeAction({
-      type: "CHANGE_PHASE",
-      player: "opponent",
-    });
-    console.log("DummyAI: Draw phase completed");
-  }
-
-  // Handle standby phase
-  private async handleStandbyPhase(): Promise<void> {
-    // AI has nothing to do in standby phase, just wait a bit
-    await this.delay(1500);
-    console.log("DummyAI: Calling changePhase from Standby to Main1");
-    this.gameEngine.executeAction({
-      type: "CHANGE_PHASE",
-      player: "opponent",
-    });
-    console.log("DummyAI: Standby phase completed");
-  }
-
-  // Handle main phases (Main1 and Main2)
+  // Handle main phase (simplified for normal monsters only)
   private async handleMainPhase(_isMain2: boolean = false): Promise<void> {
     const gameState = this.gameEngine.getGameState();
     const aiState = gameState.opponent;
 
-    // Try to play monsters if we have space
-    if (aiState.zones.mainMonsterZones.some((zone) => zone === null)) {
+    // Try to normal summon a monster if we have space and haven't summoned yet
+    if (
+      !aiState.hasNormalSummoned &&
+      aiState.zones.mainMonsterZones.some((zone) => zone === null)
+    ) {
       const monsterInHand = aiState.hand.find(
         (card) => card.type === "monster"
       );
@@ -151,28 +115,9 @@ export class DummyAI {
         if (emptyZoneIndex !== -1) {
           await this.delay(1500);
           this.gameEngine.executeAction({
-            type: "PLAY_CARD",
+            type: "NORMAL_SUMMON",
             player: "opponent",
             cardId: monsterInHand.id,
-            zoneIndex: emptyZoneIndex,
-          });
-        }
-      }
-    }
-
-    // Try to play spells if we have space
-    if (aiState.zones.spellTrapZones.some((zone) => zone === null)) {
-      const spellInHand = aiState.hand.find((card) => card.type === "spell");
-      if (spellInHand) {
-        const emptyZoneIndex = aiState.zones.spellTrapZones.findIndex(
-          (zone) => zone === null
-        );
-        if (emptyZoneIndex !== -1) {
-          await this.delay(1500);
-          this.gameEngine.executeAction({
-            type: "PLAY_CARD",
-            player: "opponent",
-            cardId: spellInHand.id,
             zoneIndex: emptyZoneIndex,
           });
         }

@@ -38,8 +38,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     }
 
     switch (gameState.currentPhase) {
-      case 'Main1':
-      case 'Main2':
+      case 'Main':
       case 'Battle':
         // Select monster for attack if it's on the field
         if (card.position === 'monster' && !card.attackUsed && !card.summonedThisTurn) {
@@ -79,7 +78,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
 
     // Create the action with target zone index
     const action: GameAction = {
-      type: targetingMode === 'attack' ? 'ATTACK' : 'ACTIVATE_EFFECT',
+      type: 'ATTACK',
       player: 'player',
       cardId: selectedCard.id,
       targetId: targetZoneIndex !== undefined && targetZoneIndex !== -1 ? targetZoneIndex.toString() : undefined,
@@ -119,11 +118,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     gameControllerRef.current.endTurn();
   }, [isAITurn]);
 
-  const handleDrawCard = useCallback(() => {
-    if (!gameControllerRef.current || isAITurn) return;
-    gameControllerRef.current.drawCard();
-  }, [isAITurn]);
-
 
   // Card Slot Component
   const CardSlot: React.FC<{
@@ -146,7 +140,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
       !card.attackUsed &&
       !card.summonedThisTurn &&
       gameState &&
-      ['Main1', 'Main2', 'Battle'].includes(gameState.currentPhase),
+      ['Main', 'Battle'].includes(gameState.currentPhase),
       [isPlayerCard, card, gameState]
     );
 
@@ -357,9 +351,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     const isMonster = selectedCard.type === 'monster';
     const canNormalSummon = !gameState.player.hasNormalSummoned && isMonster;
     const canSet = !gameState.player.hasSetMonster && isMonster;
-    const isSpell = selectedCard.type === 'spell';
-    const isTrap = selectedCard.type === 'trap';
-    const canActivate = isSpell || isTrap;
 
     const handleNormalSummon = useCallback(() => {
       if (gameControllerRef.current) {
@@ -371,13 +362,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     const handleSetCard = useCallback(() => {
       if (gameControllerRef.current) {
         gameControllerRef.current.setMonster(selectedCard.id);
-        setSelectedCard(null);
-      }
-    }, [selectedCard.id]);
-
-    const handleActivateSpellTrap = useCallback(() => {
-      if (gameControllerRef.current) {
-        gameControllerRef.current.activateEffect(selectedCard.id);
         setSelectedCard(null);
       }
     }, [selectedCard.id]);
@@ -407,33 +391,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                     Set (Face-down Defense)
                   </button>
                 )}
-              </div>
-            </div>
-          )}
-
-          {(isSpell || isTrap) && canActivate && (
-            <div className="space-y-3">
-              <h4 className="font-semibold text-center">
-                {isSpell ? 'Spell' : 'Trap'} Actions:
-              </h4>
-              <div className="space-y-2">
-                <button
-                  onClick={handleActivateSpellTrap}
-                  className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
-                >
-                  Activate {isSpell ? 'Spell' : 'Trap'}
-                </button>
-                <button
-                  onClick={() => {
-                    if (gameControllerRef.current) {
-                      gameControllerRef.current.playCard(selectedCard.id);
-                      setSelectedCard(null);
-                    }
-                  }}
-                  className="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors"
-                >
-                  Set {isSpell ? 'Spell' : 'Trap'}
-                </button>
               </div>
             </div>
           )}
@@ -652,12 +609,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                 <div className="text-slate-400 text-xs mb-1">Phase</div>
                 <div className="text-lg font-bold text-purple-400">{gameState.currentPhase}</div>
                 <div className="text-xs text-slate-500 mt-1">
-                  {gameState.currentPhase === 'Draw' && 'Draw cards and activate effects'}
-                  {gameState.currentPhase === 'Standby' && 'Activate standby effects'}
-                  {gameState.currentPhase === 'Main1' && 'Summon, activate cards'}
+                  {gameState.currentPhase === 'Main' && 'Summon and activate cards'}
                   {gameState.currentPhase === 'Battle' && 'Attack with monsters'}
-                  {gameState.currentPhase === 'Main2' && 'Additional actions'}
-                  {gameState.currentPhase === 'End' && 'End effects, discard'}
                 </div>
               </div>
 
@@ -770,20 +723,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
           {/* Right Sidebar - Action Buttons */}
           <div enable-xr className="game-actions-sidebar">
             <div className="space-y-3">
-              {gameState.currentPhase === 'Draw' && gameState.currentTurn === 'player' && (
-                <button
-                  onClick={handleDrawCard}
-                  disabled={isAITurn}
-                  className={`w-full text-sm font-bold transition-all duration-300 ${
-                    isAITurn
-                      ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-yellow-600 to-yellow-800 hover:from-yellow-500 hover:to-yellow-700 text-white'
-                  }`}
-                >
-                  Draw Card
-                </button>
-              )}
-              
               <button
                 onClick={handleNextPhase}
                 disabled={isAITurn}
