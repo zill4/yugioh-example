@@ -8,7 +8,6 @@ interface FilterState {
   searchTerm: string;
   selectedRarity: string;
   selectedType: string;
-  selectedSet: string;
 }
 
 const CardShop = React.memo(() => {
@@ -16,20 +15,14 @@ const CardShop = React.memo(() => {
   const [filters, setFilters] = useState<FilterState>({
     searchTerm: "",
     selectedRarity: "all",
-    selectedType: "all",
-    selectedSet: "all"
+    selectedType: "all"
   });
 
   // Memoize expensive computations
-  const { filteredCards, rarities, cardTypes, sets } = useMemo(() => {
+  const { filteredCards, rarities, cardTypes } = useMemo(() => {
     // Calculate filter options once
     const rarities = [...new Set(sampleCards.map((card) => card.rarity).filter(Boolean))];
     const cardTypes = [...new Set(sampleCards.map((card) => card.cardType).filter(Boolean))];
-    const sets = [
-      ...new Set(
-        sampleCards.map((card) => card.setCode?.substring(0, 3) || "OTHER")
-      ),
-    ].sort();
 
     // Filter cards based on current filters
     const filteredCards = sampleCards.filter((card) => {
@@ -41,13 +34,11 @@ const CardShop = React.memo(() => {
         filters.selectedRarity === "all" || card.rarity === filters.selectedRarity;
       const matchesType =
         filters.selectedType === "all" || card.cardType === filters.selectedType;
-      const matchesSet =
-        filters.selectedSet === "all" || card.setCode?.startsWith(filters.selectedSet) || false;
 
-      return matchesSearch && matchesRarity && matchesType && matchesSet;
+      return matchesSearch && matchesRarity && matchesType;
     });
 
-    return { filteredCards, rarities, cardTypes, sets };
+    return { filteredCards, rarities, cardTypes };
   }, [filters]);
 
   // Batch filter updates using startTransition
@@ -135,37 +126,9 @@ const CardShop = React.memo(() => {
               ))}
             </select>
 
-            <select
-              value={filters.selectedSet}
-              onChange={(e) => updateFilter('selectedSet', e.target.value)}
-              className={`px-3 py-2 border text-sm focus:outline-none focus:ring-2 transition-all ${
-                process.env.XR_ENV === "avp"
-                  ? "border-slate-600/50 bg-transparent text-slate-100 focus:ring-slate-500"
-                  : "border-slate-600 bg-slate-800 text-slate-100 focus:ring-indigo-500 rounded-lg"
-              }`}
-            >
-              <option value="all">All Sets</option>
-              {sets.map((set) => (
-                <option key={set} value={set}>
-                  {set === "SDP"
-                    ? "STARTER DECK PEGASUS"
-                    : set === "LOB"
-                    ? "LEGEND OF BLUE EYES"
-                    : set === "MRL"
-                    ? "MAGIC RULER"
-                    : set === "SDK"
-                    ? "STARTER DECK KAIBA"
-                    : set === "SDY"
-                    ? "STARTER DECK YUGI"
-                    : set === "SDJ"
-                    ? "STARTER DECK JOEY"
-                    : set}
-                </option>
-              ))}
-            </select>
 
             {/* Clear Filters Button */}
-            {(filters.searchTerm || filters.selectedRarity !== 'all' || filters.selectedType !== 'all' || filters.selectedSet !== 'all') && (
+            {(filters.searchTerm || filters.selectedRarity !== 'all' || filters.selectedType !== 'all') && (
               <button
                 enable-xr
                 className={`px-4 py-2 transition-all text-sm font-medium ${
@@ -177,8 +140,7 @@ const CardShop = React.memo(() => {
                   setFilters({
                     searchTerm: "",
                     selectedRarity: "all",
-                    selectedType: "all",
-                    selectedSet: "all"
+                    selectedType: "all"
                   });
                 }}
               >

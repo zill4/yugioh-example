@@ -5,7 +5,6 @@ import {
   type GameEvent,
   type CardInPlay,
   type GameAction,
-  type GameZones,
 } from "../types/GameTypes";
 import { playerDeck, aiDeck, shuffleDeck } from "../decks/PreselectedDecks";
 
@@ -121,7 +120,7 @@ export class GameEngine {
 
     // Find attacker in any monster zone (main or extra)
     const attacker = this.findMonsterById(attackerState, attackerId);
-    if (!attacker || attacker.type !== "monster") return false;
+    if (!attacker) return false;
 
     // Check if monster can attack
     if (attacker.attackUsed || attacker.summonedThisTurn) return false;
@@ -134,7 +133,7 @@ export class GameEngine {
     if (targetIndex !== undefined) {
       // Attack monster
       const defender = this.findMonsterByZoneIndex(defenderState, targetIndex);
-      if (!defender || defender.type !== "monster") return false;
+      if (!defender) return false;
 
       // Calculate battle damage
       if (attacker.attack! > defender.attack!) {
@@ -573,23 +572,6 @@ export class GameEngine {
     return actions;
   }
 
-  // Find a card by ID in any zone (normal monsters only)
-  private findCardById(
-    playerState: PlayerState,
-    cardId: string
-  ): CardInPlay | null {
-    // Check hand
-    const handCard = playerState.hand.find((card) => card.id === cardId);
-    if (handCard) return handCard as CardInPlay;
-
-    // Check main monster zones
-    for (const card of playerState.zones.mainMonsterZones) {
-      if (card?.id === cardId) return card;
-    }
-
-    return null;
-  }
-
   // Normal Summon a monster
   public normalSummon(
     player: "player" | "opponent",
@@ -612,7 +594,7 @@ export class GameEngine {
     const card = playerState.hand[cardIndex];
 
     // Check if it's a monster
-    if (card.type !== "monster") return false;
+    if (card.cardType !== "Monster") return false;
 
     // Check level requirements for tribute summon
     if (card.level! >= 7) {
@@ -707,7 +689,7 @@ export class GameEngine {
     const card = playerState.hand[cardIndex];
 
     // Check if it's a monster
-    if (card.type !== "monster") return false;
+    if (card.cardType !== "Monster") return false;
 
     // Find empty monster zone
     const targetZoneIndex = zoneIndex ?? this.findEmptyMonsterZone(playerState);

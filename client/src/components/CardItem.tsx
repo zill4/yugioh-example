@@ -101,16 +101,6 @@ const CardItem: React.FC<CardItemProps> = React.memo(({ card }) => {
             )}`}
           />
 
-          {/* Out of stock overlay */}
-          {!card.inStock && (
-                  <div className={`absolute inset-0 bg-red-900/60 backdrop-blur-sm flex items-center justify-center ${
-                    process.env.XR_ENV === "avp" ? "" : "rounded-xl"
-                  }`}>
-              <span className="text-red-100 text-[11px] font-bold tracking-wider">
-                UNAVAILABLE
-              </span>
-            </div>
-          )}
 
           {/* Hover details overlay */}
                 <div className={`absolute inset-0 bg-black/70 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 p-3 grid grid-rows-[auto_1fr_auto] text-[11px] ${

@@ -105,7 +105,7 @@ export class DummyAI {
       aiState.zones.mainMonsterZones.some((zone) => zone === null)
     ) {
       const monsterInHand = aiState.hand.find(
-        (card) => card.type === "monster"
+        (card) => card.cardType === "Monster"
       );
       if (monsterInHand) {
         // Find empty monster zone
@@ -144,7 +144,6 @@ export class DummyAI {
     const attackableMonsters = aiState.zones.mainMonsterZones.filter(
       (monster) =>
         monster &&
-        monster.type === "monster" &&
         monster.battlePosition === "attack" &&
         !monster.attackUsed &&
         !monster.summonedThisTurn

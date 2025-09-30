@@ -208,27 +208,17 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                             />
                           ) : (
                             <>
-                              {card.type === 'monster' ? (
-                                <div className="text-4xl opacity-60">👹</div>
-                              ) : card.type === 'spell' ? (
-                                <div className="text-3xl opacity-60">✨</div>
-                              ) : (
-                                <div className="text-3xl opacity-60">🃏</div>
-                              )}
+                              <div className="text-4xl opacity-60">👹</div>
                               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded"></div>
                             </>
                           )}
                         </div>
-                        {card.attack !== undefined && (
-                          <div className="text-[6px] text-white font-bold text-right">
-                            ATK/{card.attack} DEF/{card.defense || 0}
-                          </div>
-                        )}
-                        {card.type === 'monster' && (
-                          <div className="text-[5px] text-gray-300 text-center mt-1">
-                            {getCardStatus(card).join(' • ')}
-                          </div>
-                        )}
+                        <div className="text-[6px] text-white font-bold text-right">
+                          ATK/{card.attack} DEF/{card.defense || 0}
+                        </div>
+                        <div className="text-[5px] text-gray-300 text-center mt-1">
+                          {getCardStatus(card).join(' • ')}
+                        </div>
                       </>
                     )}
                   </div>
@@ -256,27 +246,17 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                             />
                           ) : (
                             <>
-                              {card.type === 'monster' ? (
-                                <div className="text-4xl opacity-60">👹</div>
-                              ) : card.type === 'spell' ? (
-                                <div className="text-3xl opacity-60">✨</div>
-                              ) : (
-                                <div className="text-3xl opacity-60">🃏</div>
-                              )}
+                              <div className="text-4xl opacity-60">👹</div>
                               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded"></div>
                             </>
                           )}
                         </div>
-                        {card.attack !== undefined && (
-                          <div className="text-[6px] text-black font-bold text-right">
-                            ATK/{card.attack} DEF/{card.defense || 0}
-                          </div>
-                        )}
-                        {card.type === 'monster' && (
-                          <div className="text-[5px] text-gray-600 text-center mt-1">
-                            {getCardStatus(card).join(' • ')}
-                          </div>
-                        )}
+                        <div className="text-[6px] text-black font-bold text-right">
+                          ATK/{card.attack} DEF/{card.defense || 0}
+                        </div>
+                        <div className="text-[5px] text-gray-600 text-center mt-1">
+                          {getCardStatus(card).join(' • ')}
+                        </div>
                       </>
                     )}
                   </div>
@@ -323,22 +303,14 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                 />
               ) : (
                 <>
-                  {card?.type === 'monster' ? (
-                    <div className="text-2xl opacity-60">👹</div>
-                  ) : card?.type === 'spell' ? (
-                    <div className="text-xl opacity-60">✨</div>
-                  ) : (
-                    <div className="text-xl opacity-60">🃏</div>
-                  )}
+                  <div className="text-2xl opacity-60">👹</div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded"></div>
                 </>
               )}
             </div>
-            {card?.attack !== undefined && (
-              <div className="text-[5px] text-black font-bold text-right">
-                ATK/{card.attack} DEF/{card.defense || 0}
-              </div>
-            )}
+            <div className="text-[5px] text-black font-bold text-right">
+              ATK/{card.attack} DEF/{card.defense || 0}
+            </div>
           </div>
         </div>
     );
@@ -348,9 +320,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
   const CardActionModal: React.FC = () => {
     if (!selectedCard || !gameState) return null;
 
-    const isMonster = selectedCard.type === 'monster';
-    const canNormalSummon = !gameState.player.hasNormalSummoned && isMonster;
-    const canSet = !gameState.player.hasSetMonster && isMonster;
+    const canNormalSummon = !gameState.player.hasNormalSummoned;
+    const canSet = !gameState.player.hasSetMonster;
 
     const handleNormalSummon = useCallback(() => {
       if (gameControllerRef.current) {
@@ -371,7 +342,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
         <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
           <h3 className="text-lg font-bold mb-4 text-center">{selectedCard.name}</h3>
 
-          {isMonster && (
+          {
             <div className="space-y-3">
               <h4 className="font-semibold text-center">Monster Actions:</h4>
               <div className="space-y-2">
@@ -393,7 +364,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                 )}
               </div>
             </div>
-          )}
+          }
 
           <button
             onClick={() => {
@@ -432,7 +403,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
               >
                 <div className="text-sm font-medium text-center">{target.name}</div>
                 <div className="text-xs text-gray-600 text-center mt-1">
-                  {target.type === 'monster' ? `ATK: ${target.attack}` : target.type}
+                  ATK: {target.attack}
                 </div>
               </button>
             ))}
@@ -473,11 +444,9 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
 
           <div className="text-center mb-6">
             <div className="text-gray-700 mb-2">{getActionDescription()}</div>
-            {selectedCard.type === 'monster' && (
-              <div className="text-sm text-gray-600">
-                ATK: {selectedCard.attack}
-              </div>
-            )}
+            <div className="text-sm text-gray-600">
+              ATK: {selectedCard.attack}
+            </div>
           </div>
 
           <div className="flex space-x-4">

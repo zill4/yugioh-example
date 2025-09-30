@@ -80,8 +80,6 @@ const CardDetail: React.FC = () => {
               <span>{getCardTypeIcon(card.cardType || "")}</span>
               <span>{card.cardType}</span>
               <span>•</span>
-              <span>{card.setCode}</span>
-              <span>•</span>
               <span>#{card.cardNumber}</span>
             </div>
           </div>
@@ -97,12 +95,8 @@ const CardDetail: React.FC = () => {
               </span>
               <span className="text-xs text-slate-400">USD</span>
             </div>
-            <div
-              className={`text-xs font-semibold ${
-                card.inStock ? "text-emerald-400" : "text-red-400"
-              } text-right`}
-            >
-              {card.inStock ? "✓ AVAILABLE" : "✗ UNAVAILABLE"}
+            <div className="text-xs font-semibold text-emerald-400 text-right">
+              ✓ AVAILABLE
             </div>
           </div>
 
@@ -124,24 +118,8 @@ const CardDetail: React.FC = () => {
                   <dt className="text-slate-400">Card Type</dt>
                   <dd className="font-semibold">{card.cardType}</dd>
                 </div>
-                <div className="flex justify-between">
-                  <dt className="text-slate-400">Set Code</dt>
-                  <dd className="font-semibold">{card.setCode}</dd>
-                </div>
                 {card.cardType === "Monster" && (
                   <>
-                    <div className="flex justify-between">
-                      <dt className="text-slate-400">Monster Type</dt>
-                      <dd className="font-semibold">
-                        {(card as MonsterCard).monsterType}
-                      </dd>
-                    </div>
-                    <div className="flex justify-between">
-                      <dt className="text-slate-400">Attribute</dt>
-                      <dd className="font-semibold">
-                        {(card as MonsterCard).attribute}
-                      </dd>
-                    </div>
                     <div className="flex justify-between">
                       <dt className="text-slate-400">Level</dt>
                       <dd className="font-semibold">
@@ -196,24 +174,14 @@ const CardDetail: React.FC = () => {
           {/* Actions */}
           <div {...getXRProps()} className="grid grid-cols-2 gap-3">
             <button
-              disabled={!card.inStock}
               {...getXRProps()}
-              className={`py-2 px-3 border text-xs tracking-wider ${
-                card.inStock
-                  ? "border-slate-700 text-slate-100 hover:bg-slate-900"
-                  : "border-slate-800 text-slate-500 cursor-not-allowed"
-              }`}
+              className="py-2 px-3 border border-slate-700 text-slate-100 hover:bg-slate-900 text-xs tracking-wider"
             >
               ADD TO CART
             </button>
             <button
-              disabled={!card.inStock}
               {...getXRProps()}
-              className={`py-2 px-3 border text-xs tracking-wider ${
-                card.inStock
-                  ? "border-slate-700 text-slate-100 hover:bg-slate-900"
-                  : "border-slate-800 text-slate-500 cursor-not-allowed"
-              }`}
+              className="py-2 px-3 border border-slate-700 text-slate-100 hover:bg-slate-900 text-xs tracking-wider"
             >
               BUY NOW
             </button>

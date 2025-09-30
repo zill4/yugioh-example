@@ -97,11 +97,6 @@ export class GameController {
     return this.gameEngine.executeAction(action);
   }
 
-  // Activate a card effect
-  public activateEffect(cardId: string, effectId?: string): boolean {
-    return this.gameEngine.activateEffect("player", cardId, effectId);
-  }
-
   // Normal Summon a monster
   public normalSummon(cardId: string, zoneIndex?: number): boolean {
     return this.gameEngine.executeAction({
@@ -116,16 +111,6 @@ export class GameController {
   public setMonster(cardId: string, zoneIndex?: number): boolean {
     return this.gameEngine.executeAction({
       type: "SET_MONSTER",
-      player: "player",
-      cardId,
-      zoneIndex,
-    });
-  }
-
-  // Special Summon a monster
-  public specialSummon(cardId: string, zoneIndex?: number): boolean {
-    return this.gameEngine.executeAction({
-      type: "SPECIAL_SUMMON",
       player: "player",
       cardId,
       zoneIndex,
@@ -183,16 +168,6 @@ export class GameController {
     return this.gameEngine.executeAction({
       type: "END_TURN",
       player: "player",
-    });
-  }
-
-  // Play a card from hand
-  public playCard(cardId: string, zoneIndex?: number): boolean {
-    return this.gameEngine.executeAction({
-      type: "PLAY_CARD",
-      player: "player",
-      cardId,
-      zoneIndex,
     });
   }
 

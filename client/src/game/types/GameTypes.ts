@@ -73,18 +73,19 @@ export type LinkArrow =
   | "bottom"
   | "bottom-right";
 
-// Base game card interface (Normal monsters only)
+// Base game card interface (simplified)
 export interface GameCard {
   id: string;
   name: string;
-  type: "monster";
+  description: string;
+  cardType: string; // Always "Monster"
+  level: number;
   attack: number;
   defense: number;
-  level: number;
-  attribute?: Attribute;
-  monsterType?: MonsterType;
-  monsterCategory: MonsterCategory; // Always "Normal"
-  imageUrl?: string;
+  rarity: string;
+  price: number;
+  cardNumber: string;
+  imageUrl: string;
 }
 
 // Card in play with additional game state

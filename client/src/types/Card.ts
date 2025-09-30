@@ -1,5 +1,4 @@
 // Yu-Gi-Oh! Card Types inspired by the actual game mechanics
-import type { EffectType, MonsterCategory } from "../game/types/GameTypes";
 
 export type CardType = "Monster" | "Spell" | "Trap";
 
@@ -56,27 +55,15 @@ export type Rarity =
 export interface BaseCard {
   id: string;
   name: string;
-  description?: string;
-  cardType?: CardType;
-  monsterType?: MonsterType;
-  attribute?: Attribute;
-  rarity?: Rarity;
-  imageUrl?: string;
-  price?: number;
-  inStock?: boolean;
-  setCode?: string;
-  cardNumber?: string;
-  spellType?: SpellType;
-  trapType?: TrapType;
-  level?: number;
-  attack?: number;
-  defense?: number;
-  pendulumScale?: number;
-  linkRating?: number;
-  linkArrows?: string[];
-  effectType?: EffectType;
-  effect?: string;
-  monsterCategory?: MonsterCategory;
+  description: string;
+  cardType: string;
+  level: number;
+  attack: number;
+  defense: number;
+  rarity: string;
+  price: number;
+  cardNumber: string;
+  imageUrl: string;
 }
 
 // TODO: Not being implemented yet
