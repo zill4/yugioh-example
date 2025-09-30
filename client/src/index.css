@@ -541,6 +541,7 @@ html.is-spatial {
     max-height: 80vh;
     height: auto;
     overflow-y: auto;
+    transform: translateY(200px) !important; /* Shift entire layout down by 100px for centering */
   }
 
   /* Left Sidebar - Game Info */
@@ -551,9 +552,10 @@ html.is-spatial {
     padding: 20px;
     position: fixed;
     left: 180px;
-    top: 80px;
+    top: 150px;
     max-height: 600px;
     --xr-back: 50;
+    transform: rotateY(20deg) !important;
     border: 1px solid rgba(148, 163, 184, 0.3);
     overflow-y: auto;
   }
@@ -566,9 +568,10 @@ html.is-spatial {
     padding: 20px;
     position: fixed;
     right: 180px;
-    top: 80px;
+    top: 150px;
     --xr-back: 50;
     border: 1px solid rgba(148, 163, 184, 0.3);
+    transform: rotateY(-20deg) !important;
     height: fit-content; /* Don't stretch full height */
   }
   
@@ -594,6 +597,8 @@ html.is-spatial {
     justify-content: center;
     padding: 10px;
     max-height: 70vh;
+    /* Add vertical centering adjustment if needed */
+    transform: translateY(50px) !important; /* Additional downward shift for the board */
   }
 
   /* Debug: Add visible border to see the container */
@@ -623,7 +628,7 @@ html.is-spatial {
   /* Target ONLY the 4 zone rows */
   .zone-rows-wrapper {
     /* Pre-scale Y BEFORE rotating to compensate for foreshortening */
-    transform: translateZ(260px) translateY(-30px) scaleY(2.5) rotateX(78deg) !important;
+    transform: translateZ(10px) translateY(-40px) scaleY(2.5) rotateX(78deg) !important;
     transform-origin: center center;
     transform-style: preserve-3d;
     border: 3px solid rgba(0, 255, 0, 0.5) !important; /* Debug border - GREEN */
@@ -635,9 +640,9 @@ html.is-spatial {
   .player-hand-container {
     --xr-background-material: translucent;
     position: fixed;
-    bottom: 80px;
-    left: 50%;
-    transform: translateX(-50%) translateZ(200px) !important;
+    bottom: 10px;
+    left: 10%;
+    transform: translateX(0%) translateZ(230px) rotateX(20deg) !important;
     transform-style: preserve-3d;
     --xr-back: 130;
     display: flex;
