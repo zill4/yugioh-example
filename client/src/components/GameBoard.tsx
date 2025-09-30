@@ -727,40 +727,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
               ))}
             </div>
 
-            {/* Middle Section - Side Areas */}
-            <div  className="flex justify-between items-center mb-4">
-              {/* Left - Opponent Life Points */}
-              <div  className="w-20 h-32 bg-cyan-400 border-2 border-cyan-300 rounded-lg flex items-center justify-center">
-                <div className="text-white text-xs font-bold text-center">
-                  Opponent<br/>{gameState.opponent.lifePoints}
-                </div>
-              </div>
-
-              {/* Right - Main Deck */}
-              <div  className="w-20 h-32 bg-red-800 border-2 border-red-600 rounded-lg flex items-center justify-center cursor-pointer hover:bg-red-700 transition-colors">
-                <div className="text-white text-xs font-bold text-center">
-                  DECK<br/>
-                  <span className="text-sm">{gameState.player.mainDeck.length}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Field Spell Zones */}
-            <div  className="absolute top-4 right-4">
-              <div className="w-16 h-24 bg-pink-400 border-2 border-pink-300 rounded-lg flex items-center justify-center">
-                <div className="text-white text-[10px] font-bold text-center">
-                  FIELD<br/>SPELL
-                </div>
-              </div>
-            </div>
-
-            <div  className="absolute bottom-32 left-4">
-              <div className="w-16 h-24 bg-pink-400 border-2 border-pink-300 rounded-lg flex items-center justify-center">
-                <div className="text-white text-[10px] font-bold text-center">
-                  FIELD<br/>SPELL
-                </div>
-              </div>
-            </div>
 
             {/* Third Row - Player Monster Zones */}
             <div  className="flex justify-center space-x-2 mb-2">

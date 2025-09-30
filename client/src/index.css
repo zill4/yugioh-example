@@ -628,7 +628,7 @@ html.is-spatial {
   /* Target ONLY the 4 zone rows */
   .zone-rows-wrapper {
     /* Pre-scale Y BEFORE rotating to compensate for foreshortening */
-    transform: translateZ(10px) translateY(-40px) scaleY(2.5) rotateX(78deg) !important;
+    transform: translateZ(10px) translateY(10px) scaleY(3.4) rotateX(78deg) !important;
     transform-origin: center center;
     transform-style: preserve-3d;
     border: 3px solid rgba(0, 255, 0, 0.5) !important; /* Debug border - GREEN */
