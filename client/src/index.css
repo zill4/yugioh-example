@@ -532,4 +532,48 @@ html.is-spatial {
     background: none !important;
     --xr-background-material: transparent !important;
   }
+
+  /* Game Board Spatial Rotation - Only Zone Rows */
+  .game-board-container {
+    transform-style: preserve-3d;
+    perspective: 1500px;
+    perspective-origin: center 60%;
+  }
+
+  /* Debug: Add visible border to see the container */
+  .game-board-container > div {
+    border: 3px solid rgba(255, 0, 0, 0.5) !important;
+    max-width: none !important; /* Remove width constraint */
+    min-height: 100vh !important; /* Ensure enough vertical space */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .battle-zones-container {
+    transform-style: preserve-3d;
+    border: 3px solid rgba(255, 255, 0, 0.5) !important; /* Debug border - YELLOW */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 100px 0; /* Add vertical padding for rotated content */
+  }
+
+  /* Target ONLY the 4 zone rows */
+  .zone-rows-wrapper {
+    /* Pre-scale Y BEFORE rotating to compensate for foreshortening */
+    transform: translateZ(-300px) translateY(200px) scaleY(3) rotateX(80deg) !important;
+    transform-origin: center top;
+    transform-style: preserve-3d;
+    border: 3px solid rgba(0, 255, 0, 0.5) !important; /* Debug border - GREEN */
+    width: max-content !important; /* Allow natural width */
+    display: inline-block;
+    margin: auto; /* Center horizontally */
+  }
+
+  .test-container {
+    transform: translateZ(10px) scaleY(3) rotateX(80deg) !important;
+    border: 3px solid rgba(0, 255, 255, 0.5) !important; /* Debug border - CYAN for test */
+    width: max-content !important; /* Allow natural width */
+  }
 }

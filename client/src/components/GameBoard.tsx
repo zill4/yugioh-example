@@ -716,8 +716,14 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
         </div>
 
         {/* Main Game Area */}
-        <div  className={`relative p-4 h-screen overflow-hidden ${process.env.XR_ENV === 'avp' ? '' : 'bg-black'}`}>
+        <div  className={`game-board-container relative p-4 h-screen overflow-hidden ${process.env.XR_ENV === 'avp' ? '' : 'bg-black'}`}>
           <div  className="h-full flex flex-col justify-center max-w-6xl mx-auto">
+            
+            {/* Battle Zones Container - Only zones, not hand */}
+            <div className="battle-zones-container">
+            
+            {/* Zone Rows Wrapper - Just the 4 card zone rows */}
+            <div enable-xr className="zone-rows-wrapper">
             
             {/* Top Row - Opponent Spell/Trap Zones */}
             <div  className="flex justify-center space-x-2 mb-2">
@@ -841,6 +847,12 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                 </div>
               ))}
             </div>
+            
+            </div>
+            {/* End Zone Rows Wrapper */}
+            
+            </div>
+            {/* End Battle Zones Container */}
 
             {/* Bottom Row - Player Hand */}
             <div  className="flex justify-center space-x-1 pt-4">
