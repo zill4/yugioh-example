@@ -538,7 +538,6 @@ html.is-spatial {
     display: flex;
     gap: 10px;
     padding: 10px;
-    max-height: 80vh;
     height: auto;
     overflow-y: auto;
     transform: translateY(200px) !important; /* Shift entire layout down by 100px for centering */
@@ -596,42 +595,34 @@ html.is-spatial {
     align-items: center;
     justify-content: center;
     padding: 10px;
-    max-height: 70vh;
-    /* Add vertical centering adjustment if needed */
-    transform: translateY(50px) !important; /* Additional downward shift for the board */
+    transform: translateY(0px) !important; /* Reset to center without extra shift */
   }
 
   /* Debug: Add visible border to see the container */
   .game-board-container > div {
-    border: 3px solid rgba(255, 0, 0, 0.5) !important;
     max-width: 900px !important;
-    max-height: 60vh !important;
     height: auto !important;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
   }
 
   .battle-zones-container {
     transform-style: preserve-3d;
-    border: 3px solid rgba(255, 255, 0, 0.5) !important;
     display: flex;
     flex-direction: column;
     align-items: center;
     width: fit-content;
     padding: 10px;
-    max-height: 50vh;
   }
 
   /* Target ONLY the 4 zone rows */
   .zone-rows-wrapper {
     /* Pre-scale Y BEFORE rotating to compensate for foreshortening */
-    transform: translateZ(10px) translateY(10px) scaleY(3.4) rotateX(78deg) !important;
+    transform: translateZ(-10px) translateY(-10px) !important; /* Increased Z for visibility, adjusted scale and rotation for better fit */
     transform-origin: center center;
     transform-style: preserve-3d;
-    border: 3px solid rgba(0, 255, 0, 0.5) !important; /* Debug border - GREEN */
     width: max-content !important;
     display: inline-block;
   }
@@ -640,7 +631,7 @@ html.is-spatial {
   .player-hand-container {
     --xr-background-material: translucent;
     position: fixed;
-    bottom: 10px;
+    bottom: -50px;
     left: 10%;
     transform: translateX(0%) translateZ(230px) rotateX(20deg) !important;
     transform-style: preserve-3d;
@@ -649,6 +640,7 @@ html.is-spatial {
     gap: 15px;
     padding: 20px 40px;
     border: 1px solid rgba(148, 163, 184, 0.25);
+    z-index: 100; /* Ensure hand is on top */
   }
 
   .test-container {
