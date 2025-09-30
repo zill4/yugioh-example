@@ -812,8 +812,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
             </div>
             {/* End Battle Zones Container */}
 
-            {/* Bottom Row - Player Hand */}
-            <div  className="flex justify-center space-x-1 pt-4">
+            {/* Player Hand - Detached and Larger */}
+            <div enable-xr className="player-hand-container">
               {gameState.player.hand.map((card, index) => (
                 <HandCard
                   key={`player-hand-${index}`}
@@ -850,7 +850,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                 <button
                   onClick={handleDrawCard}
                   disabled={isAITurn}
-                  className={`w-full px-4 py-3 text-sm font-bold transition-all duration-300 ${
+                  className={`w-full text-sm font-bold transition-all duration-300 ${
                     isAITurn
                       ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
                       : 'bg-gradient-to-r from-yellow-600 to-yellow-800 hover:from-yellow-500 hover:to-yellow-700 text-white'
@@ -863,7 +863,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
               <button
                 onClick={handleNextPhase}
                 disabled={isAITurn}
-                className={`w-full px-4 py-3 text-sm font-bold transition-all duration-300 ${
+                className={`w-full text-sm font-bold transition-all duration-300 ${
                   isAITurn
                     ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
                     : 'bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white'
@@ -875,7 +875,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
               <button
                 onClick={handleEndTurn}
                 disabled={isAITurn}
-                className={`w-full px-4 py-3 text-sm font-bold transition-all duration-300 ${
+                className={`w-full text-sm font-bold transition-all duration-300 ${
                   isAITurn
                     ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
                     : 'bg-gradient-to-r from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 text-white'

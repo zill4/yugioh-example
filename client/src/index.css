@@ -543,13 +543,13 @@ html.is-spatial {
   /* Left Sidebar - Game Info */
   .game-info-sidebar {
     --xr-background-material: translucent;
-    width: 220px;
-    min-width: 220px;
-    padding: 25px;
+    width: 200px;
+    min-width: 200px;
+    padding: 20px;
     position: fixed;
-    left: 20px;
-    top: 20px;
-    bottom: 20px;
+    left: 180px;
+    top: 80px;
+    max-height: 600px;
     --xr-back: 50;
     border: 1px solid rgba(148, 163, 184, 0.3);
     overflow-y: auto;
@@ -558,30 +558,44 @@ html.is-spatial {
   /* Right Sidebar - Action Buttons */
   .game-actions-sidebar {
     --xr-background-material: translucent;
-    width: 200px;
-    min-width: 200px;
-    padding: 25px;
+    width: 180px;
+    min-width: 180px;
+    padding: 20px;
     position: fixed;
-    right: 20px;
-    top: 20px;
+    right: 180px;
+    top: 80px;
     --xr-back: 50;
     border: 1px solid rgba(148, 163, 184, 0.3);
+    height: fit-content; /* Don't stretch full height */
+  }
+  
+  .game-actions-sidebar .space-y-3 {
+    gap: 12px !important; /* Tighter spacing between buttons */
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .game-actions-sidebar button {
+    padding: 10px 16px !important; /* Smaller button padding */
   }
 
   /* Center Game Board */
   .game-board-container {
     transform-style: preserve-3d;
     perspective: 1500px;
-    perspective-origin: center 50%;
+    perspective-origin: center 52%;
     flex: 1;
-    margin: 0 260px; /* Make room for fixed sidebars */
+    margin: 0 360px; /* Make room for sidebars */
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   /* Debug: Add visible border to see the container */
   .game-board-container > div {
     border: 3px solid rgba(255, 0, 0, 0.5) !important;
-    max-width: none !important;
-    min-height: 100vh !important;
+    max-width: 900px !important; /* Limit width */
+    height: auto !important; /* Let content determine height */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -594,19 +608,34 @@ html.is-spatial {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%;
+    width: fit-content;
+    padding: 20px;
   }
 
   /* Target ONLY the 4 zone rows */
   .zone-rows-wrapper {
     /* Pre-scale Y BEFORE rotating to compensate for foreshortening */
-    transform: translateZ(200px) translateY(-100px) scaleY(3.5) rotateX(75deg) !important;
+    transform: translateZ(260px) translateY(-110px) scaleY(3) rotateX(76deg) !important;
     transform-origin: center center;
     transform-style: preserve-3d;
     border: 3px solid rgba(0, 255, 0, 0.5) !important; /* Debug border - GREEN */
     width: max-content !important;
     display: inline-block;
-    margin: auto;
+  }
+  
+  /* Detached Player Hand - Larger and Closer */
+  .player-hand-container {
+    --xr-background-material: translucent;
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateZ(200px) scale(1.2) !important;
+    transform-style: preserve-3d;
+    --xr-back: 130;
+    display: flex;
+    gap: 10px;
+    padding: 18px 30px;
+    border: 1px solid rgba(148, 163, 184, 0.25);
   }
 
   .test-container {
