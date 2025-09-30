@@ -307,7 +307,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
         <div
           
           onClick={handleHandCardClick}
-          className={`w-16 h-24 bg-gradient-to-b from-white to-gray-100 border-2 border-gray-800 rounded-md shadow-lg select-none ${
+          className={`w-24 h-36 bg-gradient-to-b from-white to-gray-100 border-2 border-gray-800 rounded-md shadow-lg select-none ${
             isAITurn && isPlayerHand ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110 hover:-translate-y-2 cursor-pointer'
           } transition-all duration-200 relative overflow-hidden`}
           style={{
@@ -621,7 +621,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
       <div  className={`min-h-screen ${process.env.XR_ENV === 'avp' ? '' : 'bg-black'} relative overflow-hidden`}>
 
         {/* New 3-Column Layout */}
-        <div className="game-layout-grid h-screen flex">
+        <div className="game-layout-grid flex">
           
           {/* Left Sidebar - Game Info */}
           <div enable-xr className="game-info-sidebar">

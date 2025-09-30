@@ -536,8 +536,11 @@ html.is-spatial {
   /* Game Board 3-Column Layout */
   .game-layout-grid {
     display: flex;
-    gap: 20px;
-    padding: 20px;
+    gap: 10px;
+    padding: 10px;
+    max-height: 80vh;
+    height: auto;
+    overflow-y: auto;
   }
 
   /* Left Sidebar - Game Info */
@@ -583,39 +586,44 @@ html.is-spatial {
   .game-board-container {
     transform-style: preserve-3d;
     perspective: 1500px;
-    perspective-origin: center 52%;
+    perspective-origin: center 50%;
     flex: 1;
-    margin: 0 360px; /* Make room for sidebars */
+    margin: 0 360px;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 10px;
+    max-height: 70vh;
   }
 
   /* Debug: Add visible border to see the container */
   .game-board-container > div {
     border: 3px solid rgba(255, 0, 0, 0.5) !important;
-    max-width: 900px !important; /* Limit width */
-    height: auto !important; /* Let content determine height */
+    max-width: 900px !important;
+    max-height: 60vh !important;
+    height: auto !important;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
   }
 
   .battle-zones-container {
     transform-style: preserve-3d;
-    border: 3px solid rgba(255, 255, 0, 0.5) !important; /* Debug border - YELLOW */
+    border: 3px solid rgba(255, 255, 0, 0.5) !important;
     display: flex;
     flex-direction: column;
     align-items: center;
     width: fit-content;
-    padding: 20px;
+    padding: 10px;
+    max-height: 50vh;
   }
 
   /* Target ONLY the 4 zone rows */
   .zone-rows-wrapper {
     /* Pre-scale Y BEFORE rotating to compensate for foreshortening */
-    transform: translateZ(260px) translateY(-110px) scaleY(3) rotateX(76deg) !important;
+    transform: translateZ(260px) translateY(-30px) scaleY(2.5) rotateX(78deg) !important;
     transform-origin: center center;
     transform-style: preserve-3d;
     border: 3px solid rgba(0, 255, 0, 0.5) !important; /* Debug border - GREEN */
@@ -629,12 +637,12 @@ html.is-spatial {
     position: fixed;
     bottom: 80px;
     left: 50%;
-    transform: translateX(-50%) translateZ(200px) scale(1.2) !important;
+    transform: translateX(-50%) translateZ(200px) !important;
     transform-style: preserve-3d;
     --xr-back: 130;
     display: flex;
-    gap: 10px;
-    padding: 18px 30px;
+    gap: 15px;
+    padding: 20px 40px;
     border: 1px solid rgba(148, 163, 184, 0.25);
   }
 
