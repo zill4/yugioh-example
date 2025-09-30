@@ -620,27 +620,38 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     <>
       <div  className={`min-h-screen ${process.env.XR_ENV === 'avp' ? '' : 'bg-black'} relative overflow-hidden`}>
 
-        {/* Game Header */}
-        <div  className="relative bg-slate-800/90 backdrop-blur-lg border-b border-slate-700/50 p-4">
-          <div  className="flex justify-between items-center">
-            <div  className="flex items-center space-x-4">
+        {/* New 3-Column Layout */}
+        <div className="game-layout-grid h-screen flex">
+          
+          {/* Left Sidebar - Game Info */}
+          <div enable-xr className="game-info-sidebar">
+            <div className="space-y-4">
               <button
                 onClick={onEndGame}
-                
-                className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white rounded-lg text-sm font-bold transition-all duration-300"
+                className="w-full px-4 py-2 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white text-sm font-bold transition-all duration-300"
               >
                 END DUEL
               </button>
-              <div  className="text-slate-300 text-sm">
-                Mode: <span className="text-purple-400 font-semibold">{gameMode}</span>
+              
+              <div className="text-slate-300 text-sm">
+                <div className="text-slate-400 text-xs mb-1">Mode</div>
+                <div className="text-purple-400 font-semibold">{gameMode}</div>
               </div>
-            </div>
 
-            <div  className="flex items-center space-x-6">
-              <div  className="text-center">
-                <div  className="text-sm text-slate-400">Phase</div>
-                <div  className="text-lg font-bold text-purple-400">{gameState.currentPhase}</div>
-                <div  className="text-xs text-slate-500 mt-1">
+              <div>
+                <div className="text-slate-400 text-xs mb-1">Your LP</div>
+                <div className="text-2xl font-bold text-cyan-400">{gameState.player.lifePoints}</div>
+              </div>
+
+              <div>
+                <div className="text-slate-400 text-xs mb-1">Opponent LP</div>
+                <div className="text-2xl font-bold text-red-400">{gameState.opponent.lifePoints}</div>
+              </div>
+
+              <div>
+                <div className="text-slate-400 text-xs mb-1">Phase</div>
+                <div className="text-lg font-bold text-purple-400">{gameState.currentPhase}</div>
+                <div className="text-xs text-slate-500 mt-1">
                   {gameState.currentPhase === 'Draw' && 'Draw cards and activate effects'}
                   {gameState.currentPhase === 'Standby' && 'Activate standby effects'}
                   {gameState.currentPhase === 'Main1' && 'Summon, activate cards'}
@@ -649,74 +660,21 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                   {gameState.currentPhase === 'End' && 'End effects, discard'}
                 </div>
               </div>
-              <div  className="text-center">
-                <div  className="text-sm text-slate-400">Turn</div>
-                <div  className="text-lg font-bold text-blue-400">
+
+              <div>
+                <div className="text-slate-400 text-xs mb-1">Turn</div>
+                <div className="text-lg font-bold text-blue-400">
                   {gameState.currentTurn === 'player' ? 'Your Turn' : 'Opponent\'s Turn'}
                 </div>
-                <div  className="text-xs text-slate-500 mt-1">
+                <div className="text-xs text-slate-500 mt-1">
                   Turn {gameState.turnNumber}
                 </div>
               </div>
-              {gameState.currentTurn === 'player' && (
-                <div  className="flex items-center space-x-2">
-                  <div  className="text-xs text-slate-400">Actions:</div>
-                  {!gameState.player.hasNormalSummoned && (
-                    <div  className="text-xs px-2 py-1 bg-green-600/20 text-green-400 rounded border border-green-600/30">
-                      Can Summon
-                    </div>
-                  )}
-                  {gameState.currentPhase === 'Battle' && (
-                    <div  className="text-xs px-2 py-1 bg-red-600/20 text-red-40w0 rounded border border-red-600/30">
-                      Battle Phase
-                    </div>
-                  )}
-                </div>
-              )}
-              {gameState.currentPhase === 'Draw' && gameState.currentTurn === 'player' && (
-                <button
-                  onClick={handleDrawCard}
-                  disabled={isAITurn}
-                  
-                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${
-                    isAITurn
-                      ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-yellow-600 to-yellow-800 hover:from-yellow-500 hover:to-yellow-700 text-white'
-                  }`}
-                >
-                  Draw Card
-                </button>
-              )}
-              <button
-                onClick={handleNextPhase}
-                disabled={isAITurn}
-                
-                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${
-                  isAITurn
-                    ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white'
-                }`}
-              >
-                Next Phase
-              </button>
-              <button
-                onClick={handleEndTurn}
-                disabled={isAITurn}
-                
-                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${
-                  isAITurn
-                    ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 text-white'
-                }`}
-              >
-                End Turn
-              </button>
             </div>
           </div>
-        </div>
 
-        {/* Main Game Area */}
-        <div  className={`game-board-container relative p-4 h-screen overflow-hidden ${process.env.XR_ENV === 'avp' ? '' : 'bg-black'}`}>
+          {/* Center - Game Board */}
+          <div className={`game-board-container flex-1 relative p-4 overflow-hidden ${process.env.XR_ENV === 'avp' ? '' : 'bg-black'}`}>
           <div  className="h-full flex flex-col justify-center max-w-6xl mx-auto">
             
             {/* Battle Zones Container - Only zones, not hand */}
@@ -881,17 +839,56 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
               </div>
             </div>
 
-            {/* Life Points - Top Left */}
-            <div  className="absolute top-4 left-4 text-white">
-              <div className="bg-slate-800/80 backdrop-blur-sm border border-slate-600 rounded-lg p-2 mb-2">
-                <div className="text-xs">Opponent LP: {gameState.opponent.lifePoints}</div>
-              </div>
-              <div className="bg-slate-800/80 backdrop-blur-sm border border-slate-600 rounded-lg p-2">
-                <div className="text-xs">Your LP: {gameState.player.lifePoints}</div>
-              </div>
+          </div>
+          {/* End Center Game Board */}
+          </div>
+
+          {/* Right Sidebar - Action Buttons */}
+          <div enable-xr className="game-actions-sidebar">
+            <div className="space-y-3">
+              {gameState.currentPhase === 'Draw' && gameState.currentTurn === 'player' && (
+                <button
+                  onClick={handleDrawCard}
+                  disabled={isAITurn}
+                  className={`w-full px-4 py-3 text-sm font-bold transition-all duration-300 ${
+                    isAITurn
+                      ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-yellow-600 to-yellow-800 hover:from-yellow-500 hover:to-yellow-700 text-white'
+                  }`}
+                >
+                  Draw Card
+                </button>
+              )}
+              
+              <button
+                onClick={handleNextPhase}
+                disabled={isAITurn}
+                className={`w-full px-4 py-3 text-sm font-bold transition-all duration-300 ${
+                  isAITurn
+                    ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white'
+                }`}
+              >
+                Next Phase
+              </button>
+              
+              <button
+                onClick={handleEndTurn}
+                disabled={isAITurn}
+                className={`w-full px-4 py-3 text-sm font-bold transition-all duration-300 ${
+                  isAITurn
+                    ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 text-white'
+                }`}
+              >
+                End Turn
+              </button>
             </div>
           </div>
+          {/* End Right Sidebar */}
+
         </div>
+        {/* End 3-Column Layout */}
       </div>
 
     {/* Modals */}

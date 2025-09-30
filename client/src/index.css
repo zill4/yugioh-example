@@ -533,21 +533,59 @@ html.is-spatial {
     --xr-background-material: transparent !important;
   }
 
-  /* Game Board Spatial Rotation - Only Zone Rows */
+  /* Game Board 3-Column Layout */
+  .game-layout-grid {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  /* Left Sidebar - Game Info */
+  .game-info-sidebar {
+    --xr-background-material: translucent;
+    width: 220px;
+    min-width: 220px;
+    padding: 25px;
+    position: fixed;
+    left: 20px;
+    top: 20px;
+    bottom: 20px;
+    --xr-back: 50;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    overflow-y: auto;
+  }
+
+  /* Right Sidebar - Action Buttons */
+  .game-actions-sidebar {
+    --xr-background-material: translucent;
+    width: 200px;
+    min-width: 200px;
+    padding: 25px;
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    --xr-back: 50;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+  }
+
+  /* Center Game Board */
   .game-board-container {
     transform-style: preserve-3d;
     perspective: 1500px;
-    perspective-origin: center 60%;
+    perspective-origin: center 50%;
+    flex: 1;
+    margin: 0 260px; /* Make room for fixed sidebars */
   }
 
   /* Debug: Add visible border to see the container */
   .game-board-container > div {
     border: 3px solid rgba(255, 0, 0, 0.5) !important;
-    max-width: none !important; /* Remove width constraint */
-    min-height: 100vh !important; /* Ensure enough vertical space */
+    max-width: none !important;
+    min-height: 100vh !important;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
   }
 
   .battle-zones-container {
@@ -556,24 +594,24 @@ html.is-spatial {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 100px 0; /* Add vertical padding for rotated content */
+    width: 100%;
   }
 
   /* Target ONLY the 4 zone rows */
   .zone-rows-wrapper {
     /* Pre-scale Y BEFORE rotating to compensate for foreshortening */
-    transform: translateZ(-300px) translateY(200px) scaleY(3) rotateX(80deg) !important;
-    transform-origin: center top;
+    transform: translateZ(200px) translateY(-100px) scaleY(3.5) rotateX(75deg) !important;
+    transform-origin: center center;
     transform-style: preserve-3d;
     border: 3px solid rgba(0, 255, 0, 0.5) !important; /* Debug border - GREEN */
-    width: max-content !important; /* Allow natural width */
+    width: max-content !important;
     display: inline-block;
-    margin: auto; /* Center horizontally */
+    margin: auto;
   }
 
   .test-container {
     transform: translateZ(10px) scaleY(3) rotateX(80deg) !important;
     border: 3px solid rgba(0, 255, 255, 0.5) !important; /* Debug border - CYAN for test */
-    width: max-content !important; /* Allow natural width */
+    width: max-content !important;
   }
 }
