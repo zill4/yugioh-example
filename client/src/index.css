@@ -533,21 +533,17 @@ html.is-spatial {
     --xr-background-material: transparent !important;
   }
 
-  /* Game Board 3-Column Layout */
+  /* Game Board - Fixed Position Layout */
   .game-layout-grid {
-    display: flex;
-    gap: 10px;
-    padding: 10px;
-    height: auto;
-    overflow-y: auto;
-    transform: translateY(200px) !important; /* Shift entire layout down by 100px for centering */
+    position: fixed;
+    inset: 0;
+    pointer-events: none; /* Allow clicks through the container */
   }
 
   /* Left Sidebar - Game Info */
   .game-info-sidebar {
     --xr-background-material: translucent;
     width: 200px;
-    min-width: 200px;
     padding: 20px;
     position: fixed;
     left: 180px;
@@ -557,13 +553,14 @@ html.is-spatial {
     transform: rotateY(20deg) !important;
     border: 1px solid rgba(148, 163, 184, 0.3);
     overflow-y: auto;
+    pointer-events: auto; /* Enable clicks on sidebar */
+    z-index: 50;
   }
 
   /* Right Sidebar - Action Buttons */
   .game-actions-sidebar {
     --xr-background-material: translucent;
     width: 180px;
-    min-width: 180px;
     padding: 20px;
     position: fixed;
     right: 180px;
@@ -571,37 +568,37 @@ html.is-spatial {
     --xr-back: 50;
     border: 1px solid rgba(148, 163, 184, 0.3);
     transform: rotateY(-20deg) !important;
-    height: fit-content; /* Don't stretch full height */
+    height: fit-content;
+    pointer-events: auto; /* Enable clicks on sidebar */
+    z-index: 50;
   }
   
   .game-actions-sidebar .space-y-3 {
-    gap: 12px !important; /* Tighter spacing between buttons */
+    gap: 12px !important;
     display: flex;
     flex-direction: column;
   }
   
   .game-actions-sidebar button {
-    padding: 10px 16px !important; /* Smaller button padding */
+    padding: 10px 16px !important;
   }
 
-  /* Center Game Board */
+  /* Center Game Board - Fixed Position */
   .game-board-container {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-40%) !important;
     transform-style: preserve-3d;
     perspective: 1500px;
-    perspective-origin: center 50%;
-    flex: 1;
-    margin: 0 360px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    transform: translateY(0px) !important; /* Reset to center without extra shift */
+    perspective-origin: center center;
+    width: 900px;
+    height: auto;
+    pointer-events: auto; /* Enable clicks on game board */
+    z-index: 40;
   }
 
-  /* Debug: Add visible border to see the container */
   .game-board-container > div {
-    max-width: 900px !important;
-    height: auto !important;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -617,30 +614,40 @@ html.is-spatial {
     padding: 10px;
   }
 
-  /* Target ONLY the 4 zone rows */
+  /* Target ONLY the zone rows */
   .zone-rows-wrapper {
-    /* Pre-scale Y BEFORE rotating to compensate for foreshortening */
-    transform: translateZ(-10px) translateY(-10px) !important; /* Increased Z for visibility, adjusted scale and rotation for better fit */
+    transform: translateZ(-10px) translateY(-10px) !important;
     transform-origin: center center;
     transform-style: preserve-3d;
     width: max-content !important;
     display: inline-block;
   }
   
-  /* Detached Player Hand - Larger and Closer */
+  /* Detached Player Hand - Fixed Position */
   .player-hand-container {
     --xr-background-material: translucent;
     position: fixed;
-    bottom: -50px;
-    left: 10%;
-    transform: translateX(0%) translateZ(230px) rotateX(20deg) !important;
+    bottom: 20%;
+    left: 30%;
+    transform:  translateZ(230px) rotateX(20deg) !important;
     transform-style: preserve-3d;
     --xr-back: 130;
     display: flex;
     gap: 15px;
     padding: 20px 40px;
     border: 1px solid rgba(148, 163, 184, 0.25);
-    z-index: 100; /* Ensure hand is on top */
+    pointer-events: auto; /* Enable clicks on hand */
+    z-index: 100;
+  }
+  
+  /* Game Log - Fixed Position */
+  .game-log-container {
+    position: fixed;
+    bottom: 20px;
+    left: 180px;
+    width: 250px;
+    pointer-events: auto;
+    z-index: 45;
   }
 
   .test-container {

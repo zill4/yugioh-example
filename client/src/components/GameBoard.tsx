@@ -620,8 +620,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     <>
       <div  className={`min-h-screen ${process.env.XR_ENV === 'avp' ? '' : 'bg-black'} relative overflow-hidden`}>
 
-        {/* New 3-Column Layout */}
-        <div className="game-layout-grid flex">
+        {/* Fixed Position Layout */}
+        <div className="game-layout-grid">
           
           {/* Left Sidebar - Game Info */}
           <div enable-xr className="game-info-sidebar">
@@ -674,37 +674,15 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
           </div>
 
           {/* Center - Game Board */}
-          <div className={`game-board-container flex-1 relative p-4 overflow-hidden ${process.env.XR_ENV === 'avp' ? '' : 'bg-black'}`}>
-          <div  className="h-full flex flex-col justify-center max-w-6xl mx-auto">
-            
-            {/* Battle Zones Container - Only zones, not hand */}
-            <div className="battle-zones-container">
+          <div className="game-board-container">
+            <div>
+              {/* Battle Zones Container - Only zones, not hand */}
+              <div className="battle-zones-container">
             
             {/* Zone Rows Wrapper - Just the 4 card zone rows */}
             <div enable-xr className="zone-rows-wrapper">
             
-            {/* Top Row - Opponent Spell/Trap Zones */}
-            <div  className="flex justify-center space-x-2 mb-2">
-              {gameState.opponent.zones.spellTrapZones.map((card, index) => (
-                <div key={`opponent-spell-${index}`} className="relative">
-                  <CardSlot
-                    card={card}
-                    isOpponent={true}
-                    zoneIndex={index}
-                    zoneType="spellTrap"
-                    isPlayerZone={false}
-                  />
-                  {!card && (
-                    <div className="absolute inset-0 bg-purple-600/80 border-2 border-purple-400 rounded-md flex items-center justify-center pointer-events-none">
-                      <div className="text-white text-[10px] font-bold text-center leading-tight">
-                        SPELL/TRAP<br/>ZONE
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
+   
             {/* Second Row - Opponent Monster Zones */}
             <div  className="flex justify-center space-x-2 mb-4">
               {gameState.opponent.zones.mainMonsterZones.map((card, index) => (
@@ -750,52 +728,35 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
               ))}
             </div>
 
-            {/* Fourth Row - Player Spell/Trap Zones */}
-            <div  className="flex justify-center space-x-2 mb-4">
-              {gameState.player.zones.spellTrapZones.map((card, index) => (
-                <div key={`player-spell-${index}`} className="relative">
-                  <CardSlot
-                    card={card}
-                    isOpponent={false}
-                    zoneIndex={index}
-                    zoneType="spellTrap"
-                    isPlayerZone={true}
-                  />
-                  {!card && (
-                    <div className="absolute inset-0 bg-purple-600/80 border-2 border-purple-400 rounded-md flex items-center justify-center pointer-events-none">
-                      <div className="text-white text-[10px] font-bold text-center leading-tight">
-                        SPELL/TRAP<br/>ZONE
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
             
+              </div>
+              {/* End Zone Rows Wrapper */}
+              
+              </div>
+              {/* End Battle Zones Container */}
             </div>
-            {/* End Zone Rows Wrapper */}
-            
-            </div>
-            {/* End Battle Zones Container */}
+          </div>
+          {/* End Center Game Board */}
 
-            {/* Player Hand - Detached and Larger */}
-            <div enable-xr className="player-hand-container">
-              {gameState.player.hand.map((card, index) => (
-                <HandCard
-                  key={`player-hand-${index}`}
-                  card={card}
-                  index={index}
-                  isPlayerHand={true}
-                />
-              ))}
-            </div>
+          {/* Player Hand - Detached and Fixed */}
+          <div enable-xr className="player-hand-container">
+            {gameState.player.hand.map((card, index) => (
+              <HandCard
+                key={`player-hand-${index}`}
+                card={card}
+                index={index}
+                isPlayerHand={true}
+              />
+            ))}
+          </div>
 
-            {/* Game Log - Bottom Left */}
-            <div  className="absolute bottom-4 left-4 bg-slate-800/80 backdrop-blur-sm border border-slate-600 rounded-lg p-2 w-48 min-h-[60px]">
-              <div  className="text-xs text-slate-400 font-medium mb-1">GAME LOG</div>
-              <div  className="space-y-1 text-xs text-slate-300 max-h-12 overflow-y-auto">
+          {/* Game Log - Fixed Position */}
+          <div className="game-log-container">
+            <div className="bg-slate-800/80 backdrop-blur-sm border border-slate-600 rounded-lg p-2 min-h-[60px]">
+              <div className="text-xs text-slate-400 font-medium mb-1">GAME LOG</div>
+              <div className="space-y-1 text-xs text-slate-300 max-h-12 overflow-y-auto">
                 {gameState?.gameLog?.slice(-2).map((event, i) => (
-                  <div key={i}  className="text-[9px]">
+                  <div key={i} className="text-[9px]">
                     {event.message}
                   </div>
                 ))}
@@ -804,9 +765,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                 )}
               </div>
             </div>
-
-          </div>
-          {/* End Center Game Board */}
           </div>
 
           {/* Right Sidebar - Action Buttons */}
@@ -854,7 +812,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
           {/* End Right Sidebar */}
 
         </div>
-        {/* End 3-Column Layout */}
+        {/* End Fixed Position Layout */}
       </div>
 
     {/* Modals */}
