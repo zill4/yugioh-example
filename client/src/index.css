@@ -643,6 +643,7 @@ html.is-spatial {
     transform-style: preserve-3d;
     width: max-content !important;
     display: inline-block;
+    pointer-events: auto; /* Enable clicks on monster zone cards */
   }
   
   /* Detached Player Hand - Fixed Position */
