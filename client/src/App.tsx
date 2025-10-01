@@ -1,18 +1,30 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { CardDetail } from './components';
-import { AuthProvider } from './contexts/UserContext';
-import HomePage from './pages/HomePage';
-import AuthPage from './pages/AuthPage';
-import CardshopPage from './pages/CardshopPage';
-import GamePage from './pages/GamePage';
-import DeckbuilderPage from './pages/DeckbuilderPage';
-import CardCreatorPage from './pages/CardCreatorPage';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { CardDetail } from "./components";
+import { AuthProvider } from "./contexts/UserContext";
+import HomePage from "./pages/HomePage";
+import AuthPage from "./pages/AuthPage";
+import CardshopPage from "./pages/CardshopPage";
+import GamePage from "./pages/GamePage";
+import DeckbuilderPage from "./pages/DeckbuilderPage";
+import CardCreatorPage from "./pages/CardCreatorPage";
+import { isXREnvironment } from "./utils/xr";
 
 function App() {
+  if (isXREnvironment()) {
+    return (
+      <Router basename={process.env.XR_ENV === "avp" ? "/webspatial/avp" : "/"}>
+        <div className="App min-h-screen">
+          <Routes>
+            <Route path="/" element={<GamePage />} />
+          </Routes>
+        </div>
+      </Router>
+    );
+  }
   return (
     <AuthProvider>
-      <Router basename={process.env.XR_ENV === 'avp' ? '/webspatial/avp' : '/'}>
+      <Router basename={process.env.XR_ENV === "avp" ? "/webspatial/avp" : "/"}>
         <div className="App min-h-screen">
           <Routes>
             <Route path="/" element={<HomePage />} />
