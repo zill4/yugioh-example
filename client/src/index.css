@@ -681,4 +681,7 @@ html.is-spatial {
   .battle-modal-card {
     --xr-background-material: translucent;
   }
+  .xr-card-summon-modal {
+    --xr-background-material: translucent;
+  }
 }

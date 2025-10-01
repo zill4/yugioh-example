@@ -1,48 +1,28 @@
-// Yu-Gi-Oh! Card Types inspired by the actual game mechanics
+// Warlok Card Types inspired by playing cards and strategic gameplay
 
-export type CardType = "Monster" | "Spell" | "Trap";
+export type CardType = "Monster"; // All Warlok cards are monsters
 
-export type MonsterType =
-  | "Warrior"
-  | "Spellcaster"
-  | "Dragon"
-  | "Beast"
-  | "Machine"
-  | "Fiend"
-  | "Zombie"
-  | "Aqua"
-  | "Pyro"
-  | "Rock"
-  | "Winged Beast"
-  | "Plant"
-  | "Insect"
-  | "Thunder"
-  | "Dinosaur"
-  | "Sea Serpent"
-  | "Reptile"
-  | "Psychic"
-  | "Divine-Beast"
-  | "Creator God"
-  | "Wyrm"
-  | "Cyberse";
+export type CardSuit = "hearts" | "diamonds" | "spades" | "clubs";
 
-export type Attribute =
-  | "DARK"
-  | "LIGHT"
-  | "WATER"
-  | "FIRE"
-  | "EARTH"
-  | "WIND"
-  | "DIVINE";
-
-export type SpellType =
-  | "Normal"
-  | "Quick-Play"
-  | "Continuous"
-  | "Ritual"
-  | "Field"
-  | "Equip";
-export type TrapType = "Normal" | "Continuous" | "Counter";
+export type CardLevel =
+  | "pawn"
+  | "knight"
+  | "rook"
+  | "queen"
+  | "king" // Chess pieces
+  | "A"
+  | "K"
+  | "Q"
+  | "J" // Face cards
+  | "2"
+  | "3"
+  | "4"
+  | "5"
+  | "6"
+  | "7"
+  | "8"
+  | "9"
+  | "10"; // Number cards
 
 export type Rarity =
   | "Common"
@@ -57,39 +37,26 @@ export interface BaseCard {
   name: string;
   description: string;
   cardType: string;
-  level: number;
+  suit: CardSuit;
+  level: CardLevel | string; // Can be chess pieces, face cards, or numbers
   attack: number;
   defense: number;
   rarity: string;
   price: number;
   cardNumber: string;
   imageUrl: string;
+  timestamp?: string;
 }
 
-// TODO: Not being implemented yet
 export interface MonsterCard extends BaseCard {
   cardType: "Monster";
-  monsterType: MonsterType;
-  attribute: Attribute;
-  level: number;
+  suit: CardSuit;
+  level: CardLevel | string;
   attack: number;
   defense: number;
-  pendulumScale?: number;
-  linkRating?: number;
-  linkArrows?: string[];
 }
 
-export interface SpellCard extends BaseCard {
-  cardType: "Spell";
-  spellType: SpellType;
-}
-
-export interface TrapCard extends BaseCard {
-  cardType: "Trap";
-  trapType: TrapType;
-}
-
-export type Card = MonsterCard | SpellCard | TrapCard;
+export type Card = MonsterCard;
 
 // Chess-inspired strategic elements for deck building
 export interface DeckStrategy {

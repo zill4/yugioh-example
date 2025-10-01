@@ -68,9 +68,7 @@ const GamePage = () => {
             </div>
           )}
         </div>
-        <div enable-xr className="test-container bg-red-500">
-        meow meow meow I am content
-      </div>
+
         <div className="space-y-3">
           {gameModes.map((mode) => (
             <button

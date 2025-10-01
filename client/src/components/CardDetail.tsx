@@ -1,8 +1,8 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import { sampleCards } from "../data/sampleCards";
-import { getXRProps } from "../utils/xr";
-import type { MonsterCard, SpellCard, TrapCard } from "../types/Card";
+import { getXRProps, getAssetPath } from "../utils/xr";
+import type { MonsterCard } from "../types/Card";
 import Layout from "./Layout";
 
 const CardDetail: React.FC = () => {
@@ -32,12 +32,36 @@ const CardDetail: React.FC = () => {
     switch (cardType) {
       case "Monster":
         return "⚔️";
-      case "Spell":
-        return "✨";
-      case "Trap":
-        return "🪤";
       default:
         return "🎴";
+    }
+  };
+
+  const getSuitIcon = (suit: string) => {
+    switch (suit) {
+      case "hearts":
+        return "♥";
+      case "diamonds":
+        return "♦";
+      case "spades":
+        return "♠";
+      case "clubs":
+        return "♣";
+      default:
+        return "◈";
+    }
+  };
+
+  const getSuitColor = (suit: string) => {
+    switch (suit) {
+      case "hearts":
+      case "diamonds":
+        return "text-red-400";
+      case "spades":
+      case "clubs":
+        return "text-slate-300";
+      default:
+        return "text-slate-400";
     }
   };
 
@@ -57,7 +81,7 @@ const CardDetail: React.FC = () => {
           <div className="w-full" style={{ aspectRatio: "3/4" }}>
             <img
               {...getXRProps()}
-              src={card.imageUrl}
+              src={getAssetPath(card.imageUrl)}
               alt={card.name}
               className="w-full h-full object-contain"
               onError={(e) => {
@@ -79,6 +103,11 @@ const CardDetail: React.FC = () => {
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
               <span>{getCardTypeIcon(card.cardType || "")}</span>
               <span>{card.cardType}</span>
+              <span>•</span>
+              <span className={`text-lg ${getSuitColor((card as MonsterCard).suit || "")}`}>
+                {getSuitIcon((card as MonsterCard).suit || "")}
+              </span>
+              <span className="uppercase">{(card as MonsterCard).suit}</span>
               <span>•</span>
               <span>#{card.cardNumber}</span>
             </div>
@@ -118,11 +147,20 @@ const CardDetail: React.FC = () => {
                   <dt className="text-slate-400">Card Type</dt>
                   <dd className="font-semibold">{card.cardType}</dd>
                 </div>
+                <div className="flex justify-between">
+                  <dt className="text-slate-400">Suit</dt>
+                  <dd className="font-semibold flex items-center gap-2">
+                    <span className={getSuitColor((card as MonsterCard).suit || "")}>
+                      {getSuitIcon((card as MonsterCard).suit || "")}
+                    </span>
+                    <span className="uppercase">{(card as MonsterCard).suit}</span>
+                  </dd>
+                </div>
                 {card.cardType === "Monster" && (
                   <>
                     <div className="flex justify-between">
                       <dt className="text-slate-400">Level</dt>
-                      <dd className="font-semibold">
+                      <dd className="font-semibold uppercase">
                         {(card as MonsterCard).level}
                       </dd>
                     </div>
@@ -138,23 +176,11 @@ const CardDetail: React.FC = () => {
                         </span>
                       </dd>
                     </div>
+                    <div className="flex justify-between">
+                      <dt className="text-slate-400">Rarity</dt>
+                      <dd className="font-semibold">{card.rarity}</dd>
+                    </div>
                   </>
-                )}
-                {card.cardType === "Spell" && (
-                  <div className="flex justify-between">
-                    <dt className="text-slate-400">Spell Type</dt>
-                    <dd className="font-semibold">
-                      {(card as SpellCard).spellType}
-                    </dd>
-                  </div>
-                )}
-                {card.cardType === "Trap" && (
-                  <div className="flex justify-between">
-                    <dt className="text-slate-400">Trap Type</dt>
-                    <dd className="font-semibold">
-                      {(card as TrapCard).trapType}
-                    </dd>
-                  </div>
                 )}
               </dl>
             </div>
@@ -165,7 +191,7 @@ const CardDetail: React.FC = () => {
               className="border border-slate-700 p-3 text-xs text-slate-300 overflow-auto"
             >
               <div className="mb-2 text-slate-200 tracking-wider">
-                CARD EFFECT
+                CARD LORE
               </div>
               <p className="leading-relaxed">{card.description}</p>
             </div>

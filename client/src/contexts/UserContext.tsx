@@ -4,10 +4,10 @@ import type { User, Deck, UserProfile, UserStats, DeckCard } from '../types/Card
 
 // Local Storage Keys
 const STORAGE_KEYS = {
-  USERS: 'yugioh_vault_users',
-  CURRENT_USER: 'yugioh_vault_current_user',
-  DECKS: 'yugioh_vault_decks',
-  USER_STATS: 'yugioh_vault_user_stats',
+  USERS: 'warlok_vault_users',
+  CURRENT_USER: 'warlok_vault_current_user',
+  DECKS: 'warlok_vault_decks',
+  USER_STATS: 'warlok_vault_user_stats',
 } as const;
 
 // Default user profile

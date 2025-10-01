@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/UserContext";
 import { sampleCards } from "../data/sampleCards";
-import { getXRProps } from "../utils/xr";
+import { getXRProps, getAssetPath } from "../utils/xr";
 import type { BaseCard, Deck } from "../types/Card";
 import Layout from "../components/Layout";
 
@@ -481,7 +481,7 @@ const DeckbuilderPage = () => {
               >
                 <div className="w-full" style={{ aspectRatio: "3/4" }}>
                   <img
-                    src={selectedCard.imageUrl}
+                    src={getAssetPath(selectedCard.imageUrl)}
                     alt={selectedCard.name}
                     className="w-full h-full object-contain"
                     onError={(e) => {
@@ -765,7 +765,7 @@ const DeckbuilderPage = () => {
                             <div className="bg-black border border-slate-700 p-2">
                               <div className="aspect-[3/4] bg-slate-900 border border-slate-800 mb-2 overflow-hidden">
                                 <img
-                                  src={card.imageUrl}
+                                  src={getAssetPath(card.imageUrl)}
                                   alt={card.name}
                                   data-card-id={card.id}
                                   className="w-full h-full object-cover"

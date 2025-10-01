@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import type { BaseCard, MonsterCard } from "../types/Card";
+import { getAssetPath } from "../utils/xr";
 
 // Default placeholder image for cards with missing images
 const DEFAULT_CARD_IMAGE = `data:image/svg+xml;base64,${btoa(`
@@ -16,7 +17,7 @@ const DEFAULT_CARD_IMAGE = `data:image/svg+xml;base64,${btoa(`
     <circle cx="150" cy="120" r="40" fill="#7c3aed" opacity="0.3"/>
     <text x="150" y="200" text-anchor="middle" fill="#94a3b8" font-family="Arial, sans-serif" font-size="14" font-weight="bold">PREMIUM</text>
     <text x="150" y="220" text-anchor="middle" fill="#94a3b8" font-family="Arial, sans-serif" font-size="14" font-weight="bold">CARD</text>
-    <text x="150" y="280" text-anchor="middle" fill="#64748b" font-family="Arial, sans-serif" font-size="10">YU-GI-OH!</text>
+    <text x="150" y="280" text-anchor="middle" fill="#64748b" font-family="Arial, sans-serif" font-size="10">WARLOK</text>
   </svg>
 `)}`;
 
@@ -60,16 +61,31 @@ const CardItem: React.FC<CardItemProps> = React.memo(({ card }) => {
     }
   }, []);
 
-  const getCardTypeIcon = React.useCallback((cardType: string) => {
-    switch (cardType) {
-      case "Monster":
-        return "⚔";
-      case "Spell":
-        return "✦";
-      case "Trap":
-        return "▣";
+  const getSuitIcon = React.useCallback((suit: string) => {
+    switch (suit) {
+      case "hearts":
+        return "♥";
+      case "diamonds":
+        return "♦";
+      case "spades":
+        return "♠";
+      case "clubs":
+        return "♣";
       default:
         return "◈";
+    }
+  }, []);
+
+  const getSuitColor = React.useCallback((suit: string) => {
+    switch (suit) {
+      case "hearts":
+      case "diamonds":
+        return "text-red-400";
+      case "spades":
+      case "clubs":
+        return "text-slate-300";
+      default:
+        return "text-slate-400";
     }
   }, []);
 
@@ -87,7 +103,7 @@ const CardItem: React.FC<CardItemProps> = React.memo(({ card }) => {
           process.env.XR_ENV === "avp" ? "" : "rounded-xl"
         }`}>
           <img
-            src={card.imageUrl}
+            src={getAssetPath(card.imageUrl)}
             alt={card.name}
             className="w-full h-full object-contain p-2"
             onError={handleImageError}
@@ -113,10 +129,12 @@ const CardItem: React.FC<CardItemProps> = React.memo(({ card }) => {
               {card.description}
             </div>
             <div className="flex items-center justify-between pt-2">
-              <div className="text-slate-300 flex items-center gap-1">
-                <span>{getCardTypeIcon(card.cardType || "")}</span>
-                <span className="uppercase tracking-wider">
-                  {card.cardType}
+              <div className="text-slate-300 flex items-center gap-2">
+                <span className={`text-lg ${getSuitColor((card as MonsterCard).suit || "")}`}>
+                  {getSuitIcon((card as MonsterCard).suit || "")}
+                </span>
+                <span className="uppercase tracking-wider text-[10px]">
+                  {(card as MonsterCard).suit}
                 </span>
               </div>
               <div className="text-emerald-400 font-bold">${card.price}</div>
@@ -124,8 +142,8 @@ const CardItem: React.FC<CardItemProps> = React.memo(({ card }) => {
             {card.cardType === "Monster" && (
               <div className="flex items-center justify-between text-[10px] text-slate-400 mt-1">
                 <div className="flex items-center gap-1">
-                  <span className="text-amber-400">★</span>
-                  {(card as MonsterCard).level}
+                  <span className="text-amber-400">LVL</span>
+                  <span className="uppercase">{(card as MonsterCard).level}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-red-400">

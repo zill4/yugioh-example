@@ -27,55 +27,45 @@ export interface GameZones {
 // Monster category (only Normal monsters supported)
 export type MonsterCategory = "Normal";
 
-// Card attributes
-export type Attribute =
-  | "DARK"
-  | "LIGHT"
-  | "WATER"
-  | "FIRE"
-  | "EARTH"
-  | "WIND"
-  | "DIVINE";
+// Card suits (Warlok system)
+export type CardSuit = "hearts" | "diamonds" | "spades" | "clubs";
 
-// Monster types
-export type MonsterType =
-  | "Warrior"
-  | "Spellcaster"
-  | "Dragon"
-  | "Beast"
-  | "Machine"
-  | "Fiend"
-  | "Zombie"
-  | "Aqua"
-  | "Pyro"
-  | "Rock"
-  | "Winged Beast"
-  | "Plant"
-  | "Insect"
-  | "Thunder"
-  | "Dinosaur"
-  | "Sea Serpent"
-  | "Reptile"
-  | "Psychic"
-  | "Divine-Beast"
-  | "Creator God"
-  | "Wyrm"
-  | "Cyberse"
-  | "Other";
+// Card levels (Warlok system - chess pieces and playing card ranks)
+export type CardLevel =
+  | "pawn"
+  | "knight"
+  | "rook"
+  | "queen"
+  | "king" // Chess pieces
+  | "A"
+  | "K"
+  | "Q"
+  | "J" // Face cards
+  | "2"
+  | "3"
+  | "4"
+  | "5"
+  | "6"
+  | "7"
+  | "8"
+  | "9"
+  | "10"; // Number cards
 
-// Base game card interface (simplified)
+// Base game card interface (Warlok system)
 export interface GameCard {
   id: string;
   name: string;
   description: string;
-  cardType: string; // Always "Monster"
-  level: number;
+  cardType: string; // Always "Monster" for Warlok cards
+  suit: CardSuit;
+  level: CardLevel | string;
   attack: number;
   defense: number;
   rarity: string;
   price: number;
   cardNumber: string;
   imageUrl: string;
+  timestamp?: string;
 }
 
 // Card in play with additional game state

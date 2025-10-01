@@ -95,3 +95,12 @@ export const getXRBackgroundStyles = (baseStyles: React.CSSProperties = {}) => {
   }
   return baseStyles;
 };
+
+// Get the correct base path for assets in XR/AVP mode
+export const getAssetPath = (path: string) => {
+  if (isXREnvironment()) {
+    // In AVP mode, prepend /webspatial/avp to the path
+    return `/webspatial/avp${path}`;
+  }
+  return path;
+};
