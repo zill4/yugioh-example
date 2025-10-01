@@ -107,16 +107,6 @@ export class GameController {
     });
   }
 
-  // Set a monster
-  public setMonster(cardId: string, zoneIndex?: number): boolean {
-    return this.gameEngine.executeAction({
-      type: "SET_MONSTER",
-      player: "player",
-      cardId,
-      zoneIndex,
-    });
-  }
-
   // Get available actions for the current phase
   public getAvailableActions(): string[] {
     return this.gameEngine.getAvailableActions();

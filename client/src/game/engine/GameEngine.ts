@@ -93,8 +93,6 @@ export class GameEngine {
         return this.endTurn();
       case "NORMAL_SUMMON":
         return this.normalSummon(player, cardId!, zoneIndex);
-      case "SET_MONSTER":
-        return this.setMonster(player, cardId!, zoneIndex);
       default:
         return false;
     }
@@ -212,7 +210,7 @@ export class GameEngine {
 
       // Check for game end and create new gameState
       if (newDefenderState.lifePoints <= 0) {
-        const winner = player === "player" ? "opponent" : "player";
+        const winner = player; // The attacker wins when defender's HP hits 0
         this.gameState = {
           ...this.gameState,
           [attackerKey]: newAttackerState,
@@ -548,9 +546,9 @@ export class GameEngine {
 
     switch (currentPhase) {
       case "Main":
-        // Normal summon/set
+        // Normal summon
         if (!playerState.hasNormalSummoned) {
-          actions.push("NORMAL_SUMMON", "SET_MONSTER");
+          actions.push("NORMAL_SUMMON");
         }
         break;
 
@@ -596,30 +594,8 @@ export class GameEngine {
     // Check if it's a monster
     if (card.cardType !== "Monster") return false;
 
-    // Check level requirements for tribute summon
-    if (card.level! >= 7) {
-      // Need 2 tributes
-      const tributeCount = this.getTributeCount(playerState, 2);
-      if (tributeCount < 2) return false;
-    } else if (card.level! >= 5) {
-      // Need 1 tribute
-      const tributeCount = this.getTributeCount(playerState, 1);
-      if (tributeCount < 1) return false;
-    }
-
-    // Perform tribute if needed
-    let newPlayerState = playerState;
-    if (card.level! >= 5) {
-      const tributeResult = this.performTributeSummon(
-        playerState,
-        card.level! >= 7 ? 2 : 1
-      );
-      newPlayerState = tributeResult.newState;
-    }
-
     // Find empty monster zone
-    const targetZoneIndex =
-      zoneIndex ?? this.findEmptyMonsterZone(newPlayerState);
+    const targetZoneIndex = zoneIndex ?? this.findEmptyMonsterZone(playerState);
     if (targetZoneIndex === -1) return false;
 
     // Create card in play
@@ -634,10 +610,10 @@ export class GameEngine {
     };
 
     // Remove from hand and add to field
-    const newHand = [...newPlayerState.hand];
+    const newHand = [...playerState.hand];
     newHand.splice(cardIndex, 1);
 
-    const newZones = { ...newPlayerState.zones };
+    const newZones = { ...playerState.zones };
     const zoneArray = newZones.mainMonsterZones as (CardInPlay | null)[];
     const newZoneArray = [...zoneArray];
     newZoneArray[targetZoneIndex] = cardInPlay;
@@ -645,7 +621,7 @@ export class GameEngine {
 
     // Update player state
     const updatedPlayerState = {
-      ...newPlayerState,
+      ...playerState,
       hand: newHand,
       zones: newZones,
       hasNormalSummoned: true,
@@ -665,116 +641,5 @@ export class GameEngine {
 
     this.notifyGameStateChange();
     return true;
-  }
-
-  // Set a monster in face-down defense position
-  public setMonster(
-    player: "player" | "opponent",
-    cardId: string,
-    zoneIndex?: number
-  ): boolean {
-    const playerKey = player === "player" ? "player" : "opponent";
-    const playerState = this.gameState[playerKey];
-
-    // Check if player already set a monster this turn
-    if (playerState.hasSetMonster) return false;
-
-    // Check if it's the correct phase
-    if (this.gameState.currentPhase !== "Main") return false;
-
-    // Find the card in hand
-    const cardIndex = playerState.hand.findIndex((card) => card.id === cardId);
-    if (cardIndex === -1) return false;
-
-    const card = playerState.hand[cardIndex];
-
-    // Check if it's a monster
-    if (card.cardType !== "Monster") return false;
-
-    // Find empty monster zone
-    const targetZoneIndex = zoneIndex ?? this.findEmptyMonsterZone(playerState);
-    if (targetZoneIndex === -1) return false;
-
-    // Create card in play (face-down)
-    const cardInPlay: CardInPlay = {
-      ...card,
-      position: "monster",
-      zoneIndex: targetZoneIndex,
-      battlePosition: "defense",
-      faceDown: true,
-      faceUp: false,
-    };
-
-    // Remove from hand and add to field
-    const newHand = [...playerState.hand];
-    newHand.splice(cardIndex, 1);
-
-    const newZones = { ...playerState.zones };
-    const zoneArray = newZones.mainMonsterZones as (CardInPlay | null)[];
-    const newZoneArray = [...zoneArray];
-    newZoneArray[targetZoneIndex] = cardInPlay;
-    newZones.mainMonsterZones = newZoneArray;
-
-    // Update player state
-    const updatedPlayerState = {
-      ...playerState,
-      hand: newHand,
-      zones: newZones,
-      hasSetMonster: true,
-    };
-
-    // Update game state
-    this.gameState = {
-      ...this.gameState,
-      [playerKey]: updatedPlayerState,
-    };
-
-    this.addGameEvent(
-      player,
-      "summon",
-      `${player === "player" ? "You" : "Opponent"} Set ${card.name}`
-    );
-
-    this.notifyGameStateChange();
-    return true;
-  }
-
-  // Get tribute count for tribute summons
-  private getTributeCount(playerState: PlayerState, _required: number): number {
-    const monsters = playerState.zones.mainMonsterZones.filter(
-      (card) => card !== null
-    );
-    return monsters.length;
-  }
-
-  // Perform tribute for tribute summon
-  private performTributeSummon(
-    playerState: PlayerState,
-    tributeCount: number
-  ): { newState: PlayerState; tributedCards: CardInPlay[] } {
-    const zones = { ...playerState.zones };
-    const mainMonsterZones = zones.mainMonsterZones as (CardInPlay | null)[];
-    const newZoneArray = [...mainMonsterZones];
-    const tributedCards: CardInPlay[] = [];
-
-    // For now, tribute the rightmost monsters (simplified logic)
-    for (let i = newZoneArray.length - 1; i >= 0 && tributeCount > 0; i--) {
-      if (newZoneArray[i]) {
-        tributedCards.push(newZoneArray[i]!);
-        newZoneArray[i] = null;
-        tributeCount--;
-      }
-    }
-
-    zones.mainMonsterZones = newZoneArray;
-
-    return {
-      newState: {
-        ...playerState,
-        zones,
-        graveyard: [...playerState.graveyard, ...tributedCards],
-      },
-      tributedCards,
-    };
   }
 }

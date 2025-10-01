@@ -52,16 +52,11 @@ export class DummyAI {
             break;
           case "Battle":
             await this.handleBattlePhase();
-            // After battle phase, end the turn
-            console.log("DummyAI: Battle phase completed, calling END_TURN");
-            this.gameEngine.executeAction({
-              type: "END_TURN",
-              player: "opponent",
-            });
-            // Wait a bit to ensure the turn transition completes
-            await this.delay(500);
-            console.log("DummyAI: Turn ended, exiting executeTurn");
-            return; // Exit the loop since turn will end
+            // handleBattlePhase already calls CHANGE_PHASE, which will end the turn
+            console.log(
+              "DummyAI: Battle phase completed, turn should end automatically"
+            );
+            return; // Exit since turn will end
         }
 
         // Get updated game state after handling the phase

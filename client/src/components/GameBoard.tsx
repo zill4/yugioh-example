@@ -17,6 +17,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
   const [pendingAction, setPendingAction] = useState<GameAction | null>(null);
   const [validTargets, setValidTargets] = useState<CardInPlay[]>([]);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showGameEndModal, setShowGameEndModal] = useState(false);
   const gameControllerRef = useRef<GameController | null>(null);
   
   // Derive AI turn state from gameState to ensure consistency
@@ -49,14 +50,28 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
           const targets = gameState.opponent.zones.mainMonsterZones.filter(target => target !== null) as CardInPlay[];
           setValidTargets(targets);
 
-          // If no monsters to attack, can do direct attack
+          // If no monsters to attack, add direct attack as an option
           if (targets.length === 0) {
-            setShowConfirmation(true);
-            setPendingAction({
-              type: 'DIRECT_ATTACK',
-              player: 'player',
-              cardId: card.id,
-            });
+            const directAttackTarget = {
+              id: 'direct-attack',
+              name: 'Direct Attack',
+              description: 'Attack opponent directly',
+              cardType: 'Monster' as const,
+              level: 0,
+              attack: card.attack || 0,
+              defense: 0,
+              rarity: 'Common' as const,
+              price: 0,
+              cardNumber: '',
+              imageUrl: '',
+              position: 'monster' as const,
+              zoneIndex: -1,
+              battlePosition: 'attack' as const,
+              faceDown: false,
+              faceUp: true,
+            };
+            targets.push(directAttackTarget);
+            setValidTargets(targets);
           }
         }
         break;
@@ -70,6 +85,20 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     const isValidTarget = validTargets.some(validTarget => validTarget.id === target.id);
 
     if (!isValidTarget) return;
+
+    // Handle direct attack case
+    if (target.id === 'direct-attack') {
+      const action: GameAction = {
+        type: 'DIRECT_ATTACK',
+        player: 'player',
+        cardId: selectedCard.id,
+      };
+      setPendingAction(action);
+      setShowConfirmation(true);
+      setValidTargets([]);
+      setTargetingMode(null);
+      return;
+    }
 
     // Find the zone index of the target monster
     const targetZoneIndex = gameState?.opponent.zones.mainMonsterZones.findIndex(
@@ -87,6 +116,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     setPendingAction(action);
     setShowConfirmation(true);
     setValidTargets([]);
+    setTargetingMode(null);
   }, [selectedCard, targetingMode, validTargets, gameState]);
 
   const handleConfirmAction = useCallback(() => {
@@ -144,6 +174,12 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
       [isPlayerCard, card, gameState]
     );
 
+    const isAttackableInBattlePhase = useMemo(() =>
+      canSelectForAttack &&
+      gameState?.currentPhase === 'Battle',
+      [canSelectForAttack, gameState?.currentPhase]
+    );
+
 
     const getCardStatus = useCallback((card: CardInPlay) => {
       const status = [];
@@ -166,7 +202,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
             ${isAITurn && isPlayerZone ? 'opacity-50 cursor-not-allowed' : ''}
             ${isSelected ? 'ring-4 ring-yellow-400 ring-opacity-75 bg-yellow-100' : ''}
             ${isValidTarget ? 'ring-2 ring-blue-400 ring-opacity-75 bg-blue-50' : ''}
-            ${canSelectForAttack && !isSelected ? 'hover:ring-2 hover:ring-green-400 hover:bg-green-50' : ''}
+            ${isAttackableInBattlePhase && !isSelected ? 'border-red-500 border-4 animate-pulse shadow-lg shadow-red-500/20' : ''}
+            ${canSelectForAttack && !isSelected && !isAttackableInBattlePhase ? 'hover:ring-2 hover:ring-green-400 hover:bg-green-50' : ''}
             ${ !card && isValidTarget && isPlayerZone ? 'bg-green-700/60 border-green-400 animate-pulse shadow-lg shadow-green-400/20' : ''}
             ${ !card && !isValidTarget && isPlayerZone ? 'bg-red-700/40 border-red-500' : ''}
           `}
@@ -321,7 +358,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     if (!selectedCard || !gameState) return null;
 
     const canNormalSummon = !gameState.player.hasNormalSummoned;
-    const canSet = !gameState.player.hasSetMonster;
 
     const handleNormalSummon = useCallback(() => {
       if (gameControllerRef.current) {
@@ -330,12 +366,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
       }
     }, [selectedCard.id]);
 
-    const handleSetCard = useCallback(() => {
-      if (gameControllerRef.current) {
-        gameControllerRef.current.setMonster(selectedCard.id);
-        setSelectedCard(null);
-      }
-    }, [selectedCard.id]);
 
     return (
       <div className={`fixed inset-0 ${process.env.XR_ENV === 'avp' ? '' : 'bg-black/50'} flex items-center justify-center z-50`}>
@@ -351,15 +381,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
                     onClick={handleNormalSummon}
                     className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                   >
-                    Normal Summon (Face-up Attack)
-                  </button>
-                )}
-                {canSet && (
-                  <button
-                    onClick={handleSetCard}
-                    className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
-                  >
-                    Set (Face-down Defense)
+                    Summon
                   </button>
                 )}
               </div>
@@ -468,6 +490,81 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     );
   };
 
+  // Game End Modal Component
+  const GameEndModal: React.FC = () => {
+    if (!showGameEndModal || !gameState?.winner) return null;
+
+    const isPlayerWinner = gameState.winner === 'player';
+    const winnerName = isPlayerWinner ? 'You' : 'Opponent';
+    const winnerColor = isPlayerWinner ? 'text-green-600' : 'text-red-600';
+
+    const handlePlayAgain = () => {
+      // Reset game state and hide modal
+      setShowGameEndModal(false);
+      setGameState(null);
+      setSelectedCard(null);
+      setTargetingMode(null);
+      setPendingAction(null);
+      setValidTargets([]);
+      setShowConfirmation(false);
+
+      // Reinitialize the game
+      try {
+        const controller = new GameController();
+        controller.initialize({
+          onGameStateChange: setGameState,
+          onGameEnd: (winner: "player" | "opponent") => {
+            console.log('Game ended, winner:', winner);
+            setShowGameEndModal(true);
+          },
+          onAITurnStart: () => console.log('AI turn started'),
+          onAITurnEnd: () => console.log('AI turn ended'),
+          onPlayerTurnStart: () => console.log('Player turn started'),
+        });
+        gameControllerRef.current = controller;
+
+        const initialGameState = controller.getGameState();
+        setGameState(initialGameState);
+      } catch (error) {
+        console.error('Failed to restart game:', error);
+      }
+    };
+
+    const handleReturnHome = () => {
+      // Call the onEndGame prop to return to home
+      onEndGame();
+    };
+
+    return (
+      <div className={`fixed inset-0 ${process.env.XR_ENV === 'avp' ? '' : 'bg-black/70'} flex items-center justify-center z-50`}>
+        <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
+          <div className="mb-6">
+            <div className="text-6xl mb-4">🏆</div>
+            <h2 className="text-2xl font-bold mb-2">Game Over!</h2>
+            <p className={`text-xl font-semibold ${winnerColor}`}>
+              {winnerName} Win{winnerName === 'You' ? '' : 's'}!
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <button
+              onClick={handlePlayAgain}
+              className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-semibold"
+            >
+              Play Again
+            </button>
+            <button
+              onClick={handleReturnHome}
+              className="w-full px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors font-semibold"
+            >
+              Return to Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
 
   useEffect(() => {
     console.log('GameBoard: Initializing...');
@@ -496,7 +593,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
         },
         onGameEnd: (winner) => {
           console.log('Game ended, winner:', winner);
-          // Handle game end
+          setShowGameEndModal(true);
         },
       });
 
@@ -727,6 +824,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
     <CardActionModal />
     <TargetingModal />
     <ConfirmationModal />
+    <GameEndModal />
     </>
   );
 };

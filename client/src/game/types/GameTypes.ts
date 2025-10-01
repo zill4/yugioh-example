@@ -60,18 +60,8 @@ export type MonsterType =
   | "Divine-Beast"
   | "Creator God"
   | "Wyrm"
-  | "Cyberse";
-
-// Link arrows for Link monsters
-export type LinkArrow =
-  | "top-left"
-  | "top"
-  | "top-right"
-  | "left"
-  | "right"
-  | "bottom-left"
-  | "bottom"
-  | "bottom-right";
+  | "Cyberse"
+  | "Other";
 
 // Base game card interface (simplified)
 export interface GameCard {
@@ -129,9 +119,7 @@ export interface GameAction {
     | "CHANGE_PHASE"
     | "END_TURN"
     | "DIRECT_ATTACK"
-    | "NORMAL_SUMMON"
-    | "SET_MONSTER"
-    | "CHANGE_POSITION";
+    | "NORMAL_SUMMON";
   player: "player" | "opponent";
   cardId?: string;
   targetId?: string;
