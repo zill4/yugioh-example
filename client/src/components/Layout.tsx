@@ -1,7 +1,6 @@
 import React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../contexts/UserContext";
-import { getXRProps, getXRInteractiveProps } from "../utils/xr";
 
 interface LayoutProps {
   header?: string;
@@ -12,13 +11,12 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
   const { isAuthenticated, user, logout } = useAuth();
 
   return (
-    <div {...getXRProps("layout-container min-h-screen text-slate-100 flex")}>
+    <div className="layout-container min-h-screen text-slate-100 flex">
       {/* Left Navigation */}
-      <aside {...getXRProps("layout-nav w-32 shrink-0 border-r border-slate-700 p-8")}>
+      <aside className="layout-nav w-32 shrink-0 border-r border-slate-700 p-8">
         <div className="space-y-6 select-none">
-          <NavLink
+          {/* <NavLink
             to="/cardshop"
-            {...getXRInteractiveProps("")}
             className={({ isActive }) =>
               `block text-xl leading-tight tracking-wider font-extrabold no-underline cursor-pointer transition-colors ${
                 isActive ? "text-white" : "text-white hover:text-white"
@@ -26,10 +24,9 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
             }
           >
             CARD SHOP
-          </NavLink>
-          <NavLink
+          </NavLink> */}
+          {/* <NavLink
             to="/deckbuilder"
-            {...getXRInteractiveProps("")}
             className={({ isActive }) =>
               `block text-xl leading-tight tracking-wider font-extrabold no-underline cursor-pointer transition-colors ${
                 isActive ? "text-white" : "text-white hover:text-white"
@@ -37,10 +34,9 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
             }
           >
             DECK BUILDER
-          </NavLink>
-          <NavLink
+          </NavLink> */}
+          {/* <NavLink
             to="/cardcreator"
-            {...getXRInteractiveProps("")}
             className={({ isActive }) =>
               `block text-xl leading-tight tracking-wider font-extrabold no-underline cursor-pointer transition-colors ${
                 isActive ? "text-white" : "text-slate-300 hover:text-white"
@@ -48,10 +44,9 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
             }
           >
             CARD CREATOR
-          </NavLink>
-          <NavLink
+          </NavLink> */}
+          {/* <NavLink
             to="/game"
-            {...getXRInteractiveProps("")}
             className={({ isActive }) =>
               `block text-xl leading-tight tracking-wider font-extrabold no-underline cursor-pointer transition-colors ${
                 isActive ? "text-white" : "text-slate-300 hover:text-white"
@@ -59,7 +54,7 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
             }
           >
             PLAY
-          </NavLink>
+          </NavLink> */}
         </div>
       </aside>
 
@@ -72,7 +67,7 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
               <span className="text-slate-400">{user.profile.displayName}</span>
               <button
                 onClick={logout}
-                {...getXRInteractiveProps("px-3 py-1 border border-slate-700 text-slate-200 hover:bg-slate-900 hover:text-white transition-colors")}
+                className="px-3 py-1 border border-slate-700 text-slate-200 hover:bg-slate-900 hover:text-white transition-colors"
               >
                 LOGOUT
               </button>
@@ -80,7 +75,7 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
           ) : (
             <Link
               to="/auth"
-              {...getXRInteractiveProps("text-slate-200 hover:text-white tracking-wider transition-colors")}
+              className="text-slate-200 hover:text-white tracking-wider transition-colors"
             >
               SIGN-UP / LOGIN
             </Link>

@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import { sampleCards } from "../data/sampleCards";
-import { getXRProps, getAssetPath } from "../utils/xr";
+import { getAssetPath } from "../utils/xr";
 import type { MonsterCard } from "../types/Card";
 import Layout from "./Layout";
 
@@ -12,10 +12,7 @@ const CardDetail: React.FC = () => {
   if (!card) {
     return (
       <Layout header="CARD NOT FOUND">
-        <div
-          {...getXRProps()}
-          className="border border-slate-700 p-6 text-center"
-        >
+        <div className="border border-slate-700 p-6 text-center">
           <div className="text-4xl text-slate-500 mb-2">◈</div>
           <div className="text-slate-200 mb-2 tracking-wider">
             The card you're looking for doesn't exist.
@@ -69,21 +66,14 @@ const CardDetail: React.FC = () => {
   // Adjust height to account for Layout paddings (~140px total overhead)
   return (
     <Layout header={card.name}>
-      <div
-        {...getXRProps()}
-        className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-6 h-[calc(100vh-140px)]"
-      >
+      <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-6 h-[calc(100vh-140px)]">
         {/* Image */}
-        <div
-          {...getXRProps()}
-          className="border border-slate-700 bg-black p-3 flex items-center justify-center"
-        >
+        <div className="border border-slate-700 bg-black p-3 flex items-center justify-center">
           <div className="w-full" style={{ aspectRatio: "3/4" }}>
             <img
-              {...getXRProps()}
+              className="w-full h-full object-contain"
               src={getAssetPath(card.imageUrl)}
               alt={card.name}
-              className="w-full h-full object-contain"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.src =
@@ -94,17 +84,18 @@ const CardDetail: React.FC = () => {
         </div>
 
         {/* Details */}
-        <div
-          {...getXRProps()}
-          className="grid grid-rows-[auto_auto_1fr_auto] gap-4 overflow-hidden"
-        >
+        <div className="grid grid-rows-[auto_auto_1fr_auto] gap-4 overflow-hidden">
           {/* Meta */}
-          <div {...getXRProps()} className="border border-slate-700 p-3">
+          <div className="border border-slate-700 p-3">
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
               <span>{getCardTypeIcon(card.cardType || "")}</span>
               <span>{card.cardType}</span>
               <span>•</span>
-              <span className={`text-lg ${getSuitColor((card as MonsterCard).suit || "")}`}>
+              <span
+                className={`text-lg ${getSuitColor(
+                  (card as MonsterCard).suit || ""
+                )}`}
+              >
                 {getSuitIcon((card as MonsterCard).suit || "")}
               </span>
               <span className="uppercase">{(card as MonsterCard).suit}</span>
@@ -114,10 +105,7 @@ const CardDetail: React.FC = () => {
           </div>
 
           {/* Price / Availability */}
-          <div
-            {...getXRProps()}
-            className="border border-slate-700 p-3 grid grid-cols-2 gap-4 items-center"
-          >
+          <div className="border border-slate-700 p-3 grid grid-cols-2 gap-4 items-center">
             <div className="flex items-baseline gap-2">
               <span className="text-xl font-bold text-emerald-400">
                 ${card.price}
@@ -130,15 +118,9 @@ const CardDetail: React.FC = () => {
           </div>
 
           {/* Specs + Description (scrolls inside if needed, page stays fixed) */}
-          <div
-            {...getXRProps()}
-            className="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-0 overflow-hidden"
-          >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-0 overflow-hidden">
             {/* Specs */}
-            <div
-              {...getXRProps()}
-              className="border border-slate-700 p-3 text-xs text-slate-300 overflow-auto"
-            >
+            <div className="border border-slate-700 p-3 text-xs text-slate-300 overflow-auto">
               <div className="mb-2 text-slate-200 tracking-wider">
                 CARD DETAILS
               </div>
@@ -150,10 +132,14 @@ const CardDetail: React.FC = () => {
                 <div className="flex justify-between">
                   <dt className="text-slate-400">Suit</dt>
                   <dd className="font-semibold flex items-center gap-2">
-                    <span className={getSuitColor((card as MonsterCard).suit || "")}>
+                    <span
+                      className={getSuitColor((card as MonsterCard).suit || "")}
+                    >
                       {getSuitIcon((card as MonsterCard).suit || "")}
                     </span>
-                    <span className="uppercase">{(card as MonsterCard).suit}</span>
+                    <span className="uppercase">
+                      {(card as MonsterCard).suit}
+                    </span>
                   </dd>
                 </div>
                 {card.cardType === "Monster" && (
@@ -186,10 +172,7 @@ const CardDetail: React.FC = () => {
             </div>
 
             {/* Description */}
-            <div
-              {...getXRProps()}
-              className="border border-slate-700 p-3 text-xs text-slate-300 overflow-auto"
-            >
+            <div className="border border-slate-700 p-3 text-xs text-slate-300 overflow-auto">
               <div className="mb-2 text-slate-200 tracking-wider">
                 CARD LORE
               </div>
@@ -198,17 +181,11 @@ const CardDetail: React.FC = () => {
           </div>
 
           {/* Actions */}
-          <div {...getXRProps()} className="grid grid-cols-2 gap-3">
-            <button
-              {...getXRProps()}
-              className="py-2 px-3 border border-slate-700 text-slate-100 hover:bg-slate-900 text-xs tracking-wider"
-            >
+          <div className="grid grid-cols-2 gap-3">
+            <button className="py-2 px-3 border border-slate-700 text-slate-100 hover:bg-slate-900 text-xs tracking-wider">
               ADD TO CART
             </button>
-            <button
-              {...getXRProps()}
-              className="py-2 px-3 border border-slate-700 text-slate-100 hover:bg-slate-900 text-xs tracking-wider"
-            >
+            <button className="py-2 px-3 border border-slate-700 text-slate-100 hover:bg-slate-900 text-xs tracking-wider">
               BUY NOW
             </button>
           </div>

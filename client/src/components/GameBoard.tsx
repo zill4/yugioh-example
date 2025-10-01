@@ -5,7 +5,6 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-// import { getXRProps } from '../utils/xr';
 import { getAssetPath } from "../utils/xr";
 import { GameController } from "../game/GameController";
 import type {

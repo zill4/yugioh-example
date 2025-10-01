@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/UserContext";
-import { getXRProps } from "../utils/xr";
 import Layout from "../components/Layout";
 
 const AuthPage = () => {
@@ -103,13 +102,12 @@ const AuthPage = () => {
 
   return (
     <Layout header="SIGN-UP / LOGIN">
-      <div {...getXRProps()} className="max-w-md mx-auto">
-        <div {...getXRProps()} className="border border-slate-700 p-8">
+      <div className="max-w-md mx-auto">
+        <div className="border border-slate-700 p-8">
           {/* Toggle */}
-          <div {...getXRProps()} className="flex mb-8 gap-2">
+          <div className="flex mb-8 gap-2">
             <button
               onClick={() => (isLogin ? undefined : toggleMode())}
-              {...getXRProps()}
               className={`flex-1 py-2 px-4 border text-sm tracking-wider ${
                 isLogin
                   ? "bg-slate-900 text-white border-slate-700"
@@ -120,7 +118,6 @@ const AuthPage = () => {
             </button>
             <button
               onClick={() => (!isLogin ? undefined : toggleMode())}
-              {...getXRProps()}
               className={`flex-1 py-2 px-4 border text-sm tracking-wider ${
                 !isLogin
                   ? "bg-slate-900 text-white border-slate-700"
@@ -133,28 +130,22 @@ const AuthPage = () => {
 
           {/* Messages */}
           {error && (
-            <div
-              {...getXRProps()}
-              className="mb-6 p-3 border border-red-600 text-red-300 text-sm text-center"
-            >
+            <div className="mb-6 p-3 border border-red-600 text-red-300 text-sm text-center">
               {error}
             </div>
           )}
           {success && (
-            <div
-              {...getXRProps()}
-              className="mb-6 p-3 border border-green-600 text-green-300 text-sm text-center"
-            >
+            <div className="mb-6 p-3 border border-green-600 text-green-300 text-sm text-center">
               {success}
             </div>
           )}
 
           {/* Header */}
-          <div {...getXRProps()} className="text-center mb-6">
-            <div {...getXRProps()} className="text-slate-200 tracking-wider">
+          <div className="text-center mb-6">
+            <div className="text-slate-200 tracking-wider">
               {isLogin ? "WELCOME BACK" : "JOIN THE DUEL"}
             </div>
-            <div {...getXRProps()} className="text-slate-400 text-sm">
+            <div className="text-slate-400 text-sm">
               {isLogin
                 ? "Enter your credentials to continue"
                 : "Create your duelist account"}
@@ -165,14 +156,12 @@ const AuthPage = () => {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label
-                {...getXRProps()}
                 htmlFor="username"
                 className="block text-xs text-slate-400 mb-2 tracking-widest"
               >
                 {isLogin ? "Email or Username" : "Username"}
               </label>
               <input
-                {...getXRProps()}
                 id="username"
                 name="username"
                 type="text"
@@ -182,7 +171,7 @@ const AuthPage = () => {
                 value={formData.username}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                 autoComplete="off"
+                autoComplete="off"
                 className="w-full px-3 py-2 bg-black border border-slate-700 text-slate-100 placeholder-slate-500"
               />
             </div>
@@ -190,14 +179,12 @@ const AuthPage = () => {
             {!isLogin && (
               <div>
                 <label
-                  {...getXRProps()}
                   htmlFor="email"
                   className="block text-xs text-slate-400 mb-2 tracking-widest"
                 >
                   Email Address
                 </label>
                 <input
-                  {...getXRProps()}
                   id="email"
                   name="email"
                   type="email"
@@ -205,7 +192,7 @@ const AuthPage = () => {
                   value={formData.email}
                   onChange={handleInputChange}
                   disabled={isLoading}
-                   autoComplete="off"
+                  autoComplete="off"
                   className="w-full px-3 py-2 bg-black border border-slate-700 text-slate-100 placeholder-slate-500"
                 />
               </div>
@@ -213,14 +200,12 @@ const AuthPage = () => {
 
             <div>
               <label
-                {...getXRProps()}
                 htmlFor="password"
                 className="block text-xs text-slate-400 mb-2 tracking-widest"
               >
                 Password
               </label>
               <input
-                {...getXRProps()}
                 id="password"
                 name="password"
                 type="password"
@@ -228,7 +213,7 @@ const AuthPage = () => {
                 value={formData.password}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                 autoComplete="off"
+                autoComplete="off"
                 className="w-full px-3 py-2 bg-black border border-slate-700 text-slate-100 placeholder-slate-500"
               />
             </div>
@@ -236,14 +221,12 @@ const AuthPage = () => {
             {!isLogin && (
               <div>
                 <label
-                  {...getXRProps()}
                   htmlFor="confirmPassword"
                   className="block text-xs text-slate-400 mb-2 tracking-widest"
                 >
                   Confirm Password
                 </label>
                 <input
-                  {...getXRProps()}
                   id="confirmPassword"
                   name="confirmPassword"
                   type="password"
@@ -251,16 +234,13 @@ const AuthPage = () => {
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
                   disabled={isLoading}
-                   autoComplete="off"
+                  autoComplete="off"
                   className="w-full px-3 py-2 bg-black border border-slate-700 text-slate-100 placeholder-slate-500"
                 />
               </div>
             )}
 
-
-
             <button
-              {...getXRProps()}
               type="submit"
               disabled={isLoading}
               className={`w-full py-3 px-4 border text-sm tracking-wider ${
@@ -278,14 +258,8 @@ const AuthPage = () => {
                 : "CREATE ACCOUNT"}
             </button>
 
-            <div {...getXRProps()} className="relative">
-              <div
-                {...getXRProps()}
-                className="absolute inset-0 flex items-center"
-              >
-
-              </div>
-
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center"></div>
             </div>
           </form>
         </div>

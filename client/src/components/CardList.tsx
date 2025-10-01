@@ -1,7 +1,6 @@
-import React from 'react';
-import type { BaseCard } from '../types/Card';
-import { getXRProps } from '../utils/xr';
-import CardItem from './CardItem';
+import React from "react";
+import type { BaseCard } from "../types/Card";
+import CardItem from "./CardItem";
 
 interface CardListProps {
   cards: BaseCard[];
@@ -10,17 +9,21 @@ interface CardListProps {
 const CardList: React.FC<CardListProps> = React.memo(({ cards }) => {
   if (cards.length === 0) {
     return (
-      <div {...getXRProps("text-center py-16")}>
+      <div className="text-center py-16">
         <div className="text-6xl mb-6 text-slate-500">◈</div>
-        <h3 className="text-xl font-bold text-slate-300 mb-3 tracking-wider">NO CARDS FOUND</h3>
-        <p className="text-slate-400 font-medium">Adjust your search filters to discover premium cards</p>
+        <h3 className="text-xl font-bold text-slate-300 mb-3 tracking-wider">
+          NO CARDS FOUND
+        </h3>
+        <p className="text-slate-400 font-medium">
+          Adjust your search filters to discover premium cards
+        </p>
       </div>
     );
   }
 
   return (
-    <div {...getXRProps("grid grid-cols-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6")}>
-      {cards.map(card => (
+    <div className="grid grid-cols-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+      {cards.map((card) => (
         <CardItem key={card.id} card={card} />
       ))}
     </div>

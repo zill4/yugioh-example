@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/UserContext";
 import { sampleCards } from "../data/sampleCards";
-import { getXRProps, getAssetPath } from "../utils/xr";
+import { getAssetPath } from "../utils/xr";
 import type { BaseCard, Deck } from "../types/Card";
 import Layout from "../components/Layout";
 
@@ -354,22 +354,20 @@ const DeckbuilderPage = () => {
   return (
     <Layout header="DECK BUILDER">
       {/* Top controls */}
-      <div {...getXRProps()} className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between">
         <button
           onClick={() => setShowDecksPanel((v) => !v)}
-          {...getXRProps()}
           className="px-3 py-2 border border-slate-700 text-[#D9D9D9] hover:bg-slate-900 text-xs tracking-wider"
         >
           {showDecksPanel ? "HIDE DECKS" : "MY DECKS"}
         </button>
         {showCreateForm ? (
-          <div {...getXRProps()} className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <input
               type="text"
               value={newDeckName}
               onChange={(e) => setNewDeckName(e.target.value)}
               placeholder="Deck name..."
-              {...getXRProps()}
               autoComplete="off"
               className="px-3 py-2 bg-black border border-slate-700 text-slate-100 text-sm"
             />
@@ -393,14 +391,12 @@ const DeckbuilderPage = () => {
                 setShowCreateForm(false);
                 setSelectedDeck(newDeck.id);
               }}
-              {...getXRProps()}
               className="px-3 py-2 border border-red-600 text-[#D9D9D9] hover:bg-red-900 text-xs"
             >
               CREATE
             </button>
             <button
               onClick={() => setShowCreateForm(false)}
-              {...getXRProps()}
               className="px-3 py-2 border border-slate-700 text-slate-300 hover:bg-slate-900 text-xs"
             >
               CANCEL
@@ -409,7 +405,6 @@ const DeckbuilderPage = () => {
         ) : (
           <button
             onClick={() => (isAuthenticated ? setShowCreateForm(true) : null)}
-            {...getXRProps()}
             className={`px-3 py-2 border text-xs tracking-wider ${
               isAuthenticated
                 ? "border-slate-700 text-slate-100 hover:bg-slate-900"
@@ -424,20 +419,11 @@ const DeckbuilderPage = () => {
 
       {/* Collapsible overlay panel for decks */}
       {showDecksPanel && (
-        <div
-          {...getXRProps()}
-          className="border border-slate-700 p-3 mb-6 max-w-xl bg-black"
-        >
-          <div
-            {...getXRProps()}
-            className="mb-2 text-slate-300 text-xs tracking-widest"
-          >
+        <div className="border border-slate-700 p-3 mb-6 max-w-xl bg-black">
+          <div className="mb-2 text-slate-300 text-xs tracking-widest">
             MY DECKS
           </div>
-          <div
-            {...getXRProps()}
-            className="grid grid-cols-2 sm:grid-cols-3 gap-2"
-          >
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {Array.isArray(availableDecks) &&
               availableDecks.map((deck) => {
                 if (!deck || typeof deck !== "object" || !deck.id || !deck.name)
@@ -449,7 +435,6 @@ const DeckbuilderPage = () => {
                       setSelectedDeck(deck.id);
                       setShowDecksPanel(false);
                     }}
-                    {...getXRProps()}
                     className={`text-left px-2 py-2 border text-xs ${
                       selectedDeck === deck.id
                         ? "border-red-600 text-[#D9D9D9]"
@@ -464,21 +449,12 @@ const DeckbuilderPage = () => {
         </div>
       )}
 
-      <div
-        {...getXRProps()}
-        className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8"
-      >
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8">
         {/* Large selected card preview and details */}
-        <div {...getXRProps()} className="border border-slate-700 p-6 ">
+        <div className="border border-slate-700 p-6 ">
           {selectedCard ? (
-            <div
-              {...getXRProps()}
-              className="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-4"
-            >
-              <div
-                {...getXRProps()}
-                className="border border-slate-700 bg-black p-2"
-              >
+            <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-4">
+              <div className="border border-slate-700 bg-black p-2">
                 <div className="w-full" style={{ aspectRatio: "3/4" }}>
                   <img
                     src={getAssetPath(selectedCard.imageUrl)}
@@ -492,10 +468,7 @@ const DeckbuilderPage = () => {
                   />
                 </div>
               </div>
-              <div
-                {...getXRProps()}
-                className="text-sm text-slate-300 space-y-2"
-              >
+              <div className="text-sm text-slate-300 space-y-2">
                 <div className="text-lg font-bold text-[#D9D9D9]">
                   {selectedCard.name}
                 </div>
@@ -545,17 +518,14 @@ const DeckbuilderPage = () => {
         </div>
 
         {/* Builder (filters + grid + drop zone) */}
-        <div {...getXRProps()} className="border border-slate-700 p-6">
+        <div className="border border-slate-700 p-6">
           {currentDeck ? (
             <div>
-              <div
-                {...getXRProps()}
-                className="flex items-center justify-between mb-4"
-              >
-                <div {...getXRProps()} className="font-bold tracking-wider">
+              <div className="flex items-center justify-between mb-4">
+                <div className="font-bold tracking-wider">
                   {currentDeck.name}
                 </div>
-                <div {...getXRProps()} className="flex gap-2">
+                <div className="flex gap-2">
                   <button
                     onClick={() => {
                       if (!currentDeck || !isAuthenticated) return;
@@ -598,7 +568,6 @@ const DeckbuilderPage = () => {
                       }
                     }}
                     disabled={deckStats.total < 40}
-                    {...getXRProps()}
                     className={`px-4 py-2 border text-sm tracking-wider ${
                       deckStats.total >= 40
                         ? "border-red-600 text-[#D9D9D9] hover:bg-red-900"
@@ -612,106 +581,62 @@ const DeckbuilderPage = () => {
 
               {saveMessage && (
                 <div
-                  {...getXRProps()}
                   className={`mb-4 p-3 border text-center ${
                     saveMessage.type === "success"
                       ? "border-green-600 text-green-300"
                       : "border-red-600 text-red-300"
                   }`}
                 >
-                  <p {...getXRProps()} className="text-sm">
-                    {saveMessage.text}
-                  </p>
+                  <p className="text-sm">{saveMessage.text}</p>
                 </div>
               )}
 
-              <div {...getXRProps()} className="grid grid-cols-4 gap-4 mb-6">
-                <div
-                  {...getXRProps()}
-                  className="bg-black border border-slate-700 p-3 text-center"
-                >
+              <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="bg-black border border-slate-700 p-3 text-center">
                   <div
-                    {...getXRProps()}
                     className={`text-xl font-bold ${
                       deckStats.total >= 40 ? "text-[#D9D9D9]" : "text-red-500"
                     }`}
                   >
                     {deckStats.total}
                   </div>
-                  <div {...getXRProps()} className="text-xs text-slate-400">
-                    TOTAL
-                  </div>
+                  <div className="text-xs text-slate-400">TOTAL</div>
                 </div>
-                <div
-                  {...getXRProps()}
-                  className="bg-black border border-slate-700 p-3 text-center"
-                >
-                  <div
-                    {...getXRProps()}
-                    className="text-xl font-bold text-[#D9D9D9]"
-                  >
+                <div className="bg-black border border-slate-700 p-3 text-center">
+                  <div className="text-xl font-bold text-[#D9D9D9]">
                     {deckStats.monsters}
                   </div>
-                  <div {...getXRProps()} className="text-xs text-slate-400">
-                    MONSTERS
-                  </div>
+                  <div className="text-xs text-slate-400">MONSTERS</div>
                 </div>
-                <div
-                  {...getXRProps()}
-                  className="bg-black border border-slate-700 p-3 text-center"
-                >
-                  <div
-                    {...getXRProps()}
-                    className="text-xl font-bold text-[#D9D9D9]"
-                  >
+                <div className="bg-black border border-slate-700 p-3 text-center">
+                  <div className="text-xl font-bold text-[#D9D9D9]">
                     {deckStats.spells}
                   </div>
-                  <div {...getXRProps()} className="text-xs text-slate-400">
-                    SPELLS
-                  </div>
+                  <div className="text-xs text-slate-400">SPELLS</div>
                 </div>
-                <div
-                  {...getXRProps()}
-                  className="bg-black border border-slate-700 p-3 text-center"
-                >
-                  <div
-                    {...getXRProps()}
-                    className="text-xl font-bold text-[#D9D9D9]"
-                  >
+                <div className="bg-black border border-slate-700 p-3 text-center">
+                  <div className="text-xl font-bold text-[#D9D9D9]">
                     {deckStats.traps}
                   </div>
-                  <div {...getXRProps()} className="text-xs text-slate-400">
-                    TRAPS
-                  </div>
+                  <div className="text-xs text-slate-400">TRAPS</div>
                 </div>
               </div>
 
-              <div
-                {...getXRProps()}
-                className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-              >
-                <div {...getXRProps()} className="lg:col-span-2">
-                  <div
-                    {...getXRProps()}
-                    className="border border-slate-700 p-4 mb-4"
-                  >
-                    <div
-                      {...getXRProps()}
-                      className="grid grid-cols-1 sm:grid-cols-3 gap-4"
-                    >
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <div className="border border-slate-700 p-4 mb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <input
                         type="text"
                         placeholder="Search cards..."
                         value={cardSearchTerm}
                         onChange={(e) => setCardSearchTerm(e.target.value)}
                         autoComplete="off"
-                        {...getXRProps()}
                         className="w-full px-3 py-2 bg-black border border-slate-700 text-slate-100"
                       />
                       <select
                         value={cardFilterType}
                         onChange={(e) => setCardFilterType(e.target.value)}
-                        {...getXRProps()}
                         className="w-full px-3 py-2 bg-black border border-slate-700 text-slate-100"
                       >
                         <option value="all">All Types</option>
@@ -722,7 +647,6 @@ const DeckbuilderPage = () => {
                       <select
                         value={cardFilterRarity}
                         onChange={(e) => setCardFilterRarity(e.target.value)}
-                        {...getXRProps()}
                         className="w-full px-3 py-2 bg-black border border-slate-700 text-slate-100"
                       >
                         <option value="all">All Rarities</option>
@@ -734,14 +658,8 @@ const DeckbuilderPage = () => {
                     </div>
                   </div>
 
-                  <div
-                    {...getXRProps()}
-                    className="border border-slate-700 p-4 max-h-[520px] overflow-y-auto"
-                  >
-                    <div
-                      {...getXRProps()}
-                      className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
-                    >
+                  <div className="border border-slate-700 p-4 max-h-[520px] overflow-y-auto">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                       {pagedCards.map((card) => {
                         const inDeck = getCardInDeck(card.id);
                         const maxCopies = 3;
@@ -801,18 +719,12 @@ const DeckbuilderPage = () => {
                                 </div>
                               </div>
                               {inDeck > 0 && (
-                                <div
-                                  {...getXRProps()}
-                                  className="absolute -top-2 -right-2 bg-red-600 text-white w-6 h-6 flex items-center justify-center text-xs font-bold"
-                                >
+                                <div className="absolute -top-2 -right-2 bg-red-600 text-white w-6 h-6 flex items-center justify-center text-xs font-bold">
                                   {inDeck}
                                 </div>
                               )}
                               {!canAdd && (
-                                <div
-                                  {...getXRProps()}
-                                  className="absolute inset-0 bg-red-900/50 flex items-center justify-center"
-                                >
+                                <div className="absolute inset-0 bg-red-900/50 flex items-center justify-center">
                                   <span className="text-red-200 text-xs font-bold">
                                     MAX
                                   </span>
@@ -824,13 +736,9 @@ const DeckbuilderPage = () => {
                       })}
                     </div>
                     {filteredCards.length > pageSize && (
-                      <div
-                        {...getXRProps()}
-                        className="mt-4 flex items-center justify-between text-xs text-slate-400"
-                      >
+                      <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
                         <button
                           onClick={() => setPage((p) => Math.max(0, p - 1))}
-                          {...getXRProps()}
                           className="px-3 py-1 border border-slate-700 text-[#D9D9D9] hover:bg-slate-900"
                           disabled={page === 0}
                         >
@@ -849,7 +757,6 @@ const DeckbuilderPage = () => {
                           onClick={() =>
                             setPage((p) => Math.min(totalPages - 1, p + 1))
                           }
-                          {...getXRProps()}
                           className="px-3 py-1 border border-slate-700 text-[#D9D9D9] hover:bg-slate-900"
                           disabled={page >= totalPages - 1}
                         >
@@ -860,32 +767,25 @@ const DeckbuilderPage = () => {
                   </div>
                 </div>
 
-                <div {...getXRProps()} className="space-y-4">
+                <div className="space-y-4">
                   <div
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
-                    {...getXRProps()}
                     className={`border border-dashed p-3 h-[calc(100vh-260px)] flex flex-col ${
                       isDragOver
                         ? "border-red-600 bg-red-900/10"
                         : "border-slate-700"
                     }`}
                   >
-                    <div {...getXRProps()} className="text-center mb-2">
-                      <p
-                        {...getXRProps()}
-                        className="text-slate-300 text-xs tracking-widest"
-                      >
+                    <div className="text-center mb-2">
+                      <p className="text-slate-300 text-xs tracking-widest">
                         {isDragOver
                           ? "Drop card here!"
                           : "Drag cards here to add to deck"}
                       </p>
                     </div>
-                    <div
-                      {...getXRProps()}
-                      className="space-y-1 flex-1 overflow-y-auto pr-1"
-                    >
+                    <div className="space-y-1 flex-1 overflow-y-auto pr-1">
                       {currentDeck &&
                         currentDeck.cards &&
                         Array.isArray(currentDeck.cards) &&
@@ -906,14 +806,10 @@ const DeckbuilderPage = () => {
                           return (
                             <div
                               key={deckCard.cardId}
-                              {...getXRProps()}
                               className="flex items-center justify-between bg-black border border-slate-700 py-1.5 px-2"
                             >
-                              <div {...getXRProps()} className="flex-1 min-w-0">
-                                <div
-                                  {...getXRProps()}
-                                  className="text-xs font-bold text-slate-100 truncate"
-                                >
+                              <div className="flex-1 min-w-0">
+                                <div className="text-xs font-bold text-slate-100 truncate">
                                   {card.name}
                                 </div>
                                 <div className="text-[10px] text-slate-400 flex items-center gap-2">
@@ -933,21 +829,14 @@ const DeckbuilderPage = () => {
                                   </span>
                                 </div>
                               </div>
-                              <div
-                                {...getXRProps()}
-                                className="flex items-center gap-2 ml-2"
-                              >
-                                <span
-                                  {...getXRProps()}
-                                  className="text-sm font-bold text-red-500"
-                                >
+                              <div className="flex items-center gap-2 ml-2">
+                                <span className="text-sm font-bold text-red-500">
                                   ×{deckCard.quantity}
                                 </span>
                                 <button
                                   onClick={() =>
                                     removeCardFromDeck(deckCard.cardId)
                                   }
-                                  {...getXRProps()}
                                   className="text-red-400 hover:text-red-300 text-sm px-2 py-1"
                                 >
                                   ✕
@@ -957,10 +846,7 @@ const DeckbuilderPage = () => {
                           );
                         })}
                       {currentDeck?.cards && currentDeck.cards.length === 0 && (
-                        <div
-                          {...getXRProps()}
-                          className="text-center text-slate-400 text-sm py-8"
-                        >
+                        <div className="text-center text-slate-400 text-sm py-8">
                           No cards in deck yet
                         </div>
                       )}
@@ -970,17 +856,14 @@ const DeckbuilderPage = () => {
               </div>
             </div>
           ) : (
-            <div {...getXRProps()} className="text-center py-16">
-              <div {...getXRProps()} className="text-6xl mb-4">
-                🎴
-              </div>
-              <div {...getXRProps()} className="text-slate-300 mb-6">
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4">🎴</div>
+              <div className="text-slate-300 mb-6">
                 {isAuthenticated ? "SELECT A DECK" : "PREVIEW DECKS"}
               </div>
               {isAuthenticated ? (
                 <button
                   onClick={() => setSelectedDeck("dragons")}
-                  {...getXRProps()}
                   className="px-8 py-3 border border-slate-700 text-slate-100 hover:bg-slate-900"
                 >
                   START BUILDING
@@ -988,7 +871,6 @@ const DeckbuilderPage = () => {
               ) : (
                 <Link
                   to="/auth"
-                  {...getXRProps()}
                   className="px-8 py-3 border border-slate-700 text-slate-100 hover:bg-slate-900 inline-block"
                 >
                   LOGIN TO BUILD
