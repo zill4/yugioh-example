@@ -7,6 +7,7 @@ import AuthPage from './pages/AuthPage';
 import CardshopPage from './pages/CardshopPage';
 import GamePage from './pages/GamePage';
 import DeckbuilderPage from './pages/DeckbuilderPage';
+import CardCreatorPage from './pages/CardCreatorPage';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
             <Route path="/card/:id" element={<CardDetail />} />
             <Route path="/game" element={<GamePage />} />
             <Route path="/deckbuilder" element={<DeckbuilderPage />} />
+            <Route path="/cardcreator" element={<CardCreatorPage />} />
           </Routes>
         </div>
       </Router>

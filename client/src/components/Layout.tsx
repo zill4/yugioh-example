@@ -39,6 +39,17 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
             DECK BUILDER
           </NavLink>
           <NavLink
+            to="/cardcreator"
+            {...getXRInteractiveProps("")}
+            className={({ isActive }) =>
+              `block text-xl leading-tight tracking-wider font-extrabold no-underline cursor-pointer transition-colors ${
+                isActive ? "text-white" : "text-slate-300 hover:text-white"
+              }`
+            }
+          >
+            CARD CREATOR
+          </NavLink>
+          <NavLink
             to="/game"
             {...getXRInteractiveProps("")}
             className={({ isActive }) =>
