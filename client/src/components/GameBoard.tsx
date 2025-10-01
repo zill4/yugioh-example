@@ -446,41 +446,174 @@ const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
   const ConfirmationModal: React.FC = () => {
     if (!showConfirmation || !pendingAction || !selectedCard) return null;
 
-    const getActionDescription = () => {
+    const getBattlePreview = () => {
       switch (pendingAction.type) {
-        case 'ATTACK':
+        case 'ATTACK': {
           const targetIndex = pendingAction.targetId ? parseInt(pendingAction.targetId) : -1;
           const target = targetIndex !== -1 ? gameState?.opponent.zones.mainMonsterZones[targetIndex] : null;
-          return `Attack ${target?.name || 'target'} with ${selectedCard.name}`;
+
+          if (!target) return null;
+
+          const attackerAtk = selectedCard.attack || 0;
+          const defenderAtk = target.attack || 0;
+          const damage = Math.abs(attackerAtk - defenderAtk);
+
+          let result: 'attacker_wins' | 'defender_wins' | 'mutual_destruction';
+          let resultText: string;
+          let resultColor: string;
+
+          if (attackerAtk > defenderAtk) {
+            result = 'attacker_wins';
+            resultText = `${selectedCard.name} wins!`;
+            resultColor = 'text-green-600';
+          } else if (defenderAtk > attackerAtk) {
+            result = 'defender_wins';
+            resultText = `${target.name} wins!`;
+            resultColor = 'text-red-600';
+          } else {
+            result = 'mutual_destruction';
+            resultText = 'Both monsters destroyed!';
+            resultColor = 'text-yellow-600';
+          }
+
+          return {
+            attacker: selectedCard,
+            defender: target,
+            attackerAtk,
+            defenderAtk,
+            damage,
+            result,
+            resultText,
+            resultColor,
+            attackDifference: attackerAtk - defenderAtk
+          };
+        }
         case 'DIRECT_ATTACK':
-          return `Direct attack with ${selectedCard.name}`;
+          return {
+            attacker: selectedCard,
+            defender: null,
+            attackerAtk: selectedCard.attack || 0,
+            defenderAtk: 0,
+            damage: selectedCard.attack || 0,
+            result: 'direct_attack' as const,
+            resultText: `Direct attack for ${selectedCard.attack} damage!`,
+            resultColor: 'text-blue-600',
+            attackDifference: selectedCard.attack || 0
+          };
         default:
-          return 'Perform action';
+          return null;
       }
     };
 
-    return (
-      <div className={`fixed inset-0 ${process.env.XR_ENV === 'avp' ? '' : 'bg-black/50'} flex items-center justify-center z-50`}>
-        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-          <h3 className="text-lg font-bold mb-4 text-center">Confirm Action</h3>
+    const battlePreview = getBattlePreview();
 
-          <div className="text-center mb-6">
-            <div className="text-gray-700 mb-2">{getActionDescription()}</div>
-            <div className="text-sm text-gray-600">
-              ATK: {selectedCard.attack}
+    return (
+      <div className={`fixed inset-0 ${process.env.XR_ENV === 'avp' ? '' : 'bg-black/70'} flex items-center justify-center z-50`}>
+        <div enable-xr className="battle-modal-card rounded-lg p-6 max-w-2xl w-full mx-4">
+          <h3 className="text-xl font-bold mb-6 text-center">Confirm Battle</h3>
+
+          {battlePreview && (
+            <div className="battle-modal-card mb-6">
+              {/* Battle Preview */}
+              <div className="flex items-center justify-center space-x-6 mb-4">
+                {/* Attacker Card */}
+                <div className="text-center">
+                  <div className="w-20 h-28 bg-gradient-to-b from-blue-900 to-blue-800 rounded-md border-2 border-blue-600 mb-2 flex items-center justify-center">
+                    {selectedCard.imageUrl ? (
+                      <img
+                        src={selectedCard.imageUrl}
+                        alt={selectedCard.name}
+                        className="w-full h-full object-cover rounded"
+                      />
+                    ) : (
+                      <div className="text-2xl opacity-60">⚔️</div>
+                    )}
+                  </div>
+                  <div className="text-xs font-bold text-blue-600">ATTACKER</div>
+                  <div className="text-lg font-bold text-red-600">ATK: {battlePreview.attackerAtk}</div>
+                </div>
+
+                {/* VS Symbol */}
+                <div className="flex flex-col items-center">
+                  <div className="text-2xl font-bold text-gray-600 mb-2">⚔️</div>
+                  <div className="text-xs text-gray-500">VS</div>
+                </div>
+
+                {/* Defender Card */}
+                <div className="text-center">
+                  <div className="w-20 h-28 bg-gradient-to-b from-red-900 to-red-800 rounded-md border-2 border-red-600 mb-2 flex items-center justify-center">
+                    {battlePreview.defender?.imageUrl ? (
+                      <img
+                        src={battlePreview.defender.imageUrl}
+                        alt={battlePreview.defender.name}
+                        className="w-full h-full object-cover rounded"
+                      />
+                    ) : battlePreview.defender ? (
+                      <div className="text-2xl opacity-60">🛡️</div>
+                    ) : (
+                      <div className="text-3xl opacity-60">🎯</div>
+                    )}
+                  </div>
+                  <div className="text-xs font-bold text-red-600">
+                    {battlePreview.defender ? 'DEFENDER' : 'DIRECT ATTACK'}
+                  </div>
+       
+                  <div className="text-lg font-bold text-blue-600">
+                    ATK: {battlePreview.defenderAtk}
+                  </div>
+                </div>
+              </div>
+
+              {/* Battle Result */}
+              <div className="text-center border-t border-gray-300 pt-4">
+                <div className={`text-lg font-bold mb-2 ${battlePreview.resultColor}`}>
+                  {battlePreview.resultText}
+                </div>
+
+                {battlePreview.result === 'attacker_wins' && (
+                  <div className="text-sm text-gray-600">
+                    Deals {battlePreview.damage} damage to opponent
+                  </div>
+                )}
+
+                {battlePreview.result === 'defender_wins' && (
+                  <div className="text-sm text-gray-600">
+                    Takes {battlePreview.damage} damage
+                  </div>
+                )}
+
+                {battlePreview.result === 'mutual_destruction' && (
+                  <div className="text-sm text-gray-600">
+                    No damage dealt
+                  </div>
+                )}
+
+                {battlePreview.result === 'direct_attack' && (
+                  <div className="text-sm text-gray-600">
+                    Direct attack to opponent
+                  </div>
+                )}
+
+                {/* Attack Difference */}
+                {battlePreview.defender && (
+                  <div className="text-xs text-gray-500 mt-2">
+                    Attack Difference: {battlePreview.attackDifference > 0 ? '+' : ''}{battlePreview.attackDifference}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="flex space-x-4">
             <button
               onClick={handleConfirmAction}
-              className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+              className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-semibold"
             >
-              Confirm
+              Confirm Battle
             </button>
             <button
               onClick={handleCancelAction}
-              className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+              className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-semibold"
             >
               Cancel
             </button>

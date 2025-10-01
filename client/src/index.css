@@ -655,4 +655,8 @@ html.is-spatial {
     border: 3px solid rgba(0, 255, 255, 0.5) !important; /* Debug border - CYAN for test */
     width: max-content !important;
   }
+
+  .battle-modal-card {
+    --xr-background-material: translucent;
+  }
 }
