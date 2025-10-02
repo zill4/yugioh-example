@@ -610,7 +610,7 @@ html.is-spatial {
     position: fixed;
     left: 50%;
     top: 50%;
-    transform: translateX(-50%) translateY(-40%) !important;
+    transform: translateX(-56%) translateY(-40%) !important;
     transform-style: preserve-3d;
     perspective: 1500px;
     perspective-origin: center center;
@@ -633,17 +633,19 @@ html.is-spatial {
     flex-direction: column;
     align-items: center;
     width: fit-content;
-    padding: 10px;
+    padding: 20px;
+    overflow: visible;
   }
 
   /* Target ONLY the zone rows */
   .zone-rows-wrapper {
-    transform: translateZ(-10px) translateY(-10px) !important;
+    transform: translateZ(-10px) !important;
     transform-origin: center center;
     transform-style: preserve-3d;
     width: max-content !important;
     display: inline-block;
     pointer-events: auto; /* Enable clicks on monster zone cards */
+    overflow: visible;
   }
   
   /* Detached Player Hand - Fixed Position */
@@ -733,8 +735,25 @@ html.is-spatial {
     pointer-events: auto;
     --xr-back: 150;
     transform: translateZ(250px) !important;
-    max-height: 70vh;
-    overflow-y: auto;
+    max-height: 80vh;
+  }
+
+  /* Custom scrollbar for targeting modal */
+  .xr-targeting-modal .overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .xr-targeting-modal .overflow-y-auto::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.5);
+  }
+
+  .xr-targeting-modal .overflow-y-auto::-webkit-scrollbar-thumb {
+    background: #ef4444;
+    border-radius: 0;
+  }
+
+  .xr-targeting-modal .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background: #f87171;
   }
 
   .xr-target-option {
@@ -756,6 +775,20 @@ html.is-spatial {
   }
 
   .xr-targeting-modal > button {
+    --xr-background-material: translucent;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+  }
+
+  /* Game End Modal - Fixed and Detached */
+  .xr-game-end-modal {
+    --xr-background-material: translucent;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
+    pointer-events: auto;
+    --xr-back: 200;
+    transform: translateZ(300px) !important;
+  }
+
+  .xr-game-end-modal button {
     --xr-background-material: translucent;
     border: 1px solid rgba(148, 163, 184, 0.3);
   }

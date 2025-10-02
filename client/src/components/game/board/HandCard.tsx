@@ -15,7 +15,7 @@ export const HandCard: React.FC<HandCardProps> = React.memo(
     return (
       <div
         onClick={onClick}
-        className={`w-24 h-36 border-2 border-gray-800 border-rounded-md shadow-lg select-none ${
+        className={`w-24 h-36 shadow-lg select-none ${
           isAITurn && isPlayerHand
             ? "opacity-50 cursor-not-allowed"
             : "hover:scale-110 hover:-translate-y-2 cursor-pointer"
@@ -27,18 +27,18 @@ export const HandCard: React.FC<HandCardProps> = React.memo(
           msUserSelect: "none",
         }}
       >
-        <div className="w-full h-full flex flex-col p-1">
+        <div className="w-full h-full flex flex-col">
           {card?.imageUrl ? (
             <img
               src={getAssetPath(card.imageUrl)}
               alt={card.name}
-              className="w-full h-full border-rounded-lg"
+              className="w-full h-full object-contain"
               loading="lazy"
             />
           ) : (
             <>
               <div className="text-2xl opacity-60">👹</div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent border-rounded-lg"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
             </>
           )}
         </div>

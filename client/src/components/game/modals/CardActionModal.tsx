@@ -20,7 +20,8 @@ export const CardActionModal: React.FC<CardActionModalProps> = ({
 }) => {
   if (!selectedCard || !gameState) return null;
 
-  const canNormalSummon = !gameState.player.hasNormalSummoned;
+  const canNormalSummon =
+    !gameState.player.hasNormalSummoned && gameState.currentPhase === "Main";
 
   const handleNormalSummon = useCallback(() => {
     onNormalSummon(selectedCard.id);
@@ -40,7 +41,7 @@ export const CardActionModal: React.FC<CardActionModalProps> = ({
             <img
               src={getAssetPath(selectedCard.imageUrl)}
               alt={selectedCard.name}
-              className="w-full object-fit"
+              className="w-full h-auto object-contain"
             />
           </div>
         </div>

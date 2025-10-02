@@ -135,7 +135,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
   // Handle hand card click
   const handleHandCardClick = useCallback(
     (card: any) => {
-      if (isAITurn || !gameState) return;
+      if (isAITurn || !gameState || gameState.currentPhase !== "Main") return;
       const cardInPlay: CardInPlay = {
         ...card,
         position: "hand",

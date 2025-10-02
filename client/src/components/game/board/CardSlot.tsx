@@ -48,11 +48,11 @@ export const CardSlot: React.FC<CardSlotProps> = React.memo(
       <div
         onClick={card && onClick ? onClick : undefined}
         className={`
-          w-24 h-32 border-rounded-md border-2 flex items-center justify-center
+          w-24 h-32 flex items-center justify-center
           transition-all duration-200 relative
           ${
             card
-              ? `bg-white shadow-lg cursor-pointer`
+              ? `bg-transparent shadow-lg cursor-pointer`
               : `bg-transparent border-transparent`
           }
           ${
@@ -69,7 +69,7 @@ export const CardSlot: React.FC<CardSlotProps> = React.memo(
           }
           ${
             canSelectForAttack && !isSelected && !isAttackableInBattlePhase
-              ? "hover:ring-2 hover:ring-green-400 hover:bg-green-50"
+              ? "hover:ring-2 hover:ring-green-400"
               : ""
           }
           ${
@@ -86,7 +86,7 @@ export const CardSlot: React.FC<CardSlotProps> = React.memo(
       >
         {card && (
           <div
-            className="w-full h-full border-rounded-md overflow-hidden relative"
+            className="w-full h-full overflow-hidden relative"
             style={{
               userSelect: "none",
               WebkitUserSelect: "none",
@@ -95,7 +95,7 @@ export const CardSlot: React.FC<CardSlotProps> = React.memo(
             }}
           >
             {isOpponent ? (
-              <div className="w-full h-full border-rounded-md flex flex-col p-1">
+              <div className="w-full h-full flex flex-col">
                 {card.faceDown ? (
                   <div className="flex-1 flex items-center justify-center">
                     <div className="text-yellow-300 text-2xl">🂠</div>
@@ -109,20 +109,20 @@ export const CardSlot: React.FC<CardSlotProps> = React.memo(
                       <img
                         src={getAssetPath(card.imageUrl)}
                         alt={card.name}
-                        className="w-full h-full border-rounded-md opacity-80"
+                        className="w-full h-full opacity-80 object-contain"
                         loading="lazy"
                       />
                     ) : (
                       <>
                         <div className="text-4xl opacity-60">👹</div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                       </>
                     )}
                   </>
                 )}
               </div>
             ) : (
-              <div className="w-full h-full border border-gray-800 border-rounded-md flex flex-col p-1">
+              <div className="w-full h-full flex flex-col">
                 {card.faceDown ? (
                   <div className="flex-1 flex items-center justify-center">
                     <div className="text-yellow-300 text-2xl">🂠</div>
@@ -136,13 +136,13 @@ export const CardSlot: React.FC<CardSlotProps> = React.memo(
                       <img
                         src={getAssetPath(card.imageUrl)}
                         alt={card.name}
-                        className="w-full h-full border-rounded-lg"
+                        className="w-full h-full object-contain"
                         loading="lazy"
                       />
                     ) : (
                       <>
                         <div className="text-4xl opacity-60">👹</div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent border-rounded-lg"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                       </>
                     )}
                   </>
