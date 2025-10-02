@@ -28,7 +28,7 @@ import { CardSlot } from "./game/board/CardSlot";
 import { HandCard } from "./game/board/HandCard";
 
 // Modals
-import { CardActionModal } from "./game/CardActionModal";
+import { CardActionModal } from "./game/modals/CardActionModal";
 import { TargetingModal } from "./game/modals/TargetingModal";
 import { BattleConfirmModal } from "./game/modals/BattleConfirmModal";
 import { GameEndModal } from "./game/modals/GameEndModal";

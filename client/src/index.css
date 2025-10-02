@@ -682,7 +682,34 @@ html.is-spatial {
   .battle-modal-card {
     --xr-background-material: translucent;
   }
+  
+  /* Card Summon Modal - Fixed and Detached */
   .xr-card-summon-modal {
     --xr-background-material: translucent;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
+    pointer-events: auto;
+    --xr-back: 80;
+  }
+
+  .xr-card-summon-modal img {
+    --xr-back: 100;
+  }
+
+  .xr-card-summon-modal .bg-slate-200 {
+    --xr-background-material: translucent;
+  }
+
+  .xr-card-summon-modal .bg-red-300 {
+    --xr-background-material: translucent;
+  }
+
+  .xr-card-summon-modal-buttons {
+    --xr-background-material: translucent;
+    --xr-back: 90;
+  }
+
+  .xr-card-summon-modal-buttons button {
+    --xr-background-material: translucent;
+    border: 1px solid rgba(148, 163, 184, 0.3);
   }
 }
