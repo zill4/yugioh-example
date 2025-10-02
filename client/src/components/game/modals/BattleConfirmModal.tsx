@@ -101,7 +101,6 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
                   </div>
 
                   <div className="flex flex-col items-center text-slate-500">
-                    <div className="text-2xl">⚔️</div>
                     <div className="text-xs uppercase tracking-wider">VS</div>
                   </div>
 

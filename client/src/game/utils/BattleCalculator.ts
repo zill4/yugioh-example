@@ -48,9 +48,9 @@ export function calculateBattleOutcome(
       damage: attackerAtk - defenderAtk,
       attackerSurvives: true,
       defenderSurvives: false,
-      message: `${attacker.name} destroyed ${defender.name}! ${
+      message: `${attacker.name} will destroy ${defender.name}! ${
         attackerAtk - defenderAtk
-      } damage dealt.`,
+      } damage to be dealt.`,
     };
   } else if (defenderAtk > attackerAtk) {
     // Defender wins
@@ -59,9 +59,9 @@ export function calculateBattleOutcome(
       damage: defenderAtk - attackerAtk,
       attackerSurvives: false,
       defenderSurvives: true,
-      message: `${defender.name} destroyed ${attacker.name}! ${
+      message: `${defender.name} will destroy ${attacker.name}! ${
         defenderAtk - attackerAtk
-      } damage dealt.`,
+      } damage to be dealt.`,
     };
   } else {
     // Equal attack - mutual destruction
@@ -70,7 +70,7 @@ export function calculateBattleOutcome(
       damage: 0,
       attackerSurvives: false,
       defenderSurvives: false,
-      message: `${attacker.name} and ${defender.name} destroyed each other!`,
+      message: `${attacker.name} and ${defender.name} will destroy each other!`,
     };
   }
 }

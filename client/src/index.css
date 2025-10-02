@@ -725,4 +725,38 @@ html.is-spatial {
   .xr-card-preview-modal img {
     --xr-back: 120;
   }
+
+  /* Targeting Modal - Fixed and Detached */
+  .xr-targeting-modal {
+    --xr-background-material: translucent;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
+    pointer-events: auto;
+    --xr-back: 150;
+    transform: translateZ(250px) !important;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .xr-target-option {
+    --xr-background-material: translucent;
+    --xr-back: 20;
+  }
+
+  .xr-target-option:hover {
+    --xr-back: 30;
+  }
+
+  .xr-target-option img {
+    --xr-back: 15;
+  }
+
+  .xr-target-option .bg-slate-800 {
+    background: none !important;
+    --xr-background-material: translucent;
+  }
+
+  .xr-targeting-modal > button {
+    --xr-background-material: translucent;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+  }
 }

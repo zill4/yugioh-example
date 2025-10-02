@@ -97,8 +97,20 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
         return;
       }
 
+      // If clicking the same card that's already selected, deselect it first
+      if (selectedCard?.id === card.id) {
+        clearSelection();
+        cancelTargeting();
+        return;
+      }
+
       // Check if card can attack
       if (card.position === "monster" && canAttack(card, gameState)) {
+        // Clear any previous selection/targeting state first
+        clearSelection();
+        cancelTargeting();
+
+        // Then select and start targeting
         selectCard(card);
         startTargeting(card);
         return;
@@ -115,6 +127,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
       selectCard,
       startTargeting,
       selectTarget,
+      clearSelection,
+      cancelTargeting,
     ]
   );
 
