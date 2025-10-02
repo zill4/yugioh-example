@@ -3,19 +3,8 @@
  * Validates all game actions according to the rules
  */
 
-import type {
-  GameState,
-  PlayerState,
-  GameCard,
-  CardInPlay,
-} from "../types/GameTypes";
-import { GameConstants } from "./GameConstants";
-import {
-  canAttack,
-  isPlayable,
-  canDirectAttack,
-  findCardById,
-} from "./CardStateUtils";
+import type { GameState, PlayerState, GameCard } from "../types/GameTypes";
+import { canAttack, canDirectAttack, findCardById } from "./CardStateUtils";
 
 export interface ValidationResult {
   valid: boolean;
@@ -161,7 +150,7 @@ export function validateDirectAttack(
   }
 
   // Check if direct attack is allowed
-  if (!canDirectAttack(attacker, opponentState)) {
+  if (!canDirectAttack(opponentState)) {
     return {
       valid: false,
       error: "Cannot direct attack while opponent has monsters",

@@ -69,7 +69,7 @@ export class PhaseManager {
   /**
    * Apply phase exit logic
    */
-  public onPhaseExit(phase: GamePhase, playerState: PlayerState): PlayerState {
+  public onPhaseExit(playerState: PlayerState): PlayerState {
     // Can add phase-specific exit logic here if needed
     return playerState;
   }

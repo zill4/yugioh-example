@@ -217,7 +217,6 @@ export class GameEngine {
 
     // Apply phase exit logic
     let updatedPlayerState = this.phaseManager.onPhaseExit(
-      this.gameState.currentPhase,
       this.gameState[currentPlayerKey]
     );
 

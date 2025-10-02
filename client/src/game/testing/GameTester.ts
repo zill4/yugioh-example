@@ -22,7 +22,6 @@ export class GameTester {
    * Run a simulated game between two AIs
    */
   public static async runSimulatedGame(
-    playerAIDifficulty: AIDifficulty = "medium",
     opponentAIDifficulty: AIDifficulty = "medium",
     maxTurns: number = 50
   ): Promise<GameTestResult> {
@@ -107,7 +106,7 @@ export class GameTester {
     let totalDuration = 0;
 
     for (let i = 0; i < numGames; i++) {
-      const result = await this.runSimulatedGame(difficulty, difficulty);
+      const result = await this.runSimulatedGame(difficulty);
 
       if (result.winner === "player") playerWins++;
       if (result.winner === "opponent") opponentWins++;
@@ -116,7 +115,9 @@ export class GameTester {
       totalDuration += result.duration;
 
       console.log(
-        `Game ${i + 1}/${numGames}: Winner: ${result.winner || "Draw"}, Turns: ${result.turns}, Duration: ${result.duration}ms`
+        `Game ${i + 1}/${numGames}: Winner: ${
+          result.winner || "Draw"
+        }, Turns: ${result.turns}, Duration: ${result.duration}ms`
       );
     }
 
@@ -132,16 +133,14 @@ export class GameTester {
   /**
    * Test specific game scenario
    */
-  public static async testScenario(
-    scenario: {
-      name: string;
-      setup: (controller: GameController) => void;
-      expectedOutcome: string;
-    }
-  ): Promise<{ success: boolean; message: string }> {
+  public static async testScenario(scenario: {
+    name: string;
+    setup: (controller: GameController) => void;
+    expectedOutcome: string;
+  }): Promise<{ success: boolean; message: string }> {
     try {
       const controller = new GameController();
-      let finalState: GameState | null = null;
+      let finalState: GameState | null = controller.getGameState();
 
       controller.initialize({
         onGameStateChange: (state) => {
@@ -159,7 +158,11 @@ export class GameTester {
       // Run for a few turns
       for (let i = 0; i < 10; i++) {
         await this.delay(100);
-        if (finalState?.winner) break;
+        if (
+          finalState?.winner === "player" ||
+          finalState?.winner === "opponent"
+        )
+          break;
       }
 
       return {
@@ -181,5 +184,3 @@ export class GameTester {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
-
-

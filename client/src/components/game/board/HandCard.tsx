@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React from "react";
 import { getAssetPath } from "../../../utils/xr";
 import type { GameCard } from "../../../game/types/GameTypes";
 
@@ -48,4 +48,3 @@ export const HandCard: React.FC<HandCardProps> = React.memo(
 );
 
 HandCard.displayName = "HandCard";
-

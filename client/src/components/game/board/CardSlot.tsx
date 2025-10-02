@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo } from "react";
 import { getAssetPath } from "../../../utils/xr";
 import type { CardInPlay, GameState } from "../../../game/types/GameTypes";
 
@@ -157,4 +157,3 @@ export const CardSlot: React.FC<CardSlotProps> = React.memo(
 );
 
 CardSlot.displayName = "CardSlot";
-

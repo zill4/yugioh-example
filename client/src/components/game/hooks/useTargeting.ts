@@ -3,7 +3,7 @@
  * Manages attack targeting state and logic
  */
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import type {
   CardInPlay,
   GameState,
@@ -37,10 +37,10 @@ export function useTargeting({ gameState }: UseTargetingProps) {
       setTargetingMode("attack");
 
       // Get valid targets
-      const targets = getValidAttackTargets(card, gameState.opponent);
+      const targets = getValidAttackTargets(gameState.opponent);
 
       // If no monsters, add direct attack option
-      if (targets.length === 0 && canDirectAttack(card, gameState.opponent)) {
+      if (targets.length === 0 && canDirectAttack(gameState.opponent)) {
         const directAttackTarget: CardInPlay = {
           id: "direct-attack",
           name: "Direct Attack",

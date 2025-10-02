@@ -51,7 +51,6 @@ export function isPlayable(card: any, playerState: PlayerState): boolean {
  */
 export function isTargetable(
   target: CardInPlay,
-  attacker: CardInPlay,
   gameState: GameState
 ): boolean {
   // Cannot target face-down cards (in this simplified version)
@@ -68,12 +67,7 @@ export function isTargetable(
 /**
  * Get all valid attack targets for a card
  */
-export function getValidAttackTargets(
-  attacker: CardInPlay,
-  opponent: PlayerState
-): CardInPlay[] {
-  const targets: CardInPlay[] = [];
-
+export function getValidAttackTargets(opponent: PlayerState): CardInPlay[] {
   // Get all opponent's monsters
   const opponentMonsters = opponent.zones.mainMonsterZones.filter(
     (card): card is CardInPlay => card !== null && !card.faceDown
@@ -92,10 +86,7 @@ export function getValidAttackTargets(
 /**
  * Check if direct attack is allowed
  */
-export function canDirectAttack(
-  attacker: CardInPlay,
-  opponent: PlayerState
-): boolean {
+export function canDirectAttack(opponent: PlayerState): boolean {
   // Can only direct attack if opponent has no monsters
   const opponentHasMonsters = opponent.zones.mainMonsterZones.some(
     (card) => card !== null
