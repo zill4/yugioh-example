@@ -5,6 +5,7 @@
 
 import type {
   GameState,
+  GamePhase,
   PlayerState,
   GameEvent,
   GameAction,

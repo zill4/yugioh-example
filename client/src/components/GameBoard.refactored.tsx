@@ -41,7 +41,7 @@ interface GameBoardProps {
   onEndGame: () => void;
 }
 
-const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
+const GameBoard: React.FC<GameBoardProps> = ({ gameMode, onEndGame }) => {
   // Game state
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
