@@ -6,72 +6,6 @@ import { getAssetPath } from "../utils/xr";
 import type { BaseCard, Deck } from "../types/Card";
 import Layout from "../components/Layout";
 
-interface TemplateDeck {
-  id: string;
-  name: string;
-  type: string;
-  cards: number;
-  icon?: string;
-  character?: string;
-}
-
-const deckTemplates: TemplateDeck[] = [
-  {
-    id: "yugi",
-    name: "Yugi's Deck",
-    type: "Balanced",
-    cards: 40,
-    icon: "🎩",
-    character: "Yugi Moto",
-  },
-  {
-    id: "kaiba",
-    name: "Kaiba's Deck",
-    type: "Aggressive",
-    cards: 40,
-    icon: "🐲",
-    character: "Seto Kaiba",
-  },
-  {
-    id: "joey",
-    name: "Joey's Deck",
-    type: "Beatdown",
-    cards: 40,
-    icon: "🃏",
-    character: "Joey Wheeler",
-  },
-  {
-    id: "pegasus",
-    name: "Pegasus' Deck",
-    type: "Control",
-    cards: 40,
-    icon: "🎭",
-    character: "Maximillion Pegasus",
-  },
-  {
-    id: "dragons",
-    name: "Dragon Lords",
-    type: "Aggressive",
-    cards: 42,
-    icon: "🐉",
-  },
-  {
-    id: "spellcasters",
-    name: "Mystic Mages",
-    type: "Control",
-    cards: 40,
-    icon: "🔮",
-  },
-  {
-    id: "warriors",
-    name: "Noble Knights",
-    type: "Balanced",
-    cards: 41,
-    icon: "⚔️",
-  },
-  { id: "machines", name: "Cyber Army", type: "Combo", cards: 43, icon: "🤖" },
-];
-
 const DeckbuilderPage = () => {
   const { user, isAuthenticated, getUserDecks, saveDeck, clearCorruptedData } =
     useAuth();
@@ -119,7 +53,7 @@ const DeckbuilderPage = () => {
     [isAuthenticated, getUserDecks]
   );
   const availableDecks = useMemo(
-    () => (isAuthenticated ? userDecks : deckTemplates),
+    () => (isAuthenticated ? userDecks : []),
     [isAuthenticated, userDecks]
   );
 
@@ -210,11 +144,11 @@ const DeckbuilderPage = () => {
         setCurrentDeck(validatedDeck);
       }
     } else if (user) {
-      const template = deckTemplates.find((t) => t.id === selectedDeck);
-      if (template) {
+      const template: Deck[] = [];
+      if (template.length > 0) {
         const newDeck: Deck = {
           id: `deck_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          name: template.name,
+          name: template[0].name,
           userId: user.id,
           cards: [],
           createdAt: new Date().toISOString(),
