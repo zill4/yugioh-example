@@ -32,6 +32,7 @@ import { CardActionModal } from "./game/modals/CardActionModal";
 import { TargetingModal } from "./game/modals/TargetingModal";
 import { BattleConfirmModal } from "./game/modals/BattleConfirmModal";
 import { GameEndModal } from "./game/modals/GameEndModal";
+import { CardPreviewModal } from "./game/modals/CardPreviewModal";
 
 // Utils
 import { canAttack } from "../game/utils/CardStateUtils";
@@ -46,6 +47,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [initError, setInitError] = useState<string | null>(null);
   const [showGameEndModal, setShowGameEndModal] = useState(false);
+  const [previewCard, setPreviewCard] = useState<CardInPlay | null>(null);
   const gameControllerRef = useRef<GameController | null>(null);
 
   // Derive AI turn state from gameState
@@ -75,8 +77,19 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
   // Card click handler - simplified with early returns
   const handleCardClick = useCallback(
     (card: CardInPlay, isPlayerCard: boolean) => {
-      if (!gameControllerRef.current || !gameState || isAITurn) return;
-      if (!isPlayerCard) return;
+      if (!gameControllerRef.current || !gameState) return;
+
+      // If clicking opponent card, show preview
+      if (!isPlayerCard) {
+        setPreviewCard(card);
+        return;
+      }
+
+      // Player can't interact during AI turn - show preview instead
+      if (isAITurn) {
+        setPreviewCard(card);
+        return;
+      }
 
       // If already targeting, this is a target selection
       if (selectedCard && targetingMode) {
@@ -91,8 +104,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
         return;
       }
 
-      // Select card for other actions
-      selectCard(card);
+      // Card can't attack - show preview instead
+      setPreviewCard(card);
     },
     [
       gameState,
@@ -117,6 +130,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
     },
     [isAITurn, gameState, selectCard]
   );
+
+  // Close preview modal
+  const handleClosePreview = useCallback(() => {
+    setPreviewCard(null);
+  }, []);
 
   // Handle action confirmation
   const handleConfirmAction = useCallback(() => {
@@ -261,6 +279,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
                             isPlayerZone={false}
                             gameState={gameState}
                             isAITurn={isAITurn}
+                            onClick={
+                              card
+                                ? () => handleCardClick(card, false)
+                                : undefined
+                            }
                           />
                           {!card && (
                             <div
@@ -391,6 +414,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
         onPlayAgain={handlePlayAgain}
         onReturnHome={onEndGame}
       />
+
+      <CardPreviewModal card={previewCard} onClose={handleClosePreview} />
     </>
   );
 };

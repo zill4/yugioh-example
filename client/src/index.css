@@ -712,4 +712,17 @@ html.is-spatial {
     --xr-background-material: translucent;
     border: 1px solid rgba(148, 163, 184, 0.3);
   }
+
+  /* Card Preview Modal - Fixed and Detached */
+  .xr-card-preview-modal {
+    --xr-background-material: translucent;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
+    pointer-events: auto;
+    --xr-back: 200;
+    transform: translateZ(300px) !important;
+  }
+
+  .xr-card-preview-modal img {
+    --xr-back: 120;
+  }
 }

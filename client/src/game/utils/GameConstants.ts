@@ -5,7 +5,7 @@
 
 export const GameConstants = {
   // Player Life Points
-  STARTING_LIFE_POINTS: 8000,
+  STARTING_LIFE_POINTS: 2000,
 
   // Hand and Deck
   STARTING_HAND_SIZE: 5,
