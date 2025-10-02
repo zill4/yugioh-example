@@ -1,5 +1,6 @@
 import { GameEngine } from "./engine/GameEngine";
-import { DummyAI } from "./ai/DummyAI";
+import { SmartAI } from "./ai/SmartAI";
+import type { AIDifficulty } from "./ai/MinimaxAI";
 import { type GameState, type GameAction } from "./types/GameTypes";
 
 export interface GameControllerCallbacks {
@@ -12,14 +13,16 @@ export interface GameControllerCallbacks {
 
 export class GameController {
   private gameEngine: GameEngine;
-  private ai: DummyAI;
+  private ai: SmartAI;
   private callbacks?: GameControllerCallbacks;
   private isAITurnInProgress: boolean = false;
   private currentTurn: "player" | "opponent" = "player";
+  private aiDifficulty: AIDifficulty;
 
-  constructor() {
+  constructor(aiDifficulty: AIDifficulty = "medium") {
+    this.aiDifficulty = aiDifficulty;
     this.gameEngine = new GameEngine();
-    this.ai = new DummyAI(this.gameEngine);
+    this.ai = new SmartAI(this.gameEngine, aiDifficulty);
     // Set callback for when AI turn ends
     this.ai.setOnTurnEnd(() => this.endAITurn());
   }
@@ -120,7 +123,7 @@ export class GameController {
 
     // Create new game engine and AI
     this.gameEngine = new GameEngine();
-    this.ai = new DummyAI(this.gameEngine);
+    this.ai = new SmartAI(this.gameEngine, this.aiDifficulty);
     // Set callback for when AI turn ends
     this.ai.setOnTurnEnd(() => this.endAITurn());
 
@@ -128,6 +131,17 @@ export class GameController {
     if (this.callbacks) {
       this.initialize(this.callbacks);
     }
+  }
+
+  // Set AI difficulty
+  public setAIDifficulty(difficulty: AIDifficulty): void {
+    this.aiDifficulty = difficulty;
+    this.ai.setDifficulty(difficulty);
+  }
+
+  // Get current AI difficulty
+  public getAIDifficulty(): AIDifficulty {
+    return this.aiDifficulty;
   }
 
   // End AI turn (called by AI when it finishes)

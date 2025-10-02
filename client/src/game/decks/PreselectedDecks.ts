@@ -9,13 +9,14 @@ function convertToGameCard(baseCard: BaseCard): GameCard {
     name: baseCard.name,
     description: baseCard.description || "",
     cardType: baseCard.cardType || "Monster",
-    level: baseCard.level || 0,
+    level: baseCard.level || "0",
     attack: baseCard.attack || 0,
     defense: baseCard.defense || 0,
     rarity: baseCard.rarity || "Common",
     price: baseCard.price || 0,
     cardNumber: baseCard.cardNumber || "",
     imageUrl: baseCard.imageUrl || "",
+    suit: baseCard.suit || "spades",
   };
 }
 

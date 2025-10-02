@@ -132,7 +132,12 @@ export class GameEngine {
     targetIndex?: number
   ): boolean {
     // Validate attack
-    const validation = validateAttack(attackerId, targetIndex, this.gameState);
+    const validation = validateAttack(
+      attackerId,
+      targetIndex,
+      this.gameState,
+      player
+    );
     if (!validation.valid) {
       console.warn("Invalid attack:", validation.error);
       return false;
@@ -184,7 +189,7 @@ export class GameEngine {
     attackerId: string
   ): boolean {
     // Validate direct attack
-    const validation = validateDirectAttack(attackerId, this.gameState);
+    const validation = validateDirectAttack(attackerId, this.gameState, player);
     if (!validation.valid) {
       console.warn("Invalid direct attack:", validation.error);
       return false;
@@ -318,7 +323,12 @@ export class GameEngine {
     const card = playerState.hand[cardIndex];
 
     // Validate summon
-    const validation = validateSummon(card, playerState, this.gameState);
+    const validation = validateSummon(
+      card,
+      playerState,
+      this.gameState,
+      player
+    );
     if (!validation.valid) {
       console.warn("Invalid summon:", validation.error);
       return false;

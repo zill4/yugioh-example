@@ -28,10 +28,11 @@ export interface ValidationResult {
 export function validateSummon(
   card: GameCard,
   playerState: PlayerState,
-  gameState: GameState
+  gameState: GameState,
+  player: "player" | "opponent" = "player"
 ): ValidationResult {
-  // Must be player's turn
-  if (gameState.currentTurn !== "player") {
+  // Must be that player's turn
+  if (gameState.currentTurn !== player) {
     return { valid: false, error: "Not your turn" };
   }
 
@@ -73,13 +74,16 @@ export function validateSummon(
 export function validateAttack(
   attackerId: string,
   targetZoneIndex: number | undefined,
-  gameState: GameState
+  gameState: GameState,
+  player: "player" | "opponent" = "player"
 ): ValidationResult {
-  const playerState = gameState.player;
-  const opponentState = gameState.opponent;
+  const playerKey = player === "player" ? "player" : "opponent";
+  const opponentKey = player === "player" ? "opponent" : "player";
+  const playerState = gameState[playerKey];
+  const opponentState = gameState[opponentKey];
 
-  // Must be player's turn
-  if (gameState.currentTurn !== "player") {
+  // Must be that player's turn
+  if (gameState.currentTurn !== player) {
     return { valid: false, error: "Not your turn" };
   }
 
@@ -137,10 +141,13 @@ export function validateAttack(
  */
 export function validateDirectAttack(
   attackerId: string,
-  gameState: GameState
+  gameState: GameState,
+  player: "player" | "opponent" = "player"
 ): ValidationResult {
-  const playerState = gameState.player;
-  const opponentState = gameState.opponent;
+  const playerKey = player === "player" ? "player" : "opponent";
+  const opponentKey = player === "player" ? "opponent" : "player";
+  const playerState = gameState[playerKey];
+  const opponentState = gameState[opponentKey];
 
   // Find attacker
   const attacker = findCardById(playerState, attackerId);
@@ -167,9 +174,12 @@ export function validateDirectAttack(
 /**
  * Validate phase change
  */
-export function validatePhaseChange(gameState: GameState): ValidationResult {
-  // Must be player's turn
-  if (gameState.currentTurn !== "player") {
+export function validatePhaseChange(
+  gameState: GameState,
+  player: "player" | "opponent" = "player"
+): ValidationResult {
+  // Must be that player's turn
+  if (gameState.currentTurn !== player) {
     return { valid: false, error: "Not your turn" };
   }
 
@@ -179,9 +189,12 @@ export function validatePhaseChange(gameState: GameState): ValidationResult {
 /**
  * Validate end turn
  */
-export function validateEndTurn(gameState: GameState): ValidationResult {
-  // Must be player's turn
-  if (gameState.currentTurn !== "player") {
+export function validateEndTurn(
+  gameState: GameState,
+  player: "player" | "opponent" = "player"
+): ValidationResult {
+  // Must be that player's turn
+  if (gameState.currentTurn !== player) {
     return { valid: false, error: "Not your turn" };
   }
 

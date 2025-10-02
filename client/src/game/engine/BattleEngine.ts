@@ -78,12 +78,25 @@ export class BattleEngine {
       newDefenderState = this.destroyMonster(newDefenderState, targetZoneIndex);
     }
 
-    // Apply damage to defender's life points
+    // Apply damage to the correct player
     if (outcome.damage > 0) {
-      newDefenderState = {
-        ...newDefenderState,
-        lifePoints: newDefenderState.lifePoints - outcome.damage,
-      };
+      // Damage goes to defender when attacker wins or direct attack
+      // Damage goes to attacker when defender wins
+      if (
+        outcome.result === "attacker_wins" ||
+        outcome.result === "direct_attack"
+      ) {
+        newDefenderState = {
+          ...newDefenderState,
+          lifePoints: newDefenderState.lifePoints - outcome.damage,
+        };
+      } else if (outcome.result === "defender_wins") {
+        newAttackerState = {
+          ...newAttackerState,
+          lifePoints: newAttackerState.lifePoints - outcome.damage,
+        };
+      }
+      // mutual_destruction does no damage
     }
 
     return {
