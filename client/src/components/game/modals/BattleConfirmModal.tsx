@@ -6,6 +6,7 @@ import type {
   GameAction,
   GameState,
 } from "../../../game/types/GameTypes";
+import { isXR } from "../../../utils/xr";
 
 interface BattleConfirmModalProps {
   show: boolean;
@@ -48,7 +49,7 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
       enable-xr
       className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
       style={{
-        ...(process.env.XR_ENV === "avp"
+        ...(isXR
           ? ({
               "--xr-background-material": "translucent",
             } as React.CSSProperties)
@@ -59,7 +60,7 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
         enable-xr
         className="bg-slate-900/95 border border-slate-700 backdrop-blur-md max-w-4xl w-full mx-4 overflow-hidden"
         style={{
-          ...(process.env.XR_ENV === "avp"
+          ...(isXR
             ? ({
                 "--xr-background-material": "translucent",
               } as React.CSSProperties)
@@ -85,7 +86,7 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
                     >
                       {selectedCard.imageUrl ? (
                         <img
-                          src={getAssetPath(selectedCard.imageUrl)}
+                          src={selectedCard.imageUrl}
                           alt={selectedCard.name}
                           className="w-full h-full object-contain"
                         />
@@ -114,7 +115,7 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
                     >
                       {defender?.imageUrl ? (
                         <img
-                          src={getAssetPath(defender.imageUrl)}
+                          src={defender.imageUrl}
                           alt={defender.name}
                           className="w-full h-full object-contain"
                         />
@@ -189,7 +190,7 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
                   <div className="w-24 shrink-0" style={{ aspectRatio: "3/4" }}>
                     {defender.imageUrl ? (
                       <img
-                        src={getAssetPath(defender.imageUrl)}
+                        src={defender.imageUrl}
                         alt={defender.name}
                         className="w-full h-full object-contain"
                       />

@@ -72,7 +72,7 @@ const CardDetail: React.FC = () => {
           <div className="w-full" style={{ aspectRatio: "3/4" }}>
             <img
               className="w-full h-full object-contain"
-              src={getAssetPath(card.imageUrl)}
+              src={card.imageUrl}
               alt={card.name}
               onError={(e) => {
                 const target = e.target as HTMLImageElement;

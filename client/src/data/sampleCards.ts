@@ -13,7 +13,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Rare",
     price: 8.25,
     cardNumber: "0",
-    imageUrl: "/images/kiki_and_miku.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/kiki_and_miku.png",
     timestamp: "2025-10-01T04:01:59.037Z",
   },
   {
@@ -28,7 +28,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Common",
     price: 4.0,
     cardNumber: "1",
-    imageUrl: "/images/chroma_wyvern.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/chroma_wyvern.png",
     timestamp: "2025-10-01T04:07:45.372Z",
   },
   {
@@ -43,7 +43,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Rare",
     price: 11.25,
     cardNumber: "2",
-    imageUrl: "/images/eternal_ronin.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/eternal_ronin.png",
     timestamp: "2025-10-01T04:20:01.101Z",
   },
   {
@@ -59,7 +59,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Common",
     price: 4.5,
     cardNumber: "3",
-    imageUrl: "/images/solstice_agent.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/solstice_agent.png",
     timestamp: "2025-10-01T04:30:43.137Z",
   },
   {
@@ -74,7 +74,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Common",
     price: 2.0,
     cardNumber: "4",
-    imageUrl: "/images/dark_acolyte.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/dark_acolyte.png",
     timestamp: "2025-10-01T04:42:46.391Z",
   },
   {
@@ -89,7 +89,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Rare",
     price: 8.33,
     cardNumber: "5",
-    imageUrl: "/images/the_architect.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/the_architect.png",
     timestamp: "2025-10-01T05:04:00.343Z",
   },
   {
@@ -104,7 +104,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Rare",
     price: 9.0,
     cardNumber: "6",
-    imageUrl: "/images/the_oath_sworn_hand.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/the_oath_sworn_hand.png",
     timestamp: "2025-10-01T05:12:34.066Z",
   },
   {
@@ -119,7 +119,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Common",
     price: 2.0,
     cardNumber: "7",
-    imageUrl: "/images/loyal_inu.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/loyal_inu.png",
     timestamp: "2025-10-01T05:18:23.618Z",
   },
   {
@@ -134,7 +134,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Rare",
     price: 9.0,
     cardNumber: "8",
-    imageUrl: "/images/the_final_promise.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/the_final_promise.png",
     timestamp: "2025-10-01T05:43:31.794Z",
   },
   {
@@ -149,7 +149,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Rare",
     price: 11.25,
     cardNumber: "9",
-    imageUrl: "/images/angel_of_victory.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/angel_of_victory.png",
     timestamp: "2025-10-01T05:52:33.412Z",
   },
   {
@@ -164,7 +164,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Super Rare",
     price: 15.98,
     cardNumber: "10",
-    imageUrl: "/images/the_leviathan.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/the_leviathan.png",
     timestamp: "2025-10-01T06:10:50.150Z",
   },
   {
@@ -179,7 +179,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Rare",
     price: 7.5,
     cardNumber: "11",
-    imageUrl: "/images/the_knight_watch.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/the_knight_watch.png",
     timestamp: "2025-10-01T06:16:05.393Z",
   },
   {
@@ -194,7 +194,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Common",
     price: 2.0,
     cardNumber: "12",
-    imageUrl: "/images/penitent_priest.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/penitent_priest.png",
     timestamp: "2025-10-01T06:24:46.030Z",
   },
   {
@@ -209,7 +209,8 @@ export const sampleCards: BaseCard[] = [
     rarity: "Common",
     price: 3.0,
     cardNumber: "13",
-    imageUrl: "/images/maiden_of_the_iostream.png",
+    imageUrl:
+      "https://warlok-dev.t3.storage.dev/cards/maiden_of_the_iostream.png",
     timestamp: "2025-10-01T06:43:19.264Z",
   },
   {
@@ -224,7 +225,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Ultra Rare",
     price: 27.0,
     cardNumber: "14",
-    imageUrl: "/images/lord_moro.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/lord_moro.png",
     timestamp: "2025-10-01T06:51:41.012Z",
   },
   {
@@ -239,7 +240,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Rare",
     price: 9.0,
     cardNumber: "15",
-    imageUrl: "/images/sage_eras.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/sage_eras.png",
     timestamp: "2025-10-01T07:02:37.837Z",
   },
   {
@@ -254,7 +255,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Super Rare",
     price: 15.0,
     cardNumber: "16",
-    imageUrl: "/images/don_qt_and_cube.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/don_qt_and_cube.png",
     timestamp: "2025-10-01T07:13:03.710Z",
   },
   {
@@ -269,7 +270,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Super Rare",
     price: 25.5,
     cardNumber: "17",
-    imageUrl: "/images/diomedes_rise.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/diomedes_rise.png",
     timestamp: "2025-10-01T07:26:49.791Z",
   },
   {
@@ -284,7 +285,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Common",
     price: 3.0,
     cardNumber: "18",
-    imageUrl: "/images/reborn_vulture.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/reborn_vulture.png",
     timestamp: "2025-10-01T07:38:07.341Z",
   },
   {
@@ -299,7 +300,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Rare",
     price: 8.25,
     cardNumber: "19",
-    imageUrl: "/images/moon_assailant.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/moon_assailant.png",
     timestamp: "2025-10-01T08:18:27.104Z",
   },
   {
@@ -314,7 +315,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Rare",
     price: 7.5,
     cardNumber: "20",
-    imageUrl: "/images/the_timeless_one.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/the_timeless_one.png",
     timestamp: "2025-10-01T08:10:24.037Z",
   },
   {
@@ -330,7 +331,7 @@ export const sampleCards: BaseCard[] = [
     rarity: "Rare",
     price: 7.5,
     cardNumber: "21",
-    imageUrl: "/images/max_power.png",
+    imageUrl: "https://warlok-dev.t3.storage.dev/cards/max_power.png",
     timestamp: "2025-10-01T08:22:19.900Z",
   },
 ];

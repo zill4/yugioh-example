@@ -36,6 +36,7 @@ import { CardPreviewModal } from "./game/modals/CardPreviewModal";
 
 // Utils
 import { canAttack } from "../game/utils/CardStateUtils";
+import { isXR } from "../utils/xr";
 
 interface GameBoardProps {
   gameMode: string;
@@ -135,7 +136,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
   // Handle hand card click
   const handleHandCardClick = useCallback(
     (card: any) => {
-      if (isAITurn || !gameState || gameState.currentPhase !== "Main") return;
+      if (isAITurn || !gameState) return;
       const cardInPlay: CardInPlay = {
         ...card,
         position: "hand",
@@ -262,7 +263,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
     <>
       <div
         className={`min-h-screen ${
-          process.env.XR_ENV === "avp" ? "" : "bg-black"
+          isXR ? "" : "bg-black"
         } relative overflow-hidden`}
       >
         {/* Fixed Position Layout */}

@@ -39,7 +39,7 @@ export const CardActionModal: React.FC<CardActionModalProps> = ({
           {/* Card Art */}
           <div className="relative">
             <img
-              src={getAssetPath(selectedCard.imageUrl)}
+              src={selectedCard.imageUrl}
               alt={selectedCard.name}
               className="w-full h-auto object-contain"
             />

@@ -391,7 +391,7 @@ const DeckbuilderPage = () => {
               <div className="border border-slate-700 bg-black p-2">
                 <div className="w-full" style={{ aspectRatio: "3/4" }}>
                   <img
-                    src={getAssetPath(selectedCard.imageUrl)}
+                    src={selectedCard.imageUrl}
                     alt={selectedCard.name}
                     className="w-full h-full object-contain"
                     onError={(e) => {
@@ -617,7 +617,7 @@ const DeckbuilderPage = () => {
                             <div className="bg-black border border-slate-700 p-2">
                               <div className="aspect-[3/4] bg-slate-900 border border-slate-800 mb-2 overflow-hidden">
                                 <img
-                                  src={getAssetPath(card.imageUrl)}
+                                  src={card.imageUrl}
                                   alt={card.name}
                                   data-card-id={card.id}
                                   className="w-full h-full object-cover"

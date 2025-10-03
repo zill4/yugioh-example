@@ -30,7 +30,7 @@ export const HandCard: React.FC<HandCardProps> = React.memo(
         <div className="w-full h-full flex flex-col">
           {card?.imageUrl ? (
             <img
-              src={getAssetPath(card.imageUrl)}
+              src={card.imageUrl}
               alt={card.name}
               className="w-full h-full object-contain"
               loading="lazy"

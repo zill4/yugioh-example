@@ -26,7 +26,7 @@ export const CardPreviewModal: React.FC<CardPreviewModalProps> = ({
         {/* Card Art */}
         <div className="relative">
           <img
-            src={getAssetPath(card.imageUrl)}
+            src={card.imageUrl}
             alt={card.name}
             className="w-full h-auto object-contain"
           />

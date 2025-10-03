@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import type { BaseCard, MonsterCard } from "../types/Card";
 import { getAssetPath } from "../utils/xr";
+import { isXR } from "../utils/xr";
 
 // Default placeholder image for cards with missing images
 const DEFAULT_CARD_IMAGE = `data:image/svg+xml;base64,${btoa(`
@@ -33,14 +34,17 @@ const CardItem: React.FC<CardItemProps> = React.memo(({ card }) => {
     navigate(`/card/${card.id}`);
   }, [navigate, card.id]);
 
-  const handleImageError = React.useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
-    if (!imageError) {
-      setImageError(true);
-      const target = e.target as HTMLImageElement;
-      // Use the default placeholder that won't cause repeated requests
-      target.src = DEFAULT_CARD_IMAGE;
-    }
-  }, [imageError]);
+  const handleImageError = React.useCallback(
+    (e: React.SyntheticEvent<HTMLImageElement>) => {
+      if (!imageError) {
+        setImageError(true);
+        const target = e.target as HTMLImageElement;
+        // Use the default placeholder that won't cause repeated requests
+        target.src = DEFAULT_CARD_IMAGE;
+      }
+    },
+    [imageError]
+  );
 
   const getRarityColorClass = React.useCallback((rarity: string) => {
     switch (rarity) {
@@ -95,15 +99,19 @@ const CardItem: React.FC<CardItemProps> = React.memo(({ card }) => {
       className="cardshop-card-item group transition-all duration-300 hover:scale-105 cursor-pointer"
     >
       {/* Card container with rounded borders and translucent styling */}
-      <div className={`relative border border-slate-600/50 overflow-hidden bg-transparent backdrop-blur-sm hover:border-slate-500/70 transition-all duration-300 ${
-        process.env.XR_ENV === "avp" ? "" : "rounded-xl"
-      }`}>
+      <div
+        className={`relative border border-slate-600/50 overflow-hidden bg-transparent backdrop-blur-sm hover:border-slate-500/70 transition-all duration-300 ${
+          isXR ? "" : "rounded-xl"
+        }`}
+      >
         {/* Image container */}
-        <div className={`relative aspect-[3/4] overflow-hidden ${
-          process.env.XR_ENV === "avp" ? "" : "rounded-xl"
-        }`}>
+        <div
+          className={`relative aspect-[3/4] overflow-hidden ${
+            isXR ? "" : "rounded-xl"
+          }`}
+        >
           <img
-            src={getAssetPath(card.imageUrl)}
+            src={card.imageUrl}
             alt={card.name}
             className="w-full h-full object-contain p-2"
             onError={handleImageError}
@@ -117,11 +125,12 @@ const CardItem: React.FC<CardItemProps> = React.memo(({ card }) => {
             )}`}
           />
 
-
           {/* Hover details overlay */}
-                <div className={`absolute inset-0 bg-black/70 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 p-3 grid grid-rows-[auto_1fr_auto] text-[11px] ${
-                  process.env.XR_ENV === "avp" ? "" : "rounded-xl"
-                }`}>
+          <div
+            className={`absolute inset-0 bg-black/70 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 p-3 grid grid-rows-[auto_1fr_auto] text-[11px] ${
+              isXR ? "" : "rounded-xl"
+            }`}
+          >
             <div className="text-slate-100 font-semibold leading-snug line-clamp-2">
               {card.name}
             </div>
@@ -130,7 +139,11 @@ const CardItem: React.FC<CardItemProps> = React.memo(({ card }) => {
             </div>
             <div className="flex items-center justify-between pt-2">
               <div className="text-slate-300 flex items-center gap-2">
-                <span className={`text-lg ${getSuitColor((card as MonsterCard).suit || "")}`}>
+                <span
+                  className={`text-lg ${getSuitColor(
+                    (card as MonsterCard).suit || ""
+                  )}`}
+                >
                   {getSuitIcon((card as MonsterCard).suit || "")}
                 </span>
                 <span className="uppercase tracking-wider text-[10px]">
@@ -143,7 +156,9 @@ const CardItem: React.FC<CardItemProps> = React.memo(({ card }) => {
               <div className="flex items-center justify-between text-[10px] text-slate-400 mt-1">
                 <div className="flex items-center gap-1">
                   <span className="text-amber-400">LVL</span>
-                  <span className="uppercase">{(card as MonsterCard).level}</span>
+                  <span className="uppercase">
+                    {(card as MonsterCard).level}
+                  </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-red-400">
