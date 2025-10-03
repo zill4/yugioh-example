@@ -11,7 +11,7 @@ export default defineConfig({
     createHtmlPlugin({
       inject: {
         data: {
-          XR_ENV: process.env.XR_ENV,
+          XR_ENV: process.env.VITE_XR_ENV,
         },
       },
     }),

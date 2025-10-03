@@ -1,7 +1,7 @@
 {
   "name": "client",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,8 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "run:avp": "dotenv -e .env.local -- sh -c 'webspatial-builder run --base=$XR_DEV_SERVER'",
-    "build:avp": "dotenv -e .env.dev -- sh -c 'webspatial-builder build --base=$XR_PRE_SERVER --bundle-id=$XR_BUNDLE_ID --teamId=$XR_TEAM_ID --version=$XR_VERSION'",
-    "publish:avp": "dotenv -e .env.prod -- sh -c 'webspatial-builder publish  --base=$XR_PROD_SERVER --bundle-id=$XR_BUNDLE_ID --teamId=$XR_TEAM_ID --version=$XR_VERSION --u=$XR_DEV_NAME --p=$XR_DEV_PASSWORD'",
+    "build:avp": "dotenv -e .env.local -- sh -c 'webspatial-builder build --base=$XR_PRE_SERVER --bundle-id=$XR_BUNDLE_ID --version=$XR_VERSION --teamId=$XR_TEAM_ID'",
+    "publish:avp": "dotenv -e .env.local -- sh -c 'webspatial-builder publish  --base=$XR_PROD_SERVER --bundle-id=$XR_BUNDLE_ID --teamId=$XR_TEAM_ID --version=$XR_VERSION --u=$XR_DEV_NAME --p=$XR_DEV_PASSWORD'",
     "gen:icons": "node scripts/generate-icons.js"
   },
   "dependencies": {
@@ -28,7 +28,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
-    "@flydotio/dockerfile": "^0.7.10",
     "@types/node": "^24.4.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",

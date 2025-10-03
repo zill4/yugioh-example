@@ -20,6 +20,10 @@ RUN npm install -g pnpm@$PNPM_VERSION
 # Throw-away build stage to reduce size of final image
 FROM base AS build
 
+# Accept build arguments for secrets
+ARG VITE_XR_ENV
+ARG XR_ENV
+
 # Install packages needed to build node modules
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
@@ -30,6 +34,10 @@ RUN pnpm install --frozen-lockfile --prod=false
 
 # Copy application code
 COPY . .
+
+# Set environment variables for Vite build
+ENV VITE_XR_ENV=$VITE_XR_ENV
+ENV XR_ENV=$XR_ENV
 
 # Build application
 RUN pnpm run build

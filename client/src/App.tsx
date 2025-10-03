@@ -13,6 +13,13 @@ import { isXR, shouldUseWebSpatialBasename } from "./utils/xr";
 function App() {
   const basename = shouldUseWebSpatialBasename() ? "/webspatial/avp" : "/";
   console.log("isXR", isXR, "basename", basename);
+  console.log(
+    "IS XR_ENV",
+    import.meta.env.VITE_XR_ENV,
+    import.meta.env.XR_ENV,
+    process.env.XR_ENV,
+    process.env.VITE_XR_ENV
+  );
 
   if (isXR) {
     return (
