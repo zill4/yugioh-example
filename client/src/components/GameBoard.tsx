@@ -79,7 +79,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
   const handleCardClick = useCallback(
     (card: CardInPlay, isPlayerCard: boolean) => {
       if (!gameControllerRef.current || !gameState) return;
-
+      console.log("handleCardClick", card, isPlayerCard);
       // If clicking opponent card, show preview
       if (!isPlayerCard) {
         setPreviewCard(card);
@@ -136,6 +136,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
   // Handle hand card click
   const handleHandCardClick = useCallback(
     (card: any) => {
+      console.log("handleHandCardClick", card);
       if (isAITurn || !gameState) return;
       const cardInPlay: CardInPlay = {
         ...card,
