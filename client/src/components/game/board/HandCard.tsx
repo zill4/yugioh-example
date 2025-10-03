@@ -1,5 +1,4 @@
 import React from "react";
-import { getAssetPath } from "../../../utils/xr";
 import type { GameCard } from "../../../game/types/GameTypes";
 
 interface HandCardProps {

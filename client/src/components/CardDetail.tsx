@@ -1,7 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import { sampleCards } from "../data/sampleCards";
-import { getAssetPath } from "../utils/xr";
 import type { MonsterCard } from "../types/Card";
 import Layout from "./Layout";
 

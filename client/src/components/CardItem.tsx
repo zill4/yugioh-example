@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import type { BaseCard, MonsterCard } from "../types/Card";
-import { getAssetPath } from "../utils/xr";
 import { isXR } from "../utils/xr";
 
 // Default placeholder image for cards with missing images

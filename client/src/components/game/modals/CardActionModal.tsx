@@ -1,6 +1,5 @@
 import React, { useCallback } from "react";
 import type { GameCard } from "../../../game/types/GameTypes";
-import { getAssetPath } from "../../../utils/xr";
 
 interface CardActionModalProps {
   selectedCard: GameCard | null;

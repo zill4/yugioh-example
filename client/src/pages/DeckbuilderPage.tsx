@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/UserContext";
 import { sampleCards } from "../data/sampleCards";
-import { getAssetPath } from "../utils/xr";
 import type { BaseCard, Deck } from "../types/Card";
 import Layout from "../components/Layout";
 

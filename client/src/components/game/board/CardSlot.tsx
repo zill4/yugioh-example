@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import { getAssetPath } from "../../../utils/xr";
 import type { CardInPlay, GameState } from "../../../game/types/GameTypes";
 
 interface CardSlotProps {

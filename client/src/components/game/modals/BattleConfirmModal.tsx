@@ -1,5 +1,4 @@
 import React from "react";
-import { getAssetPath } from "../../../utils/xr";
 import { getBattlePreview } from "../../../game/utils/BattleCalculator";
 import type {
   CardInPlay,

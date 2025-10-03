@@ -1,6 +1,5 @@
 import React from "react";
 import type { GameCard } from "../../../game/types/GameTypes";
-import { getAssetPath } from "../../../utils/xr";
 
 interface CardPreviewModalProps {
   card: GameCard | null;
