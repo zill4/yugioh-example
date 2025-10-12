@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { getBattlePreview } from "../../../game/utils/BattleCalculator";
 import type {
   CardInPlay,
@@ -6,6 +6,7 @@ import type {
   GameState,
 } from "../../../game/types/GameTypes";
 import { isXR } from "../../../utils/xr";
+import { CardImage } from "../ui/CardImage";
 
 interface BattleConfirmModalProps {
   show: boolean;
@@ -24,23 +25,6 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
   onConfirm,
   onCancel,
 }) => {
-  const [showAttackerAnimation, setShowAttackerAnimation] = useState(true);
-  const [showDefenderAnimation, setShowDefenderAnimation] = useState(true);
-  const [showDefenderStatsAnimation, setShowDefenderStatsAnimation] =
-    useState(true);
-
-  const handleAttackerImageLoad = () => {
-    setTimeout(() => setShowAttackerAnimation(false), 2500);
-  };
-
-  const handleDefenderImageLoad = () => {
-    setTimeout(() => setShowDefenderAnimation(false), 2500);
-  };
-
-  const handleDefenderStatsImageLoad = () => {
-    setTimeout(() => setShowDefenderStatsAnimation(false), 2500);
-  };
-
   if (!show || !pendingAction || !selectedCard || !gameState) return null;
 
   // Get defender based on action type
@@ -105,15 +89,10 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
                       }}
                     >
                       {selectedCard.imageUrl ? (
-                        <img
+                        <CardImage
                           src={selectedCard.imageUrl}
                           alt={selectedCard.name}
-                          className={`w-full h-full object-contain ${
-                            showAttackerAnimation ? "card-loading" : ""
-                          }`}
-                          loading="eager"
-                          decoding="async"
-                          onLoad={handleAttackerImageLoad}
+                          className="w-full h-full object-contain"
                         />
                       ) : (
                         <div className="battle-modal-icon w-full h-full flex items-center justify-center text-2xl">
@@ -143,15 +122,10 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
                       }}
                     >
                       {defender?.imageUrl ? (
-                        <img
+                        <CardImage
                           src={defender.imageUrl}
                           alt={defender.name}
-                          className={`w-full h-full object-contain ${
-                            showDefenderAnimation ? "card-loading" : ""
-                          }`}
-                          loading="eager"
-                          decoding="async"
-                          onLoad={handleDefenderImageLoad}
+                          className="w-full h-full object-contain"
                         />
                       ) : defender ? (
                         <div className="battle-modal-icon w-full h-full flex items-center justify-center text-2xl">
@@ -226,15 +200,10 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
                     style={{ aspectRatio: "3/4", minHeight: "107px" }}
                   >
                     {defender.imageUrl ? (
-                      <img
+                      <CardImage
                         src={defender.imageUrl}
                         alt={defender.name}
-                        className={`w-full h-full object-contain ${
-                          showDefenderStatsAnimation ? "card-loading" : ""
-                        }`}
-                        loading="eager"
-                        decoding="async"
-                        onLoad={handleDefenderStatsImageLoad}
+                        className="w-full h-full object-contain"
                       />
                     ) : (
                       <div className="battle-modal-icon w-full h-full flex items-center justify-center text-2xl">

@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import type { GameCard } from "../../../game/types/GameTypes";
+import { CardImage } from "../ui/CardImage";
 
 interface HandCardProps {
   card: GameCard;
@@ -11,15 +12,6 @@ interface HandCardProps {
 
 export const HandCard: React.FC<HandCardProps> = React.memo(
   ({ card, isPlayerHand, isAITurn = false, onClick }) => {
-    const [showAnimation, setShowAnimation] = useState(true);
-
-    const handleImageLoad = () => {
-      // Keep animation for full duration (2.5s) to prevent pop-in
-      setTimeout(() => {
-        setShowAnimation(false);
-      }, 2500);
-    };
-
     return (
       <div
         onClick={onClick}
@@ -37,15 +29,10 @@ export const HandCard: React.FC<HandCardProps> = React.memo(
       >
         <div className="w-full h-full flex flex-col">
           {card?.imageUrl ? (
-            <img
+            <CardImage
               src={card.imageUrl}
               alt={card.name}
-              className={`w-full h-full object-contain ${
-                showAnimation ? "card-loading" : ""
-              }`}
-              loading="eager"
-              decoding="async"
-              onLoad={handleImageLoad}
+              className="w-full h-full object-contain"
             />
           ) : (
             <>

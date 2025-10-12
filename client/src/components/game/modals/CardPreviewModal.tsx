@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import type { GameCard } from "../../../game/types/GameTypes";
+import { CardImage } from "../ui/CardImage";
 
 interface CardPreviewModalProps {
   card: GameCard | null;
@@ -10,15 +11,6 @@ export const CardPreviewModal: React.FC<CardPreviewModalProps> = ({
   card,
   onClose,
 }) => {
-  const [showAnimation, setShowAnimation] = useState(true);
-
-  const handleImageLoad = () => {
-    // Keep animation for full duration (2.5s) to prevent pop-in
-    setTimeout(() => {
-      setShowAnimation(false);
-    }, 2500);
-  };
-
   if (!card) return null;
 
   return (
@@ -36,15 +28,10 @@ export const CardPreviewModal: React.FC<CardPreviewModalProps> = ({
           className="relative w-full"
           style={{ aspectRatio: "3/4.36", minHeight: "436px" }}
         >
-          <img
+          <CardImage
             src={card.imageUrl}
             alt={card.name}
-            className={`w-full h-full object-contain ${
-              showAnimation ? "card-loading" : ""
-            }`}
-            loading="eager"
-            decoding="async"
-            onLoad={handleImageLoad}
+            className="w-full h-full object-contain"
           />
         </div>
       </div>
