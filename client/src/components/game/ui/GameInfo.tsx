@@ -13,44 +13,42 @@ export const GameInfo: React.FC<GameInfoProps> = ({ gameState, onEndGame }) => {
       <div className="space-y-4">
         <button
           onClick={onEndGame}
-          className="w-full px-4 py-2 text-slate-400 text-sm font-bold transition-all duration-300"
+          className="game-info-end-duel-btn w-full transition-all duration-300"
         >
           END DUEL
         </button>
 
-        <div>
-          <div className="text-slate-400 text-xs mb-1">Your LP</div>
-          <div className="text-2xl font-bold text-cyan-100">
+        <div className="game-info-stat-box">
+          <div className="game-info-stat-label">Your LP</div>
+          <div className="game-info-stat-value game-info-player-lp">
             {gameState.player.lifePoints}
           </div>
         </div>
 
-        <div>
-          <div className="text-slate-400 text-xs mb-1">Opponent LP</div>
-          <div className="text-2xl font-bold text-red-100">
+        <div className="game-info-stat-box">
+          <div className="game-info-stat-label">Opponent LP</div>
+          <div className="game-info-stat-value game-info-opponent-lp">
             {gameState.opponent.lifePoints}
           </div>
         </div>
 
-        <div>
-          <div className="text-slate-400 text-xs mb-1">Phase</div>
-          <div className="text-lg font-bold text-slate-400">
-            {gameState.currentPhase}
-          </div>
-          <div className="text-xs text-slate-500 mt-1">
+        <div className="game-info-stat-box">
+          <div className="game-info-stat-label">Phase</div>
+          <div className="game-info-phase-value">{gameState.currentPhase}</div>
+          <div className="game-info-phase-description">
             {gameState.currentPhase === "Main" && "Summon and activate cards"}
             {gameState.currentPhase === "Battle" && "Attack with monsters"}
           </div>
         </div>
 
-        <div>
-          <div className="text-slate-400 text-xs mb-1">Turn</div>
-          <div className="text-lg font-bold text-slate-400">
+        <div className="game-info-stat-box">
+          <div className="game-info-stat-label">Turn</div>
+          <div className="game-info-turn-value">
             {gameState.currentTurn === "player"
               ? "Your Turn"
               : "Opponent's Turn"}
           </div>
-          <div className="text-xs text-slate-500 mt-1">
+          <div className="game-info-turn-number">
             Turn {gameState.turnNumber}
           </div>
         </div>
