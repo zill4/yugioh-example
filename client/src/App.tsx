@@ -27,7 +27,7 @@ function App() {
         <div className="App min-h-screen">
           <Routes>
             <Route path="/" element={<GamePage />} />
-            <Route path="/webspatial/avp" element={<GamePage />} />
+            {/* <Route path="/webspatial/avp" element={<GamePage />} /> */}
           </Routes>
         </div>
       </Router>

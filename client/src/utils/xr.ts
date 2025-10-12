@@ -15,6 +15,7 @@ const checkXREnvironment = () => {
       userAgent.includes("WebSpatial") ||
       userAgent.includes("Apple Vision")
     ) {
+      console.log("Setting XR true, agent check", true);
       return true;
     }
   }
@@ -22,6 +23,7 @@ const checkXREnvironment = () => {
   // 2. Fallback: Check if we're on the /webspatial/avp route
   if (typeof window !== "undefined") {
     if (window.location.pathname.startsWith("/webspatial/avp")) {
+      console.log("Setting XR true, route check", true);
       return true;
     }
   }
@@ -29,6 +31,7 @@ const checkXREnvironment = () => {
   // 3. Build-time override: Environment variable
   const xrEnv = import.meta.env.VITE_XR_ENV || process.env.XR_ENV;
   if (xrEnv && xrEnv.toLowerCase() === "avp") {
+    console.log("Setting XR true, env check", true);
     return true;
   }
 

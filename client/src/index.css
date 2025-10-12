@@ -1,6 +1,5 @@
-@reference "tailwindcss";
-
 @import "tailwindcss/preflight";
+@reference "tailwindcss";
 @tailwind utilities;
 
 /* Custom Fonts */
@@ -791,5 +790,769 @@ html.is-spatial {
   .xr-game-end-modal button {
     --xr-background-material: translucent;
     border: 1px solid rgba(148, 163, 184, 0.3);
+  }
+}
+
+/* Web Deployment Styles - Yu-Gi-Oh Inspired */
+html.is-web {
+  background: #000000;
+  min-height: 100vh;
+
+  body {
+    background: #000000;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* Main Layout - Traditional Web Layout */
+  .layout-container {
+    display: flex;
+    min-height: 100vh;
+    background: transparent;
+  }
+
+  /* Left Navigation - Traditional Sidebar */
+  .layout-nav {
+    width: 240px;
+    min-width: 240px;
+    background: linear-gradient(180deg, #1a1a1a 0%, #000000 100%);
+    border-right: 2px solid #ef4444;
+    padding: 30px 20px;
+    box-shadow: 4px 0 20px rgba(239, 68, 68, 0.2);
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+    overflow-y: auto;
+  }
+
+  .layout-nav .space-y-6 {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .layout-nav a {
+    display: block;
+    padding: 14px 20px;
+    color: #ffffff !important;
+    font-family: 'Bebas Neue', sans-serif !important;
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase;
+    text-decoration: none !important;
+    background: linear-gradient(135deg, #262626 0%, #1a1a1a 100%);
+    border: 1px solid #404040;
+    border-left: 3px solid #ef4444;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .layout-nav a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .layout-nav a:hover {
+    background: linear-gradient(135deg, #404040 0%, #262626 100%);
+    border-left-width: 5px;
+    padding-left: 18px;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    transform: translateX(4px);
+  }
+
+  .layout-nav a:hover::before {
+    left: 100%;
+  }
+
+  .layout-nav a.active {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #ffffff !important;
+    border-left-color: #f87171;
+    border-left-width: 5px;
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.6);
+  }
+
+  /* Main Content Area */
+  .layout-main {
+    margin-left: 240px;
+    flex: 1;
+    min-height: 100vh;
+    background: transparent;
+    padding: 0;
+  }
+
+  /* Card Shop Styles */
+  .cardshop-main-window {
+    padding: 30px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  /* Search Bar */
+  .cardshop-search-bar {
+    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+    border: 2px solid #ef4444;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 30px rgba(239, 68, 68, 0.2);
+  }
+
+  .cardshop-search-bar input {
+    background: #000000;
+    border: 1px solid #404040;
+    color: #ffffff;
+    padding: 12px 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    transition: all 0.3s ease;
+  }
+
+  .cardshop-search-bar input:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+    outline: none;
+  }
+
+  .cardshop-search-bar button {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #ffffff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 12px 24px;
+    border: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+  }
+
+  .cardshop-search-bar button:hover {
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
+    transform: translateY(-2px);
+  }
+
+  /* Filter Menu */
+  .cardshop-filter-menu-bg {
+    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+    border: 2px solid #404040;
+    padding: 20px;
+    margin-bottom: 25px;
+  }
+
+  .cardshop-filter-menu-bg select,
+  .cardshop-filter-menu-bg button {
+    background: #000000;
+    border: 1px solid #404040;
+    color: #ffffff;
+    padding: 10px 16px;
+    font-family: 'Space Mono', monospace;
+    transition: all 0.3s ease;
+  }
+
+  .cardshop-filter-menu-bg select:hover,
+  .cardshop-filter-menu-bg button:hover {
+    border-color: #ef4444;
+    background: #1a1a1a;
+  }
+
+  /* Stats Display */
+  .cardshop-stats {
+    background: linear-gradient(135deg, #262626 0%, #1a1a1a 100%);
+    border: 1px solid #ef4444;
+    border-left: 4px solid #ef4444;
+    padding: 12px 24px;
+    margin-bottom: 20px;
+    display: inline-block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    color: #ffffff;
+  }
+
+  /* Card Grid */
+  .cardshop-grid-scene {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    padding-bottom: 40px;
+  }
+
+  /* Card Items */
+  .cardshop-card-item {
+    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+    border: 2px solid #262626;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cardshop-card-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ef4444, #f87171, #ef4444);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .cardshop-card-item:hover {
+    border-color: #ef4444;
+    box-shadow: 0 8px 30px rgba(239, 68, 68, 0.4);
+    transform: translateY(-6px);
+  }
+
+  .cardshop-card-item:hover::before {
+    transform: scaleX(1);
+  }
+
+  .cardshop-card-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-bottom: 2px solid #262626;
+    transition: all 0.3s ease;
+  }
+
+  .cardshop-card-item:hover img {
+    filter: brightness(1.1);
+  }
+
+  /* Game Board Layout */
+  .game-layout-grid {
+    display: grid;
+    grid-template-columns: 260px 1fr 260px;
+    grid-template-rows: auto 1fr;
+    gap: 0;
+    min-height: 100vh;
+    background: #000000;
+    padding: 20px;
+  }
+
+  /* Game Info Sidebar - Left */
+  .game-info-sidebar {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    background: linear-gradient(180deg, #1a1a1a 0%, #000000 100%);
+    border: 2px solid #ef4444;
+    border-right: 3px solid #ef4444;
+    padding: 25px;
+    overflow-y: auto;
+    box-shadow: 4px 0 25px rgba(239, 68, 68, 0.3);
+  }
+
+  .game-info-sidebar h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    color: #ef4444;
+    letter-spacing: 0.1em;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    border-bottom: 2px solid #ef4444;
+    padding-bottom: 8px;
+  }
+
+  .game-info-sidebar p,
+  .game-info-sidebar div {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 10px;
+    color: #ffffff;
+  }
+
+  /* Game Actions Sidebar - Right */
+  .game-actions-sidebar {
+    grid-column: 3;
+    grid-row: 1 / -1;
+    background: linear-gradient(180deg, #1a1a1a 0%, #000000 100%);
+    border: 2px solid #ef4444;
+    border-left: 3px solid #ef4444;
+    padding: 25px;
+    box-shadow: -4px 0 25px rgba(239, 68, 68, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .game-actions-sidebar button {
+    background: linear-gradient(135deg, #262626 0%, #1a1a1a 100%);
+    border: 2px solid #404040;
+    border-left: 3px solid #ef4444;
+    color: #ffffff;
+    padding: 14px 20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .game-actions-sidebar button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.3), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .game-actions-sidebar button:hover {
+    background: linear-gradient(135deg, #404040 0%, #262626 100%);
+    border-color: #ef4444;
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+    transform: translateX(-4px);
+  }
+
+  .game-actions-sidebar button:hover::before {
+    left: 100%;
+  }
+
+  .game-actions-sidebar button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+  }
+
+  .game-actions-sidebar button:disabled:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Center Game Board */
+  .game-board-container {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+  }
+
+  /* Battle Zones Container */
+  .battle-zones-container {
+    background: linear-gradient(135deg, rgba(26, 26, 26, 0.9) 0%, rgba(0, 0, 0, 0.9) 100%);
+    border: 3px solid #ef4444;
+    padding: 30px;
+    position: relative;
+    box-shadow: 0 0 40px rgba(239, 68, 68, 0.4), inset 0 0 60px rgba(0, 0, 0, 0.5);
+  }
+
+  .battle-zones-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(239, 68, 68, 0.05) 2px, rgba(239, 68, 68, 0.05) 4px),
+      repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(239, 68, 68, 0.05) 2px, rgba(239, 68, 68, 0.05) 4px);
+    pointer-events: none;
+  }
+
+  /* Zone Rows */
+  .zone-rows-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Monster Zone Row */
+  .zone-rows-wrapper > div {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Card Slots */
+  [class*="CardSlot"] {
+    width: 120px;
+    height: 180px;
+    background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+    border: 2px solid #404040;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+
+  [class*="CardSlot"]::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1px dashed #262626;
+  }
+
+  [class*="CardSlot"]:hover {
+    border-color: #ef4444;
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.5), inset 0 0 20px rgba(239, 68, 68, 0.1);
+  }
+
+  [class*="CardSlot"].occupied {
+    background: linear-gradient(135deg, #1a1a1a 0%, #262626 100%);
+    border-color: #ef4444;
+  }
+
+  /* Cards in Slots */
+  [class*="CardSlot"] img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 1px solid #ef4444;
+  }
+
+  /* Player Hand - Bottom Fixed */
+  .player-hand-container {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    padding: 20px 30px;
+    background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(0, 0, 0, 0.95) 100%);
+    border: 3px solid #ef4444;
+    border-bottom: 5px solid #ef4444;
+    box-shadow: 0 -8px 40px rgba(239, 68, 68, 0.4);
+    z-index: 200;
+    max-width: 90vw;
+    overflow-x: auto;
+  }
+
+  .player-hand-container::before {
+    content: 'YOUR HAND';
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #ffffff;
+    padding: 4px 16px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    border: 2px solid #f87171;
+  }
+
+  /* Hand Cards */
+  [class*="HandCard"] {
+    width: 100px;
+    height: 140px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  [class*="HandCard"]:hover {
+    transform: translateY(-20px) scale(1.1);
+    z-index: 10;
+    filter: drop-shadow(0 10px 20px rgba(239, 68, 68, 0.6));
+  }
+
+  [class*="HandCard"] img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 2px solid #ef4444;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+  }
+
+  [class*="HandCard"].selected {
+    transform: translateY(-15px);
+    filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.8));
+  }
+
+  [class*="HandCard"].selected img {
+    border-color: #f87171;
+    border-width: 3px;
+  }
+
+  /* Game Log */
+  .game-log-container {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 320px;
+    max-height: 250px;
+    background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(0, 0, 0, 0.95) 100%);
+    border: 2px solid #ef4444;
+    padding: 15px;
+    overflow-y: auto;
+    box-shadow: 0 4px 30px rgba(239, 68, 68, 0.3);
+    z-index: 150;
+  }
+
+  .game-log-container h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    color: #ef4444;
+    margin-bottom: 10px;
+    letter-spacing: 0.1em;
+    border-bottom: 2px solid #ef4444;
+    padding-bottom: 5px;
+  }
+
+  .game-log-container div {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 6px;
+    padding: 6px;
+    background: rgba(0, 0, 0, 0.5);
+    border-left: 2px solid #404040;
+    color: #ffffff;
+  }
+
+  /* Phase Indicator */
+  [class*="phase"],
+  [class*="Phase"] {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #ffffff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 0.08em;
+    padding: 12px 24px;
+    border: 2px solid #f87171;
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5);
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  /* LP Display */
+  [class*="lp"],
+  [class*="LP"] {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+    letter-spacing: 0.05em;
+  }
+
+  /* Modals */
+  [class*="modal"] {
+    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+    border: 3px solid #ef4444;
+    padding: 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(239, 68, 68, 0.4);
+  }
+
+  [class*="modal"] h2,
+  [class*="modal"] h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    color: #ef4444;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  [class*="modal"] button {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border: 2px solid #f87171;
+    color: #ffffff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    padding: 12px 28px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 0.05em;
+  }
+
+  [class*="modal"] button:hover {
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+    box-shadow: 0 6px 25px rgba(239, 68, 68, 0.6);
+    transform: translateY(-2px);
+  }
+
+  [class*="modal"] button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Card Stats Display */
+  .text-red-400,
+  [class*="attack"] {
+    color: #ef4444 !important;
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+  }
+
+  .text-cyan-400,
+  [class*="defense"] {
+    color: #ffffff !important;
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+  }
+
+  .text-amber-400,
+  [class*="level"],
+  [class*="star"] {
+    color: #f87171 !important;
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(248, 113, 113, 0.6);
+  }
+
+  /* Rarity Badges */
+  [class*="rarity"] {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.2) 100%);
+    border: 1px solid #ef4444;
+    padding: 4px 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #ffffff;
+  }
+
+  /* Loading States */
+  .animate-pulse {
+    animation: yugioh-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes yugioh-pulse {
+    0%, 100% {
+      opacity: 1;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+    }
+    50% {
+      opacity: 0.7;
+      box-shadow: 0 0 40px rgba(239, 68, 68, 0.7);
+    }
+  }
+
+  /* END DUEL Button */
+  button:has-text("END DUEL"),
+  button[class*="end-duel"],
+  button[class*="endDuel"] {
+    background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+    border: 2px solid #ef4444;
+    color: #ffffff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    padding: 12px 28px;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 300;
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+    transition: all 0.3s ease;
+  }
+
+  button:has-text("END DUEL"):hover,
+  button[class*="end-duel"]:hover,
+  button[class*="endDuel"]:hover {
+    background: linear-gradient(135deg, #991b1b 0%, #b91c1c 100%);
+    box-shadow: 0 6px 30px rgba(239, 68, 68, 0.6);
+    transform: scale(1.05);
+  }
+
+  /* Scrollbar Styling for Web */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #000000;
+    border: 1px solid #262626;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+    border: 1px solid #f87171;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #f87171 0%, #ef4444 100%);
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 1400px) {
+    .game-layout-grid {
+      grid-template-columns: 220px 1fr 220px;
+    }
+
+    .game-info-sidebar,
+    .game-actions-sidebar {
+      padding: 20px;
+    }
+  }
+
+  @media (max-width: 1200px) {
+    .layout-nav {
+      width: 200px;
+      min-width: 200px;
+    }
+
+    .layout-main {
+      margin-left: 200px;
+    }
+
+    .cardshop-grid-scene {
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    }
+  }
+
+  @media (max-width: 900px) {
+    .game-layout-grid {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto 1fr auto;
+    }
+
+    .game-info-sidebar {
+      grid-column: 1;
+      grid-row: 1;
+      border-right: 2px solid #ef4444;
+      border-bottom: 3px solid #ef4444;
+    }
+
+    .game-board-container {
+      grid-column: 1;
+      grid-row: 3;
+    }
+
+    .game-actions-sidebar {
+      grid-column: 1;
+      grid-row: 2;
+      border-left: 2px solid #ef4444;
+      border-bottom: 3px solid #ef4444;
+      flex-direction: row;
+      overflow-x: auto;
+    }
+
+    .player-hand-container {
+      bottom: 10px;
+      padding: 15px 20px;
+    }
+
+    .game-log-container {
+      position: relative;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      grid-column: 1;
+      grid-row: 4;
+    }
   }
 }
