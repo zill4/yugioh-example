@@ -31,7 +31,7 @@ function App() {
     <Router basename={basename}>
       <div className="App min-h-screen">
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<GamePage />} />
           <Route path="/webspatial/avp" element={<GamePage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/cardshop" element={<CardshopPage />} />
