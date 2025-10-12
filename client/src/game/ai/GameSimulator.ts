@@ -382,8 +382,14 @@ export class GameSimulator {
     if (gameState.winner === player) return 10000;
     if (gameState.winner === opponentKey) return -10000;
 
-    // Life points difference (very important)
-    score += (playerState.lifePoints - opponentState.lifePoints) * 10;
+    // Life points difference (HEAVILY weighted to encourage damage)
+    const lpDiff = playerState.lifePoints - opponentState.lifePoints;
+    score += lpDiff * 15; // Increased from 10 to 15
+
+    // Bonus for dealing damage (encourage attacks)
+    if (opponentState.lifePoints < 2000) {
+      score += (2000 - opponentState.lifePoints) * 5; // Extra bonus for low opponent LP
+    }
 
     // Board presence (monsters on field)
     const playerMonsters = playerState.zones.mainMonsterZones.filter(
@@ -393,10 +399,10 @@ export class GameSimulator {
       (m) => m !== null
     );
 
-    score += playerMonsters.length * 100;
-    score -= opponentMonsters.length * 100;
+    score += playerMonsters.length * 80; // Reduced slightly from 100
+    score -= opponentMonsters.length * 120; // Increased from 100 - clearing opponent's field is valuable
 
-    // Total ATK on field
+    // Total ATK on field (more aggressive)
     const playerTotalAtk = playerMonsters.reduce(
       (sum, m) => sum + (m?.attack || 0),
       0
@@ -406,18 +412,36 @@ export class GameSimulator {
       0
     );
 
-    score += playerTotalAtk * 2;
-    score -= opponentTotalAtk * 2;
+    score += playerTotalAtk * 3; // Increased from 2
+    score -= opponentTotalAtk * 3; // Increased from 2
 
-    // Cards in hand (card advantage)
-    score += playerState.hand.length * 50;
-    score -= opponentState.hand.length * 50;
+    // Cards in hand (card advantage) - reduced importance
+    score += playerState.hand.length * 30; // Reduced from 50
+    score -= opponentState.hand.length * 30; // Reduced from 50
 
-    // Monsters that can attack
+    // Monsters that can attack (HEAVILY encourage having attackers ready)
     const readyToAttack = playerMonsters.filter(
       (m) => m && !m.attackUsed && !m.summonedThisTurn
     ).length;
-    score += readyToAttack * 50;
+    score += readyToAttack * 100; // Increased from 50
+
+    // Bonus for being in Battle phase with attackers
+    if (gameState.currentPhase === "Battle" && readyToAttack > 0) {
+      score += readyToAttack * 150; // Big bonus for attacking in Battle phase
+    }
+
+    // Penalty for having monsters that haven't attacked in Battle phase
+    if (
+      gameState.currentPhase === "Battle" &&
+      gameState.currentTurn === player
+    ) {
+      const unattackedMonsters = playerMonsters.filter(
+        (m) => m && !m.attackUsed && !m.summonedThisTurn
+      ).length;
+      if (unattackedMonsters > 0) {
+        score -= unattackedMonsters * 50; // Penalty for not attacking
+      }
+    }
 
     return score;
   }

@@ -32,9 +32,12 @@ export const playerDeck: GameCard[] = sampleMonsters.slice(
   Math.ceil(sampleMonsters.length / 2)
 );
 
-// Preselected AI Deck (second half of monsters)
-export const aiDeck: GameCard[] = sampleMonsters.slice(
-  Math.ceil(sampleMonsters.length / 2)
+// Preselected AI Deck (second half of monsters, excluding overpowered cards)
+const rawAiDeck = sampleMonsters.slice(Math.ceil(sampleMonsters.length / 2));
+
+// Remove "The Timeless One" from AI deck - too powerful
+export const aiDeck: GameCard[] = rawAiDeck.filter(
+  (card) => card.name !== "The Timeless One"
 );
 
 // Shuffle function

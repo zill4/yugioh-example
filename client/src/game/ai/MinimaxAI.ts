@@ -52,6 +52,73 @@ export class MinimaxAI {
     this.nodesEvaluated = 0;
     const startTime = Date.now();
 
+    // Get all possible actions
+    const possibleActions = GameSimulator.getAllPossibleActions(
+      gameState,
+      player
+    );
+
+    // Check for winning attacks first - always take them!
+    const winningAttack = this.findWinningAttack(
+      gameState,
+      player,
+      possibleActions
+    );
+    if (winningAttack) {
+      console.log(`MinimaxAI: Found winning attack!`);
+      return winningAttack;
+    }
+
+    // In Battle phase with attacks available, heavily bias towards attacking
+    if (gameState.currentPhase === "Battle") {
+      const attackActions = possibleActions.filter(
+        (a) => a.type === "ATTACK" || a.type === "DIRECT_ATTACK"
+      );
+
+      if (attackActions.length > 0) {
+        // On easy/medium, sometimes attack randomly
+        if (this.difficulty === "easy" && Math.random() < 0.6) {
+          return attackActions[
+            Math.floor(Math.random() * attackActions.length)
+          ];
+        }
+        if (this.difficulty === "medium" && Math.random() < 0.3) {
+          return attackActions[
+            Math.floor(Math.random() * attackActions.length)
+          ];
+        }
+
+        // Find favorable attacks (can win the battle)
+        const favorableAttacks = this.findFavorableAttacks(
+          gameState,
+          player,
+          attackActions
+        );
+        if (favorableAttacks.length > 0) {
+          // Take a favorable attack with high probability
+          if (Math.random() < 0.8) {
+            return favorableAttacks[
+              Math.floor(Math.random() * favorableAttacks.length)
+            ];
+          }
+        }
+      }
+    }
+
+    // Add randomness to card selection
+    const randomness = this.getRandomnessFactor();
+    if (Math.random() < randomness) {
+      const randomAction = this.getRandomGoodAction(possibleActions);
+      if (randomAction) {
+        console.log(
+          `MinimaxAI: Playing randomly (${(randomness * 100).toFixed(
+            0
+          )}% chance)`
+        );
+        return randomAction;
+      }
+    }
+
     const result = this.minimax(
       gameState,
       this.searchDepth,
@@ -69,6 +136,97 @@ export class MinimaxAI {
     );
 
     return result.action;
+  }
+
+  /**
+   * Find an attack that would immediately win the game
+   */
+  private findWinningAttack(
+    gameState: GameState,
+    player: "player" | "opponent",
+    actions: GameAction[]
+  ): GameAction | null {
+    const opponentKey = player === "player" ? "opponent" : "player";
+    const opponentLP = gameState[opponentKey].lifePoints;
+
+    for (const action of actions) {
+      if (action.type === "DIRECT_ATTACK") {
+        const playerKey = player === "player" ? "player" : "opponent";
+        const attacker = gameState[playerKey].zones.mainMonsterZones.find(
+          (m) => m?.id === action.cardId
+        );
+        if (attacker && (attacker.attack || 0) >= opponentLP) {
+          return action;
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Find attacks where AI monster is stronger than opponent's
+   */
+  private findFavorableAttacks(
+    gameState: GameState,
+    player: "player" | "opponent",
+    attackActions: GameAction[]
+  ): GameAction[] {
+    const playerKey = player === "player" ? "player" : "opponent";
+    const opponentKey = player === "player" ? "opponent" : "player";
+
+    return attackActions.filter((action) => {
+      if (action.type === "DIRECT_ATTACK") return true;
+
+      if (action.type === "ATTACK" && action.targetId) {
+        const attacker = gameState[playerKey].zones.mainMonsterZones.find(
+          (m) => m?.id === action.cardId
+        );
+        const targetIndex = parseInt(action.targetId);
+        const defender =
+          gameState[opponentKey].zones.mainMonsterZones[targetIndex];
+
+        if (attacker && defender) {
+          const attackerATK = attacker.attack || 0;
+          const defenderDEF =
+            defender.battlePosition === "defense"
+              ? defender.defense || 0
+              : defender.attack || 0;
+          return attackerATK > defenderDEF;
+        }
+      }
+      return false;
+    });
+  }
+
+  /**
+   * Get randomness factor based on difficulty
+   */
+  private getRandomnessFactor(): number {
+    switch (this.difficulty) {
+      case "easy":
+        return 0.4; // 40% chance to play randomly
+      case "medium":
+        return 0.25; // 25% chance
+      case "hard":
+        return 0.1; // 10% chance
+      case "expert":
+        return 0.05; // 5% chance
+      default:
+        return 0.2;
+    }
+  }
+
+  /**
+   * Get a random but reasonable action (not complete random)
+   */
+  private getRandomGoodAction(actions: GameAction[]): GameAction | null {
+    // Filter out just END_TURN unless it's the only option
+    const nonEndTurnActions = actions.filter((a) => a.type !== "END_TURN");
+    const actionPool =
+      nonEndTurnActions.length > 0 ? nonEndTurnActions : actions;
+
+    if (actionPool.length === 0) return null;
+    return actionPool[Math.floor(Math.random() * actionPool.length)];
   }
 
   /**
