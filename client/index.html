@@ -1,12 +1,33 @@
 <!doctype html>
-<!-- This is spatial check-->
-<%- XR_ENV === 'avp' ? `
-<html lang="en" class="is-spatial">
-  ` : `
-  <html lang="en" class="is-spatial">
-    ` %>
-    <head>
-      <meta charset="UTF-8" />
+<html lang="en">
+  <head>
+    <!-- Runtime spatial detection - sets class before page renders -->
+    <script>
+      (function() {
+        // Check environment variable (build time)
+        const xrEnv = '__XR_ENV__'; // Will be replaced by Vite
+        
+        // Check user agent
+        const isVisionPro = navigator.userAgent.includes('WebSpatial') || 
+                           navigator.userAgent.includes('Apple Vision');
+        
+        // Check URL path
+        const isWebSpatialPath = window.location.pathname.startsWith('/webspatial/avp');
+        
+        // Check for environment variable at runtime (for development)
+        const hasDevXREnv = xrEnv === 'avp' || xrEnv === 'AVP';
+        
+        // Apply class immediately (before page renders)
+        if (isVisionPro || isWebSpatialPath || hasDevXREnv) {
+          document.documentElement.classList.add('is-spatial');
+          console.log('🥽 Spatial mode detected');
+        } else {
+          document.documentElement.classList.add('is-web');
+          console.log('🌐 Web mode detected');
+        }
+      })();
+    </script>
+    <meta charset="UTF-8" />
       <link rel="icon" type="image/svg+xml" href="/icons/icon-192x192.png" />
       <meta
         name="viewport"

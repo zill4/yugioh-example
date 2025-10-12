@@ -55,7 +55,7 @@ export const CardImage: React.FC<CardImageProps> = ({
           className="absolute inset-0 pointer-events-none z-10"
           initial={{ opacity: 0.8 }}
           animate={{ opacity: 0 }}
-          transition={{ duration: 2.5, ease: "linear" }}
+          transition={{ duration: 0.5, ease: "linear" }}
           style={{
             background: `repeating-linear-gradient(
               0deg,
@@ -72,7 +72,7 @@ export const CardImage: React.FC<CardImageProps> = ({
             initial={{ y: "0%" }}
             animate={{ y: "100vh" }}
             transition={{
-              duration: 2.5,
+              duration: 0.5,
               ease: "linear",
             }}
             style={{
@@ -130,11 +130,11 @@ export const CardImage: React.FC<CardImageProps> = ({
                 ease: "linear",
               }
             : {
-                duration: 2.5,
+                duration: 0.5,
                 ease: "linear",
-                clipPath: { duration: 2.5, ease: "linear" },
-                filter: { duration: 2.5, ease: "linear" },
-                scale: { duration: 2.5, ease: "easeOut" },
+                clipPath: { duration: 0.5, ease: "linear" },
+                filter: { duration: 0.5, ease: "linear" },
+                scale: { duration: 0.5, ease: "easeOut" },
               }
         }
       />

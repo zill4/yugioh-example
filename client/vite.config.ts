@@ -19,4 +19,8 @@ export default defineConfig({
   css: {
     postcss: "./postcss.config.js",
   },
+  define: {
+    // Inject XR_ENV into runtime code
+    __XR_ENV__: JSON.stringify(process.env.VITE_XR_ENV || ""),
+  },
 });

@@ -28,8 +28,8 @@ const checkXREnvironment = () => {
     }
   }
 
-  // 3. Build-time override: Environment variable
-  const xrEnv = import.meta.env.VITE_XR_ENV || process.env.XR_ENV;
+  // 3. Build-time override: Environment variable (Vite only)
+  const xrEnv = import.meta.env.VITE_XR_ENV;
   if (xrEnv && xrEnv.toLowerCase() === "avp") {
     console.log("Setting XR true, env check", true);
     return true;
