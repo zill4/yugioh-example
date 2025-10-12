@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { CardDetail } from "./components";
 // import { AuthProvider } from "./contexts/UserContext";
-import HomePage from "./pages/HomePage";
+// import HomePage from "./pages/HomePage";
 import AuthPage from "./pages/AuthPage";
 import CardshopPage from "./pages/CardshopPage";
 import GamePage from "./pages/GamePage";

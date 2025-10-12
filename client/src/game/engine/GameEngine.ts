@@ -169,11 +169,19 @@ export class GameEngine {
     // Add game event
     this.addGameEvent(player, "attack", battleResult.message);
 
-    // Check for game end
+    // Check for game end - either player's LP reaching 0
     if (battleResult.updatedDefenderState!.lifePoints <= 0) {
       this.gameState = { ...this.gameState, winner: player };
       this.notifyGameStateChange();
       this.onGameEnd?.(player);
+      return true;
+    }
+
+    if (battleResult.updatedAttackerState!.lifePoints <= 0) {
+      const winner = player === "player" ? "opponent" : "player";
+      this.gameState = { ...this.gameState, winner };
+      this.notifyGameStateChange();
+      this.onGameEnd?.(winner);
       return true;
     }
 
@@ -274,20 +282,20 @@ export class GameEngine {
     let updatedNextPlayerState = this.gameState[nextPlayerKey];
     if (shouldDraw) {
       const drawResult = this.drawCardForPlayer(updatedNextPlayerState);
-      if (drawResult.deckOut) {
-        // Player loses due to deck out
-        const winner = nextPlayer === "player" ? "opponent" : "player";
-        this.gameState = { ...this.gameState, winner };
-        this.notifyGameStateChange();
-        this.onGameEnd?.(winner);
-        return false;
+      // No deck-out loss - game only ends when LP reaches 0
+      if (!drawResult.deckOut) {
+        updatedNextPlayerState = drawResult.playerState;
+        this.addGameEvent(
+          nextPlayer,
+          "card_played",
+          `${nextPlayer === "player" ? "You" : "Opponent"} drew a card`
+        );
+      } else {
+        // Couldn't draw (both deck and graveyard empty), but game continues
+        console.log(
+          `${nextPlayer} couldn't draw a card (deck and graveyard empty)`
+        );
       }
-      updatedNextPlayerState = drawResult.playerState;
-      this.addGameEvent(
-        nextPlayer,
-        "card_played",
-        `${nextPlayer === "player" ? "You" : "Opponent"} drew a card`
-      );
     }
 
     // Update game state
@@ -389,8 +397,24 @@ export class GameEngine {
     playerState: PlayerState;
     deckOut: boolean;
   } {
+    // If deck is empty, shuffle graveyard back into deck
     if (playerState.mainDeck.length === 0) {
-      return { playerState, deckOut: true };
+      if (playerState.graveyard.length === 0) {
+        // Both deck and graveyard are empty - cannot draw
+        return { playerState, deckOut: true };
+      }
+
+      // Shuffle graveyard into deck
+      const shuffledGraveyard = [...playerState.graveyard].sort(
+        () => Math.random() - 0.5
+      );
+      playerState = {
+        ...playerState,
+        mainDeck: shuffledGraveyard,
+        graveyard: [],
+      };
+
+      console.log("Deck was empty, shuffled graveyard back into deck");
     }
 
     const newMainDeck = [...playerState.mainDeck];

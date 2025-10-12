@@ -27,7 +27,7 @@ export const GameConstants = {
 
   // Win Conditions
   LOSE_ON_ZERO_LP: true,
-  LOSE_ON_DECK_OUT: true,
+  LOSE_ON_DECK_OUT: false, // Disabled - game only ends when LP reaches 0
 } as const;
 
 export type GamePhaseType = (typeof GameConstants.PHASES)[number];

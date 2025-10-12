@@ -37,8 +37,20 @@ export function calculateBattleOutcome(
     };
   }
 
-  const attackerAtk = attacker.attack || 0;
-  const defenderAtk = defender.attack || 0;
+  // Ensure attack values are numbers (defensive type coercion)
+  const attackerAtk = Number(attacker.attack) || 0;
+  const defenderAtk = Number(defender.attack) || 0;
+
+  console.log("Battle calculation:", {
+    attacker: attacker.name,
+    attackerAtk,
+    attackerAtkRaw: attacker.attack,
+    attackerAtkType: typeof attacker.attack,
+    defender: defender.name,
+    defenderAtk,
+    defenderAtkRaw: defender.attack,
+    defenderAtkType: typeof defender.attack,
+  });
 
   // Calculate who wins
   if (attackerAtk > defenderAtk) {
