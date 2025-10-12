@@ -32,7 +32,8 @@ export const HandCard: React.FC<HandCardProps> = React.memo(
               src={card.imageUrl}
               alt={card.name}
               className="w-full h-full object-contain"
-              loading="lazy"
+              loading="eager"
+              decoding="async"
             />
           ) : (
             <>

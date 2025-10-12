@@ -28,6 +28,8 @@ export const CardPreviewModal: React.FC<CardPreviewModalProps> = ({
             src={card.imageUrl}
             alt={card.name}
             className="w-full h-auto object-contain"
+            loading="eager"
+            decoding="async"
           />
         </div>
       </div>

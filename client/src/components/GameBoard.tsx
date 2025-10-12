@@ -37,6 +37,7 @@ import { CardPreviewModal } from "./game/modals/CardPreviewModal";
 // Utils
 import { canAttack } from "../game/utils/CardStateUtils";
 import { isXR } from "../utils/xr";
+import { preloadCardImages } from "../utils/imagePreloader";
 
 interface GameBoardProps {
   gameMode: string;
@@ -236,6 +237,29 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
       }
     };
   }, []);
+
+  // Preload card images when game state changes
+  useEffect(() => {
+    if (!gameState) return;
+
+    const allCards = [
+      ...gameState.player.hand,
+      ...gameState.player.zones.mainMonsterZones.filter(
+        (c: CardInPlay | null): c is CardInPlay => c !== null
+      ),
+      ...gameState.player.graveyard,
+      ...gameState.opponent.hand,
+      ...gameState.opponent.zones.mainMonsterZones.filter(
+        (c: CardInPlay | null): c is CardInPlay => c !== null
+      ),
+      ...gameState.opponent.graveyard,
+    ];
+
+    // Preload images in the background
+    preloadCardImages(allCards).catch((error) => {
+      console.warn("Failed to preload some card images:", error);
+    });
+  }, [gameState]);
 
   // Error state
   if (initError) {

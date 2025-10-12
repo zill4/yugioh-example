@@ -109,7 +109,8 @@ export const CardSlot: React.FC<CardSlotProps> = React.memo(
                         src={card.imageUrl}
                         alt={card.name}
                         className="w-full h-full opacity-80 object-contain"
-                        loading="lazy"
+                        loading="eager"
+                        decoding="async"
                       />
                     ) : (
                       <>
@@ -136,7 +137,8 @@ export const CardSlot: React.FC<CardSlotProps> = React.memo(
                         src={card.imageUrl}
                         alt={card.name}
                         className="w-full h-full object-contain"
-                        loading="lazy"
+                        loading="eager"
+                        decoding="async"
                       />
                     ) : (
                       <>

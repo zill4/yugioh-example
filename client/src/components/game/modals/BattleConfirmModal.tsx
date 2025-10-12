@@ -46,7 +46,7 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
   return (
     <div
       enable-xr
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
+      className="battle-modal-backdrop"
       style={{
         ...(isXR
           ? ({
@@ -57,7 +57,7 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
     >
       <div
         enable-xr
-        className="bg-slate-900/95 border border-slate-700 backdrop-blur-md max-w-4xl w-full mx-4 overflow-hidden"
+        className="battle-modal-container"
         style={{
           ...(isXR
             ? ({
@@ -69,86 +69,90 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
         <div className="flex flex-col lg:flex-row">
           {/* Battle Preview Column */}
           <div className="w-full lg:w-1/2">
-            <div className="px-6 pt-6 pb-3 text-slate-400 text-xs uppercase tracking-wider">
+            <div className="battle-modal-header text-xs uppercase tracking-wider">
               Battle Preview
             </div>
-            <div className="px-6 pb-6 border-b lg:border-b-0 lg:border-r border-slate-800">
-              <div className="bg-black/60 border border-slate-800 p-4">
-                <div className="flex items-center justify-center gap-6">
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="text-xs text-slate-400 uppercase tracking-wider">
+            <div className="battle-modal-preview-section border-b lg:border-b-0 lg:border-r">
+              <div className="battle-modal-card-preview">
+                <div className="flex items-center justify-center gap-3">
+                  <div className="flex flex-col items-center">
+                    <div className="battle-modal-label text-xs uppercase tracking-wider">
                       Attacker
                     </div>
                     <div
-                      className="w-28"
-                      style={{ aspectRatio: "3/4", maxHeight: "50vh" }}
+                      className="w-24"
+                      style={{ aspectRatio: "3/4", maxHeight: "40vh" }}
                     >
                       {selectedCard.imageUrl ? (
                         <img
                           src={selectedCard.imageUrl}
                           alt={selectedCard.name}
                           className="w-full h-full object-contain"
+                          loading="eager"
+                          decoding="async"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-3xl text-slate-600">
+                        <div className="battle-modal-icon w-full h-full flex items-center justify-center text-2xl">
                           ⚔️
                         </div>
                       )}
                     </div>
-                    <div className="text-slate-200 text-sm font-semibold text-center px-2">
+                    <div className="battle-modal-card-name text-xs font-semibold text-center">
                       {selectedCard.name}
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-center text-slate-500">
+                  <div className="battle-modal-vs flex flex-col items-center">
                     <div className="text-xs uppercase tracking-wider">VS</div>
                   </div>
 
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="text-xs text-slate-400 uppercase tracking-wider">
+                  <div className="flex flex-col items-center">
+                    <div className="battle-modal-label text-xs uppercase tracking-wider">
                       {defender ? "Defender" : "Direct Attack"}
                     </div>
                     <div
-                      className="w-28"
-                      style={{ aspectRatio: "3/4", maxHeight: "50vh" }}
+                      className="w-24"
+                      style={{ aspectRatio: "3/4", maxHeight: "40vh" }}
                     >
                       {defender?.imageUrl ? (
                         <img
                           src={defender.imageUrl}
                           alt={defender.name}
                           className="w-full h-full object-contain"
+                          loading="eager"
+                          decoding="async"
                         />
                       ) : defender ? (
-                        <div className="w-full h-full flex items-center justify-center text-3xl text-slate-600">
+                        <div className="battle-modal-icon w-full h-full flex items-center justify-center text-2xl">
                           🛡️
                         </div>
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-xs text-slate-500 text-center px-2">
+                        <div className="battle-modal-direct-attack w-full h-full flex items-center justify-center text-xs text-center">
                           Direct Attack
                         </div>
                       )}
                     </div>
-                    <div className="text-slate-200 text-sm font-semibold text-center px-2">
+                    <div className="battle-modal-card-name text-xs font-semibold text-center">
                       {defender ? defender.name : "Opponent"}
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-                <div className="bg-slate-800/50 border border-slate-700 p-3 border-rounded-lg">
-                  <div className="text-xs text-slate-400 uppercase tracking-wider">
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="battle-modal-stat-box">
+                  <div className="battle-modal-stat-label text-xs uppercase tracking-wider">
                     Attacker ATK
                   </div>
-                  <div className="text-red-400 text-2xl font-bold">
+                  <div className="battle-modal-attack-stat text-xl font-bold">
                     {battlePreview.attackerAtk}
                   </div>
                 </div>
-                <div className="bg-slate-800/50 border border-slate-700 p-3 border-rounded-lg">
-                  <div className="text-xs text-slate-400 uppercase tracking-wider">
+                <div className="battle-modal-stat-box">
+                  <div className="battle-modal-stat-label text-xs uppercase tracking-wider">
                     {defender ? "Defender ATK" : "Damage"}
                   </div>
-                  <div className="text-cyan-400 text-2xl font-bold">
+                  <div className="battle-modal-defense-stat text-xl font-bold">
                     {defender
                       ? battlePreview.defenderAtk
                       : battlePreview.damage}
@@ -159,19 +163,19 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
           </div>
 
           {/* Result & Actions Column */}
-          <div className="w-full lg:w-1/2 p-6 flex flex-col gap-6">
+          <div className="w-full lg:w-1/2 flex flex-col">
             <div>
-              <div className="text-slate-400 text-xs uppercase tracking-wider mb-3">
+              <div className="battle-modal-header text-xs uppercase tracking-wider">
                 Result
               </div>
-              <div className="bg-slate-800/50 border border-slate-700 p-4 space-y-3 border-rounded-lg">
+              <div className="battle-modal-result-box">
                 <div
-                  className={`text-lg font-semibold ${battlePreview.resultColor}`}
+                  className={`battle-modal-result-text text-base font-semibold ${battlePreview.resultColor}`}
                 >
                   {battlePreview.resultText}
                 </div>
                 {defender && (
-                  <div className="text-xs text-slate-500">
+                  <div className="battle-modal-difference-text text-xs">
                     Attack Difference:{" "}
                     {battlePreview.attackDifference > 0 ? "+" : ""}
                     {battlePreview.attackDifference}
@@ -182,41 +186,43 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
 
             {defender && (
               <div>
-                <div className="text-slate-400 text-xs uppercase tracking-wider mb-3">
+                <div className="battle-modal-header text-xs uppercase tracking-wider">
                   Defender Stats
                 </div>
-                <div className="bg-black/60 border border-slate-800 p-4 flex gap-4">
-                  <div className="w-24 shrink-0" style={{ aspectRatio: "3/4" }}>
+                <div className="battle-modal-defender-stats flex gap-2">
+                  <div className="w-20 shrink-0" style={{ aspectRatio: "3/4" }}>
                     {defender.imageUrl ? (
                       <img
                         src={defender.imageUrl}
                         alt={defender.name}
                         className="w-full h-full object-contain"
+                        loading="eager"
+                        decoding="async"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-3xl text-slate-600">
+                      <div className="battle-modal-icon w-full h-full flex items-center justify-center text-2xl">
                         🛡️
                       </div>
                     )}
                   </div>
-                  <div className="flex-1 space-y-3">
-                    <div className="text-slate-200 font-semibold">
+                  <div className="flex-1">
+                    <div className="battle-modal-card-name font-semibold text-sm">
                       {defender.name}
                     </div>
-                    <div className="grid grid-cols-2 gap-3 text-sm">
-                      <div>
-                        <div className="text-slate-500 text-xs uppercase">
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div className="battle-modal-stat-box">
+                        <div className="battle-modal-stat-label text-xs uppercase">
                           Attack
                         </div>
-                        <div className="text-red-400 font-bold text-xl">
+                        <div className="battle-modal-attack-stat font-bold text-lg">
                           {defender.attack}
                         </div>
                       </div>
-                      <div>
-                        <div className="text-slate-500 text-xs uppercase">
+                      <div className="battle-modal-stat-box">
+                        <div className="battle-modal-stat-label text-xs uppercase">
                           Defense
                         </div>
-                        <div className="text-cyan-400 font-bold text-xl">
+                        <div className="battle-modal-defense-stat font-bold text-lg">
                           {defender.defense}
                         </div>
                       </div>
@@ -226,18 +232,18 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
               </div>
             )}
 
-            <div className="grid md:grid-cols-2 gap-3 border-t border-slate-800 pt-4">
+            <div className="battle-modal-actions grid md:grid-cols-2 gap-2">
               <button
                 enable-xr
                 onClick={onConfirm}
-                className="w-full px-6 py-3 bg-slate-100/10 hover:bg-slate-100/20 text-slate-50 border border-slate-600 transition-all duration-200 text-sm font-semibold uppercase"
+                className="battle-modal-confirm-btn w-full transition-all duration-200 text-xs font-bold uppercase tracking-wider"
               >
                 Confirm Battle
               </button>
               <button
                 enable-xr
                 onClick={onCancel}
-                className="w-full px-6 py-3 bg-transparent hover:bg-slate-800 text-slate-400 hover:text-slate-200 border-rounded-lg border-slate-700 hover:border-slate-500 transition-all duration-200 text-sm font-semibold uppercase"
+                className="battle-modal-cancel-btn w-full transition-all duration-200 text-xs font-bold uppercase tracking-wider"
               >
                 Cancel
               </button>

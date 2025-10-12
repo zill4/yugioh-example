@@ -41,6 +41,8 @@ export const CardActionModal: React.FC<CardActionModalProps> = ({
               src={selectedCard.imageUrl}
               alt={selectedCard.name}
               className="w-full h-auto object-contain"
+              loading="eager"
+              decoding="async"
             />
           </div>
         </div>

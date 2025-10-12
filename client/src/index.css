@@ -791,6 +791,50 @@ html.is-spatial {
     --xr-background-material: translucent;
     border: 1px solid rgba(148, 163, 184, 0.3);
   }
+
+  /* Battle Confirmation Modal - Spatial Styles */
+  .battle-modal-backdrop {
+    --xr-background-material: translucent;
+  }
+
+  .battle-modal-container {
+    --xr-background-material: translucent;
+    --xr-back: 150;
+  }
+
+  .battle-modal-card-preview {
+    background: none;
+    --xr-background-material: translucent;
+    --xr-back: 30;
+  }
+
+  .battle-modal-stat-box {
+    background: none;
+    --xr-background-material: translucent;
+    --xr-back: 20;
+  }
+
+  .battle-modal-result-box {
+    background: none;
+    --xr-background-material: translucent;
+    --xr-back: 20;
+  }
+
+  .battle-modal-defender-stats {
+    background: none;
+    --xr-background-material: translucent;
+    --xr-back: 30;
+  }
+
+  .battle-modal-confirm-btn {
+    --xr-background-material: translucent;
+    --xr-back: 40;
+  }
+
+  .battle-modal-cancel-btn {
+    --xr-background-material: translucent;
+    --xr-back: 40;
+  }
 }
 
 /* Web Deployment Styles - Yu-Gi-Oh Inspired */
@@ -802,6 +846,7 @@ html.is-web {
     background: #000000;
     font-family: 'Space Mono', monospace;
   }
+  
 
   /* Main Layout - Traditional Web Layout */
   .layout-container {
@@ -1388,6 +1433,210 @@ html.is-web {
   [class*="modal"] button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  /* Card Action/Summon Modal - Higher positioning and z-index */
+  .xr-card-summon-modal {
+    z-index: 250 !important;
+  }
+
+  /* Modal backdrop - ensure it's above hand but below modal content */
+  .fixed.inset-0.bg-black\/50 {
+    z-index: 240 !important;
+  }
+
+  /* Adjust modal container to be higher on screen */
+  .fixed.inset-0.bg-black\/50.flex.items-start {
+    padding-top: 80px !important;
+  }
+
+  /* Battle Confirmation Modal Styles */
+  .battle-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 250;
+    padding: 1rem;
+  }
+
+  .battle-modal-container {
+    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+    border: 2px solid #ef4444;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9), 0 0 20px rgba(239, 68, 68, 0.4);
+    backdrop-filter: blur(12px);
+    max-width: 50rem;
+    width: auto;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 0.5rem;
+  }
+
+  .battle-modal-header {
+    color: #ef4444;
+    font-family: 'Bebas Neue', sans-serif;
+    padding: 0.25rem 0.5rem;
+    margin: 0;
+  }
+
+  .battle-modal-preview-section {
+    border-color: #262626;
+    padding: 0.5rem;
+  }
+
+  .battle-modal-card-preview {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid #262626;
+    padding: 0.5rem;
+  }
+
+  .battle-modal-label {
+    color: #999999;
+    font-size: 0.65rem;
+    padding: 0.25rem 1.25rem;
+    margin: 0.25rem 0;
+  }
+
+  .battle-modal-card-name {
+    color: #ffffff;
+    font-size: 0.7rem;
+    padding: 0.25rem 1rem;
+    margin: 0.35rem 0;
+  }
+
+  .battle-modal-vs {
+    color: #666666;
+    font-size: 0.7rem;
+  }
+
+  .battle-modal-icon {
+    color: #666666;
+    font-size: 1.25rem;
+  }
+
+  .battle-modal-direct-attack {
+    color: #999999;
+    font-size: 0.7rem;
+  }
+
+  .battle-modal-stat-box {
+    background: linear-gradient(135deg, #262626 0%, #1a1a1a 100%);
+    border: 1px solid #404040;
+    padding: 0.25rem 0.5rem;
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .battle-modal-stat-label {
+    color: #999999;
+    font-size: 0.45rem;
+    margin: 0;
+    width: 25%;
+  }
+
+  .battle-modal-attack-stat {
+    color: #ef4444;
+    text-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+    font-size: 1.1rem;
+    margin: 0;
+    width: 25%;
+  }
+
+  .battle-modal-defense-stat {
+    color: #ffffff;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+    font-size: 1.1rem;
+    margin: 0;
+    width: 25%;
+  }
+
+  .battle-modal-result-box {
+    background: linear-gradient(135deg, #262626 0%, #1a1a1a 100%);
+    border: 1px solid #404040;
+    padding: 0.35rem 0.5rem;
+    margin: 0;
+  }
+
+  .battle-modal-result-text {
+    color: #ffffff;
+    font-size: .75rem;
+    margin: 0.25rem;
+    padding: 0.25rem .35rem;
+  }
+
+  .battle-modal-difference-text {
+    color: #999999;
+    font-size: 0.65rem;
+    margin: 0.25rem;
+    padding: 0.25rem .35rem;
+  }
+
+  .battle-modal-defender-stats {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid #262626;
+    padding: 0.35rem 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .battle-modal-actions {
+    padding-top: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .battle-modal-confirm-btn {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border: 1px solid #ef4444;
+    color: #ffffff;
+    font-family: 'Bebas Neue', sans-serif;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.7rem;
+    margin: 0.25rem;
+  }
+
+  .battle-modal-confirm-btn:hover {
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.6);
+    transform: translateY(-1px);
+  }
+
+  .battle-modal-cancel-btn {
+    background: linear-gradient(135deg, #262626 0%, #1a1a1a 100%);
+    border: 1px solid #404040;
+    color: #ffffff;
+    font-family: 'Bebas Neue', sans-serif;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.7rem;
+    margin: 0.25rem;
+  }
+
+  .battle-modal-cancel-btn:hover {
+    background: linear-gradient(135deg, #404040 0%, #262626 100%);
+    border-color: #ef4444;
+    box-shadow: 0 2px 15px rgba(239, 68, 68, 0.3);
+  }
+
+  /* Battle Modal Responsive */
+  @media (max-width: 1024px) {
+    .battle-modal-backdrop {
+      padding: 1rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .battle-modal-backdrop {
+      padding: 0.5rem;
+    }
+    
+    .battle-modal-container {
+      max-height: 95vh;
+    }
   }
 
   /* Card Stats Display */
