@@ -46,7 +46,13 @@ export const CardSlot: React.FC<CardSlotProps> = React.memo(
 
     return (
       <div
-        onClick={card && onClick ? onClick : undefined}
+        onClick={
+          card && onClick
+            ? onClick
+            : () => {
+                console.log("card slot clicked");
+              }
+        }
         className={`
           w-24 h-32 flex items-center justify-center
           transition-all duration-200 relative

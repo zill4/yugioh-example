@@ -172,18 +172,20 @@ html.is-spatial {
     /* Base spatial properties for XR elements */
     --xr-background-material: translucent;
     position: relative;
+    pointer-events: auto;
   }
 
   /* Card Items in Spatial Mode */
   .group.cursor-pointer {
     --xr-background-material: translucent;
-    transform-style: preserve-3d;
     --xr-back: 20;
+    pointer-events: auto;
+    /* Removed: transform-style - simplify for AVP hit detection */
   }
 
   .group.cursor-pointer:hover {
     --xr-back: 30;
-    transform: translateZ(10px) scale(1.05);
+    /* Removed: transform - causes hit detection misalignment */
   }
 
   /* Card Containers */
@@ -242,24 +244,27 @@ html.is-spatial {
     backdrop-filter: blur(15px);
     box-shadow: 0 4px 15px rgba(246, 92, 92, 0.4);
     border: 1px solid rgba(246, 92, 92, 0.5);
+    pointer-events: auto;
   }
 
   button[enable-xr]:hover {
     --xr-back: 25;
     box-shadow: 0 6px 20px rgba(246, 92, 92, 0.6);
-    transform: translateZ(10px);
+    /* Removed: transform - causes hit detection misalignment */
   }
 
   /* Card Details Spatial Layout */
   .card-detail-container {
-    transform-style: preserve-3d;
+    pointer-events: auto;
+    /* Removed: transform-style - simplify for AVP hit detection */
   }
 
   .card-detail-image {
     position: relative;
     --xr-back: 30;
-    transform: translateZ(10px);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    pointer-events: auto;
+    /* Removed: transform - causes hit detection misalignment */
   }
 
   .card-detail-info {
@@ -272,10 +277,10 @@ html.is-spatial {
     bottom: 20px;
     --xr-back: 40;
     width: 400px;
-    transform-origin: center right;
-    transform: translateZ(10px);
     backdrop-filter: blur(25px);
     border: 1px solid rgba(246, 92, 92, 0.4);
+    pointer-events: auto;
+    /* Removed: transform - causes hit detection misalignment */
   }
 
   /* Search and Filter Spatial Layout */
@@ -287,7 +292,8 @@ html.is-spatial {
     --xr-background-material: translucent;
     border-radius: 20px;
     padding: 20px;
-    transform: translateZ(10px);
+    pointer-events: auto;
+    /* Removed: transform - causes hit detection misalignment */
   }
 
   /* Shop Controls */
@@ -305,8 +311,8 @@ html.is-spatial {
 
   /* Card Shop Layout */
   .card-shop-layout {
-    transform-style: preserve-3d;
-    perspective: 1200px;
+    pointer-events: auto;
+    /* Removed: transform-style, perspective - simplify for AVP hit detection */
   }
 
   /* No results message */
@@ -318,7 +324,8 @@ html.is-spatial {
     backdrop-filter: blur(20px);
   }
 
-  /* Floating Card Effects */
+  /* Floating Card Effects - Disabled in spatial mode to prevent hit detection issues */
+  /* 
   .group:nth-child(odd) {
     animation: float-card-1 6s ease-in-out infinite;
   }
@@ -327,7 +334,6 @@ html.is-spatial {
     animation: float-card-2 8s ease-in-out infinite;
   }
 
-  /* Floating animations for cards */
   @keyframes float-card-1 {
     0%,
     100% {
@@ -347,6 +353,7 @@ html.is-spatial {
       transform: translateY(-15px);
     }
   }
+  */
 
   /* Enhanced text visibility in spatial mode - excluding navigation */
   .text-slate-300:not(.layout-nav *),
@@ -374,16 +381,31 @@ html.is-spatial {
 
   /* Drop zone hover effects */
   .drop-zone-hover {
-    transform: scale(1.05);
     box-shadow: 0 0 20px rgba(34, 197, 64, 0.5);
     transition: all 0.2s ease-in-out;
+    /* Removed: transform - causes hit detection issues in AVP */
   }
 
   /* Drag overlay styling */
   [data-dnd-kit-drag-overlay] {
-    transform: rotate(5deg) !important;
     opacity: 0.9 !important;
     z-index: 1000 !important;
+    /* Removed: transform - causes hit detection issues in AVP */
+  }
+
+  /* Ensure all interactive game elements are clickable in spatial */
+  .player-hand-container > *,
+  .zone-rows-wrapper > * > *,
+  .game-actions-sidebar button,
+  .game-info-sidebar button {
+    pointer-events: auto !important;
+  }
+
+  /* Make images pass-through for clicks - let parent handle events */
+  .player-hand-container img,
+  .zone-rows-wrapper img,
+  .battle-zones-container img {
+    pointer-events: none !important;
   }
 }
 
@@ -573,11 +595,11 @@ html.is-spatial {
     top: 150px;
     max-height: 600px;
     --xr-back: 50;
-    transform: rotateY(20deg) !important;
     border: 1px solid rgba(148, 163, 184, 0.3);
     overflow-y: auto;
     pointer-events: auto; /* Enable clicks on sidebar */
     z-index: 50;
+    /* Removed: transform - can interfere with hit detection */
   }
 
   /* Right Sidebar - Action Buttons */
@@ -590,10 +612,10 @@ html.is-spatial {
     top: 150px;
     --xr-back: 50;
     border: 1px solid rgba(148, 163, 184, 0.3);
-    transform: rotateY(-20deg) !important;
     height: fit-content;
     pointer-events: auto; /* Enable clicks on sidebar */
     z-index: 50;
+    /* Removed: transform - can interfere with hit detection */
   }
   
   .game-actions-sidebar .space-y-3 {
@@ -611,14 +633,13 @@ html.is-spatial {
     position: fixed;
     left: 50%;
     top: 50%;
-    transform: translateX(-56%) translateY(-40%) !important;
-    transform-style: preserve-3d;
-    perspective: 1500px;
-    perspective-origin: center center;
+    margin-left: -450px; /* Half of 900px width for true centering */
+    margin-top: -300px; /* Approximate half of content height */
     width: 900px;
     height: auto;
     pointer-events: auto; /* Enable clicks on game board */
     z-index: 40;
+    /* Removed: transform, perspective, transform-style - these break AVP hit detection */
   }
 
   .game-board-container > div {
@@ -626,27 +647,27 @@ html.is-spatial {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    pointer-events: auto;
   }
 
   .battle-zones-container {
-    transform-style: preserve-3d;
     display: flex;
     flex-direction: column;
     align-items: center;
     width: fit-content;
     padding: 20px;
     overflow: visible;
+    pointer-events: auto;
+    /* Removed: transform-style - simplify for AVP */
   }
 
   /* Target ONLY the zone rows */
   .zone-rows-wrapper {
-    transform: translateZ(-10px) !important;
-    transform-origin: center center;
-    transform-style: preserve-3d;
     width: max-content !important;
     display: inline-block;
     pointer-events: auto; /* Enable clicks on monster zone cards */
     overflow: visible;
+    /* Removed: all transforms - these break AVP hit detection */
   }
   
   /* Detached Player Hand - Fixed Position */
@@ -655,8 +676,6 @@ html.is-spatial {
     position: fixed;
     bottom: 20%;
     left: 30%;
-    transform:  translateZ(230px) rotateX(20deg) !important;
-    transform-style: preserve-3d;
     --xr-back: 130;
     display: flex;
     gap: 15px;
@@ -664,6 +683,7 @@ html.is-spatial {
     border: 1px solid rgba(148, 163, 184, 0.25);
     pointer-events: auto; /* Enable clicks on hand */
     z-index: 100;
+    /* Removed: transform, transform-style - these break AVP hit detection */
   }
   
   /* Game Log - Fixed Position */
@@ -677,9 +697,9 @@ html.is-spatial {
   }
 
   .test-container {
-    transform: translateZ(10px) scaleY(3) rotateX(80deg) !important;
     border: 3px solid rgba(0, 255, 255, 0.5) !important; /* Debug border - CYAN for test */
     width: max-content !important;
+    /* Removed: transform - causes hit detection issues in AVP */
   }
 
   .battle-modal-card {
@@ -722,7 +742,7 @@ html.is-spatial {
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
     pointer-events: auto;
     --xr-back: 200;
-    transform: translateZ(300px) !important;
+    /* Removed: transform - use --xr-back for spatial depth instead */
   }
 
   .xr-card-preview-modal img {
@@ -735,8 +755,8 @@ html.is-spatial {
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
     pointer-events: auto;
     --xr-back: 150;
-    transform: translateZ(250px) !important;
     max-height: 80vh;
+    /* Removed: transform - use --xr-back for spatial depth instead */
   }
 
   /* Custom scrollbar for targeting modal */
@@ -786,7 +806,7 @@ html.is-spatial {
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
     pointer-events: auto;
     --xr-back: 200;
-    transform: translateZ(300px) !important;
+    /* Removed: transform - use --xr-back for spatial depth instead */
   }
 
   .xr-game-end-modal button {

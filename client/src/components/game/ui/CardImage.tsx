@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { isXR } from "../../../utils/xr";
 
 interface CardImageProps {
   src: string;
@@ -14,6 +15,7 @@ export const CardImage: React.FC<CardImageProps> = ({
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasStartedLoading, setHasStartedLoading] = useState(false);
+  const isSpatial = isXR;
 
   const handleLoadStart = () => {
     setHasStartedLoading(true);
@@ -90,14 +92,24 @@ export const CardImage: React.FC<CardImageProps> = ({
         decoding="async"
         onLoadStart={handleLoadStart}
         onLoad={handleLoad}
-        initial={{
-          opacity: 0,
-          clipPath: "inset(0 0 100% 0)",
-          filter: "brightness(0.3) drop-shadow(0 0 20px #ef4444)",
-          scale: 0.98,
-        }}
+        initial={
+          isSpatial
+            ? {
+                opacity: 0,
+              }
+            : {
+                opacity: 0,
+                clipPath: "inset(0 0 100% 0)",
+                filter: "brightness(0.3) drop-shadow(0 0 20px #ef4444)",
+                scale: 0.98,
+              }
+        }
         animate={
-          isLoaded
+          isSpatial
+            ? isLoaded
+              ? { opacity: 1 }
+              : { opacity: 0 }
+            : isLoaded
             ? {
                 opacity: 1,
                 clipPath: "inset(0 0 0% 0)",
@@ -111,13 +123,20 @@ export const CardImage: React.FC<CardImageProps> = ({
                 scale: 0.98,
               }
         }
-        transition={{
-          duration: 2.5,
-          ease: "linear",
-          clipPath: { duration: 2.5, ease: "linear" },
-          filter: { duration: 2.5, ease: "linear" },
-          scale: { duration: 2.5, ease: "easeOut" },
-        }}
+        transition={
+          isSpatial
+            ? {
+                duration: 0.3,
+                ease: "linear",
+              }
+            : {
+                duration: 2.5,
+                ease: "linear",
+                clipPath: { duration: 2.5, ease: "linear" },
+                filter: { duration: 2.5, ease: "linear" },
+                scale: { duration: 2.5, ease: "easeOut" },
+              }
+        }
       />
     </div>
   );

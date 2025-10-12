@@ -18,7 +18,7 @@ export const HandCard: React.FC<HandCardProps> = React.memo(
         className={`w-24 h-36 shadow-lg select-none ${
           isAITurn && isPlayerHand
             ? "opacity-50 cursor-not-allowed"
-            : "hover:scale-110 hover:-translate-y-2 cursor-pointer"
+            : "cursor-pointer"
         } transition-all duration-200 relative overflow-hidden`}
         style={{
           userSelect: "none",
