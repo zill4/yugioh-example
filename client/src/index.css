@@ -1095,9 +1095,17 @@ html.is-web {
     background: linear-gradient(180deg, #1a1a1a 0%, #000000 100%);
     border: 2px solid #ef4444;
     border-right: 3px solid #ef4444;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 4px 0 25px rgba(239, 68, 68, 0.3);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .game-info-sidebar > .space-y-4 {
+    flex: 1;
     padding: 25px;
     overflow-y: auto;
-    box-shadow: 4px 0 25px rgba(239, 68, 68, 0.3);
   }
 
   .game-info-sidebar h3 {
@@ -1112,7 +1120,7 @@ html.is-web {
   }
 
   .game-info-sidebar p,
-  .game-info-sidebar div {
+  .game-info-sidebar > .space-y-4 > div {
     font-family: 'Space Mono', monospace;
     font-size: 14px;
     line-height: 1.6;
@@ -1335,40 +1343,57 @@ html.is-web {
     border-width: 3px;
   }
 
-  /* Game Log */
-  .game-log-container {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    width: 320px;
-    max-height: 250px;
-    background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(0, 0, 0, 0.95) 100%);
-    border: 2px solid #ef4444;
-    padding: 15px;
+  /* Game Log - Inside Sidebar */
+  .game-info-sidebar .game-log-container {
+    flex: 0 0 35%;
+    background: linear-gradient(135deg, #000000 0%, #0a0a0a 100%);
+    border-top: 2px solid #ef4444;
+    padding: 15px 20px;
     overflow-y: auto;
-    box-shadow: 0 4px 30px rgba(239, 68, 68, 0.3);
-    z-index: 150;
+    display: flex;
+    flex-direction: column;
   }
 
-  .game-log-container h3 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px;
-    color: #ef4444;
-    margin-bottom: 10px;
+  .game-info-sidebar .game-log-container .bg-slate-800\/80 {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .game-info-sidebar .game-log-container .text-slate-400 {
+    font-family: 'Bebas Neue', sans-serif !important;
+    font-size: 14px !important;
+    color: #ef4444 !important;
     letter-spacing: 0.1em;
-    border-bottom: 2px solid #ef4444;
+    margin-bottom: 8px !important;
     padding-bottom: 5px;
+    border-bottom: 1px solid #404040;
   }
 
-  .game-log-container div {
+  .game-info-sidebar .game-log-container .space-y-1 {
     font-family: 'Space Mono', monospace;
-    font-size: 12px;
+    font-size: 11px !important;
     line-height: 1.5;
-    margin-bottom: 6px;
-    padding: 6px;
-    background: rgba(0, 0, 0, 0.5);
+    max-height: none !important;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .game-info-sidebar .game-log-container .text-\\[9px\\] {
+    font-size: 10px !important;
+    line-height: 1.4;
+    margin-bottom: 4px;
+    padding: 4px 6px;
+    background: rgba(0, 0, 0, 0.4);
     border-left: 2px solid #404040;
-    color: #ffffff;
+    color: #e5e5e5 !important;
+  }
+
+  .game-info-sidebar .game-log-container .text-slate-500 {
+    color: #666666 !important;
   }
 
   /* Phase Indicator */

@@ -21,7 +21,6 @@ import { useTargeting } from "./game/hooks/useTargeting";
 // UI Components
 import { GameInfo } from "./game/ui/GameInfo";
 import { GameActions } from "./game/ui/GameActions";
-import { GameLog } from "./game/ui/GameLog";
 
 // Board Components
 import { CardSlot } from "./game/board/CardSlot";
@@ -402,9 +401,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
               />
             ))}
           </div>
-
-          {/* Game Log - Fixed Position */}
-          <GameLog gameState={gameState} />
 
           {/* Right Sidebar - Action Buttons */}
           <GameActions

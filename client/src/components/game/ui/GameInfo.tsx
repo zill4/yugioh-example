@@ -1,5 +1,6 @@
 import React from "react";
 import type { GameState } from "../../../game/types/GameTypes";
+import { GameLog } from "./GameLog";
 
 interface GameInfoProps {
   gameState: GameState;
@@ -54,7 +55,9 @@ export const GameInfo: React.FC<GameInfoProps> = ({ gameState, onEndGame }) => {
           </div>
         </div>
       </div>
+
+      {/* Game Log - Bottom section of sidebar */}
+      <GameLog gameState={gameState} />
     </div>
   );
 };
-
