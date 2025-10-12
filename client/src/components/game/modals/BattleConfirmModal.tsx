@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { getBattlePreview } from "../../../game/utils/BattleCalculator";
 import type {
   CardInPlay,
@@ -24,6 +24,23 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
   onConfirm,
   onCancel,
 }) => {
+  const [showAttackerAnimation, setShowAttackerAnimation] = useState(true);
+  const [showDefenderAnimation, setShowDefenderAnimation] = useState(true);
+  const [showDefenderStatsAnimation, setShowDefenderStatsAnimation] =
+    useState(true);
+
+  const handleAttackerImageLoad = () => {
+    setTimeout(() => setShowAttackerAnimation(false), 2500);
+  };
+
+  const handleDefenderImageLoad = () => {
+    setTimeout(() => setShowDefenderAnimation(false), 2500);
+  };
+
+  const handleDefenderStatsImageLoad = () => {
+    setTimeout(() => setShowDefenderStatsAnimation(false), 2500);
+  };
+
   if (!show || !pendingAction || !selectedCard || !gameState) return null;
 
   // Get defender based on action type
@@ -81,15 +98,22 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
                     </div>
                     <div
                       className="w-24"
-                      style={{ aspectRatio: "3/4", maxHeight: "40vh" }}
+                      style={{
+                        aspectRatio: "3/4",
+                        maxHeight: "40vh",
+                        minHeight: "128px",
+                      }}
                     >
                       {selectedCard.imageUrl ? (
                         <img
                           src={selectedCard.imageUrl}
                           alt={selectedCard.name}
-                          className="w-full h-full object-contain"
+                          className={`w-full h-full object-contain ${
+                            showAttackerAnimation ? "card-loading" : ""
+                          }`}
                           loading="eager"
                           decoding="async"
+                          onLoad={handleAttackerImageLoad}
                         />
                       ) : (
                         <div className="battle-modal-icon w-full h-full flex items-center justify-center text-2xl">
@@ -112,15 +136,22 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
                     </div>
                     <div
                       className="w-24"
-                      style={{ aspectRatio: "3/4", maxHeight: "40vh" }}
+                      style={{
+                        aspectRatio: "3/4",
+                        maxHeight: "40vh",
+                        minHeight: "128px",
+                      }}
                     >
                       {defender?.imageUrl ? (
                         <img
                           src={defender.imageUrl}
                           alt={defender.name}
-                          className="w-full h-full object-contain"
+                          className={`w-full h-full object-contain ${
+                            showDefenderAnimation ? "card-loading" : ""
+                          }`}
                           loading="eager"
                           decoding="async"
+                          onLoad={handleDefenderImageLoad}
                         />
                       ) : defender ? (
                         <div className="battle-modal-icon w-full h-full flex items-center justify-center text-2xl">
@@ -190,14 +221,20 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
                   Defender Stats
                 </div>
                 <div className="battle-modal-defender-stats flex gap-2">
-                  <div className="w-20 shrink-0" style={{ aspectRatio: "3/4" }}>
+                  <div
+                    className="w-20 shrink-0"
+                    style={{ aspectRatio: "3/4", minHeight: "107px" }}
+                  >
                     {defender.imageUrl ? (
                       <img
                         src={defender.imageUrl}
                         alt={defender.name}
-                        className="w-full h-full object-contain"
+                        className={`w-full h-full object-contain ${
+                          showDefenderStatsAnimation ? "card-loading" : ""
+                        }`}
                         loading="eager"
                         decoding="async"
+                        onLoad={handleDefenderStatsImageLoad}
                       />
                     ) : (
                       <div className="battle-modal-icon w-full h-full flex items-center justify-center text-2xl">

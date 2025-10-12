@@ -31,12 +31,15 @@ export const CardPreviewModal: React.FC<CardPreviewModalProps> = ({
         enable-xr={true}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Card Art */}
-        <div className="relative">
+        {/* Card Art - Fixed aspect ratio container */}
+        <div
+          className="relative w-full"
+          style={{ aspectRatio: "3/4.36", minHeight: "436px" }}
+        >
           <img
             src={card.imageUrl}
             alt={card.name}
-            className={`w-full h-auto object-contain ${
+            className={`w-full h-full object-contain ${
               showAnimation ? "card-loading" : ""
             }`}
             loading="eager"

@@ -44,12 +44,15 @@ export const CardActionModal: React.FC<CardActionModalProps> = ({
           className="xr-card-summon-modal bg-black border-4 border-slate-800 w-72"
           enable-xr={true}
         >
-          {/* Card Art */}
-          <div className="relative">
+          {/* Card Art - Fixed aspect ratio container */}
+          <div
+            className="relative w-full"
+            style={{ aspectRatio: "3/4.36", minHeight: "392px" }}
+          >
             <img
               src={selectedCard.imageUrl}
               alt={selectedCard.name}
-              className={`w-full h-auto object-contain ${
+              className={`w-full h-full object-contain ${
                 showAnimation ? "card-loading" : ""
               }`}
               loading="eager"
