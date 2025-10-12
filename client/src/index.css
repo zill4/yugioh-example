@@ -407,6 +407,15 @@ html.is-spatial {
   .battle-zones-container img {
     pointer-events: none !important;
   }
+
+  /* Modal Backdrops - Make transparent in spatial mode to preserve spatial experience */
+  /* Only the modal content (within borders) should be translucent, not the backdrop */
+  .fixed.inset-0.bg-black\/50,
+  .fixed.inset-0.flex {
+    background: none !important;
+    --xr-background-material: transparent !important;
+    backdrop-filter: none !important;
+  }
 }
 
 /* Global sharp style: remove rounded corners */
@@ -712,6 +721,7 @@ html.is-spatial {
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
     pointer-events: auto;
     --xr-back: 80;
+    border: 4px solid rgba(148, 163, 184, 0.5);
   }
 
   .xr-card-summon-modal img {
@@ -734,6 +744,7 @@ html.is-spatial {
   .xr-card-summon-modal-buttons button {
     --xr-background-material: translucent;
     border: 1px solid rgba(148, 163, 184, 0.3);
+    pointer-events: auto;
   }
 
   /* Card Preview Modal - Fixed and Detached */
@@ -742,11 +753,16 @@ html.is-spatial {
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
     pointer-events: auto;
     --xr-back: 200;
+    border: 4px solid rgba(148, 163, 184, 0.5);
     /* Removed: transform - use --xr-back for spatial depth instead */
   }
 
   .xr-card-preview-modal img {
     --xr-back: 120;
+  }
+
+  .xr-card-preview-modal button {
+    pointer-events: auto;
   }
 
   /* Targeting Modal - Fixed and Detached */
@@ -756,6 +772,7 @@ html.is-spatial {
     pointer-events: auto;
     --xr-back: 150;
     max-height: 80vh;
+    border: 2px solid rgba(239, 68, 68, 0.5);
     /* Removed: transform - use --xr-back for spatial depth instead */
   }
 
@@ -784,6 +801,7 @@ html.is-spatial {
 
   .xr-target-option:hover {
     --xr-back: 30;
+    border-color: #ef4444 !important;
   }
 
   .xr-target-option img {
@@ -798,6 +816,7 @@ html.is-spatial {
   .xr-targeting-modal > button {
     --xr-background-material: translucent;
     border: 1px solid rgba(148, 163, 184, 0.3);
+    pointer-events: auto;
   }
 
   /* Game End Modal - Fixed and Detached */
@@ -806,56 +825,240 @@ html.is-spatial {
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
     pointer-events: auto;
     --xr-back: 200;
+    border: 2px solid #ef4444;
     /* Removed: transform - use --xr-back for spatial depth instead */
   }
 
   .xr-game-end-modal button {
     --xr-background-material: translucent;
     border: 1px solid rgba(148, 163, 184, 0.3);
+    pointer-events: auto;
   }
 
   /* Battle Confirmation Modal - Spatial Styles */
   .battle-modal-backdrop {
-    --xr-background-material: translucent;
+    --xr-background-material: transparent;
+    background: none !important;
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: flex-start; /* Changed from center to flex-start */
+    justify-content: center;
+    padding-top: 15vh; /* Push modal higher */
+    padding-bottom: 5vh; /* Add bottom padding for breathing room */
+    z-index: 250;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    pointer-events: auto;
+    backdrop-filter: none;
+    overflow-y: auto; /* Allow scrolling if needed */
   }
 
   .battle-modal-container {
     --xr-background-material: translucent;
     --xr-back: 150;
+    max-width: 55rem; /* Reduced width for more compact feel */
+    width: auto;
+    max-height: none; /* Remove max-height restriction to prevent clipping */
+    overflow: visible; /* Changed from auto to visible to prevent clipping */
+    padding: 0.75rem 1rem 1rem 1rem; /* Reduced padding */
+    pointer-events: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
+    border: none; /* Removed red border */
+    /* Ensure content isn't clipped */
+    clip-path: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+    border-radius: 0; /* Ensure no border-radius clipping */
+  }
+
+  .battle-modal-header {
+    color: #000000; /* Changed from red to black */
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem; /* Slightly reduced */
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.5rem;
+    margin: 0.25rem 0;
+    line-height: 1;
+  }
+
+  .battle-modal-preview-section {
+    border-color: transparent; /* Removed border */
+    padding: 0.5rem;
+    margin: 0;
   }
 
   .battle-modal-card-preview {
     background: none;
     --xr-background-material: translucent;
     --xr-back: 30;
+    border: none; /* Removed border */
+    padding: 0.5rem;
+    margin: 0.25rem 0;
+  }
+
+  .battle-modal-label {
+    color: #444444; /* Darker gray for better readability */
+    font-size: 0.7rem; /* Slightly reduced */
+    padding: 0.15rem 0.25rem;
+    margin: 0.15rem 0;
+  }
+
+  .battle-modal-card-name {
+    color: #000000; /* Changed from white to black for better readability */
+    font-size: 0.8rem; /* Slightly reduced */
+    padding: 0.15rem 0.25rem;
+    margin: 0.2rem 0;
+    font-weight: 600;
+  }
+
+  .battle-modal-vs {
+    color: #444444; /* Darker gray */
+    font-size: 0.75rem; /* Reduced */
+    font-weight: 600;
+  }
+
+  .battle-modal-icon {
+    color: #444444; /* Darker gray */
+    font-size: 1.25rem; /* Reduced */
+  }
+
+  .battle-modal-direct-attack {
+    color: #444444; /* Darker gray */
+    font-size: 0.75rem; /* Reduced */
   }
 
   .battle-modal-stat-box {
     background: none;
     --xr-background-material: translucent;
     --xr-back: 20;
+    border: none; /* Removed border */
+    padding: 0.5rem 0.75rem; /* Reduced padding */
+    margin: 0.25rem;
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .battle-modal-stat-label {
+    color: #444444; /* Darker gray */
+    font-size: 0.6rem; /* Reduced */
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    margin: 0 0 0.15rem 0;
+    padding: 0.1rem 0;
+    width: 100%;
+    text-transform: uppercase;
+  }
+
+  .battle-modal-attack-stat {
+    color: #ef4444; /* Keep red for attack */
+    text-shadow: none; /* Remove glow in spatial */
+    font-size: 1.5rem; /* Reduced */
+    font-weight: 700;
+    margin: 0;
+    padding: 0.1rem 0;
+    width: 100%;
+    line-height: 1;
+  }
+
+  .battle-modal-defense-stat {
+    color: #000000; /* Changed to black for better readability */
+    text-shadow: none; /* Remove glow in spatial */
+    font-size: 1.5rem; /* Reduced */
+    font-weight: 700;
+    margin: 0;
+    padding: 0.1rem 0;
+    width: 100%;
+    line-height: 1;
   }
 
   .battle-modal-result-box {
     background: none;
     --xr-background-material: translucent;
     --xr-back: 20;
+    border: none; /* Removed border */
+    padding: 0.5rem;
+    margin: 0.25rem;
+  }
+
+  .battle-modal-result-text {
+    color: #000000; /* Changed to black */
+    font-size: 0.85rem; /* Reduced */
+    margin: 0.15rem;
+    padding: 0.15rem 0.25rem;
+    font-weight: 600;
+  }
+
+  .battle-modal-difference-text {
+    color: #444444; /* Darker gray */
+    font-size: 0.7rem; /* Reduced */
+    margin: 0.15rem;
+    padding: 0.15rem 0.25rem;
   }
 
   .battle-modal-defender-stats {
     background: none;
     --xr-background-material: translucent;
     --xr-back: 30;
+    border: none; /* Removed border */
+    padding: 0.5rem;
+    margin: 0.25rem 0;
+  }
+
+  .battle-modal-actions {
+    padding: 0.5rem 0.25rem 0.25rem 0.25rem;
+    margin-top: 0.5rem;
   }
 
   .battle-modal-confirm-btn {
     --xr-background-material: translucent;
     --xr-back: 40;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border: none; /* Removed border */
+    color: #ffffff;
+    font-family: 'Bebas Neue', sans-serif;
+    padding: 0.6rem 1.25rem; /* Reduced padding */
+    margin: 0.25rem;
+    font-size: 0.9rem; /* Reduced */
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .battle-modal-confirm-btn:hover {
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4); /* Subtle shadow */
   }
 
   .battle-modal-cancel-btn {
     --xr-background-material: translucent;
     --xr-back: 40;
+    background: linear-gradient(135deg, #555555 0%, #333333 100%); /* Lighter gray */
+    border: none; /* Removed border */
+    color: #ffffff;
+    font-family: 'Bebas Neue', sans-serif;
+    padding: 0.6rem 1.25rem; /* Reduced padding */
+    margin: 0.25rem;
+    font-size: 0.9rem; /* Reduced */
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .battle-modal-cancel-btn:hover {
+    background: linear-gradient(135deg, #666666 0%, #444444 100%);
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3); /* Subtle shadow */
   }
 }
 

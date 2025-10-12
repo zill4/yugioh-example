@@ -5,7 +5,6 @@ import type {
   GameAction,
   GameState,
 } from "../../../game/types/GameTypes";
-import { isXR } from "../../../utils/xr";
 import { CardImage } from "../ui/CardImage";
 
 interface BattleConfirmModalProps {
@@ -45,28 +44,8 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
   const battlePreview = getBattlePreview(selectedCard, defender);
 
   return (
-    <div
-      enable-xr
-      className="battle-modal-backdrop"
-      style={{
-        ...(isXR
-          ? ({
-              "--xr-background-material": "translucent",
-            } as React.CSSProperties)
-          : {}),
-      }}
-    >
-      <div
-        enable-xr
-        className="battle-modal-container"
-        style={{
-          ...(isXR
-            ? ({
-                "--xr-background-material": "translucent",
-              } as React.CSSProperties)
-            : {}),
-        }}
-      >
+    <div enable-xr className="battle-modal-backdrop">
+      <div enable-xr className="battle-modal-container">
         <div className="flex flex-col lg:flex-row">
           {/* Battle Preview Column */}
           <div className="w-full lg:w-1/2">
