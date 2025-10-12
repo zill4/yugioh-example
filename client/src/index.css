@@ -1478,19 +1478,25 @@ html.is-web {
   .battle-modal-header {
     color: #ef4444;
     font-family: 'Bebas Neue', sans-serif;
-    padding: 0.25rem 0.5rem;
-    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 0.35rem 0.75rem;
+    margin: 0.25rem;
+    line-height: 1;
   }
 
   .battle-modal-preview-section {
     border-color: #262626;
-    padding: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    margin: 0 0.25rem;
   }
 
   .battle-modal-card-preview {
     background: rgba(0, 0, 0, 0.6);
     border: 1px solid #262626;
-    padding: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    margin: 0.25rem;
   }
 
   .battle-modal-label {
@@ -1525,7 +1531,8 @@ html.is-web {
   .battle-modal-stat-box {
     background: linear-gradient(135deg, #262626 0%, #1a1a1a 100%);
     border: 1px solid #404040;
-    padding: 0.25rem 0.5rem;
+    padding: 0.35rem 0.5rem;
+    margin: 0.25rem;
     min-width: 0;
     flex: 1;
     display: flex;
@@ -1536,32 +1543,42 @@ html.is-web {
 
   .battle-modal-stat-label {
     color: #999999;
-    font-size: 0.45rem;
-    margin: 0;
-    width: 25%;
+    font-size: 0.5rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    margin: 0 0 0.15rem 0;
+    padding: 0.1rem 0;
+    width: 100%;
+    text-transform: uppercase;
   }
 
   .battle-modal-attack-stat {
     color: #ef4444;
     text-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
-    font-size: 1.1rem;
+    font-size: 1.25rem;
+    font-weight: 700;
     margin: 0;
-    width: 25%;
+    padding: 0.1rem 0;
+    width: 100%;
+    line-height: 1;
   }
 
   .battle-modal-defense-stat {
     color: #ffffff;
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
-    font-size: 1.1rem;
+    font-size: 1.25rem;
+    font-weight: 700;
     margin: 0;
-    width: 25%;
+    padding: 0.1rem 0;
+    width: 100%;
+    line-height: 1;
   }
 
   .battle-modal-result-box {
     background: linear-gradient(135deg, #262626 0%, #1a1a1a 100%);
     border: 1px solid #404040;
-    padding: 0.35rem 0.5rem;
-    margin: 0;
+    padding: 0.5rem 0.75rem;
+    margin: 0.25rem;
   }
 
   .battle-modal-result-text {
@@ -1581,45 +1598,57 @@ html.is-web {
   .battle-modal-defender-stats {
     background: rgba(0, 0, 0, 0.6);
     border: 1px solid #262626;
-    padding: 0.35rem 0.5rem;
-    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    margin: 0.5rem 0.25rem 0.25rem 0.25rem;
   }
 
   .battle-modal-actions {
-    padding-top: 0.5rem;
+    padding: 0.5rem 0.25rem 0.25rem 0.25rem;
     margin-top: 0.5rem;
   }
 
   .battle-modal-confirm-btn {
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    border: 1px solid #ef4444;
+    border: 2px solid #ef4444;
     color: #ffffff;
     font-family: 'Bebas Neue', sans-serif;
-    padding: 0.4rem 0.75rem;
-    font-size: 0.7rem;
+    padding: 0.5rem 1rem;
     margin: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1;
+    cursor: pointer;
   }
 
   .battle-modal-confirm-btn:hover {
     background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+    border-color: #f87171;
     box-shadow: 0 4px 20px rgba(239, 68, 68, 0.6);
     transform: translateY(-1px);
   }
 
   .battle-modal-cancel-btn {
     background: linear-gradient(135deg, #262626 0%, #1a1a1a 100%);
-    border: 1px solid #404040;
+    border: 2px solid #404040;
     color: #ffffff;
     font-family: 'Bebas Neue', sans-serif;
-    padding: 0.4rem 0.75rem;
-    font-size: 0.7rem;
+    padding: 0.5rem 1rem;
     margin: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1;
+    cursor: pointer;
   }
 
   .battle-modal-cancel-btn:hover {
     background: linear-gradient(135deg, #404040 0%, #262626 100%);
     border-color: #ef4444;
     box-shadow: 0 2px 15px rgba(239, 68, 68, 0.3);
+    transform: translateY(-1px);
   }
 
   /* Battle Modal Responsive */
