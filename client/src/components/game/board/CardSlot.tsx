@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import type { CardInPlay, GameState } from "../../../game/types/GameTypes";
 
 interface CardSlotProps {
@@ -25,7 +25,15 @@ export const CardSlot: React.FC<CardSlotProps> = React.memo(
     gameState,
     onClick,
   }) => {
+    const [showAnimation, setShowAnimation] = useState(true);
     const isPlayerCard = isPlayerZone && !isOpponent;
+
+    const handleImageLoad = () => {
+      // Keep animation for full duration (2.5s) to prevent pop-in
+      setTimeout(() => {
+        setShowAnimation(false);
+      }, 2500);
+    };
 
     const canSelectForAttack = useMemo(
       () =>
@@ -108,9 +116,12 @@ export const CardSlot: React.FC<CardSlotProps> = React.memo(
                       <img
                         src={card.imageUrl}
                         alt={card.name}
-                        className="w-full h-full opacity-80 object-contain"
+                        className={`w-full h-full opacity-80 object-contain ${
+                          showAnimation ? "card-loading" : ""
+                        }`}
                         loading="eager"
                         decoding="async"
+                        onLoad={handleImageLoad}
                       />
                     ) : (
                       <>
@@ -136,9 +147,12 @@ export const CardSlot: React.FC<CardSlotProps> = React.memo(
                       <img
                         src={card.imageUrl}
                         alt={card.name}
-                        className="w-full h-full object-contain"
+                        className={`w-full h-full object-contain ${
+                          showAnimation ? "card-loading" : ""
+                        }`}
                         loading="eager"
                         decoding="async"
+                        onLoad={handleImageLoad}
                       />
                     ) : (
                       <>

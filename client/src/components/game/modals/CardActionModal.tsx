@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import type { GameCard } from "../../../game/types/GameTypes";
 
 interface CardActionModalProps {
@@ -17,6 +17,15 @@ export const CardActionModal: React.FC<CardActionModalProps> = ({
   onNormalSummon,
   isAITurn,
 }) => {
+  const [showAnimation, setShowAnimation] = useState(true);
+
+  const handleImageLoad = () => {
+    // Keep animation for full duration (2.5s) to prevent pop-in
+    setTimeout(() => {
+      setShowAnimation(false);
+    }, 2500);
+  };
+
   if (!selectedCard || !gameState) return null;
 
   const canNormalSummon =
@@ -40,9 +49,12 @@ export const CardActionModal: React.FC<CardActionModalProps> = ({
             <img
               src={selectedCard.imageUrl}
               alt={selectedCard.name}
-              className="w-full h-auto object-contain"
+              className={`w-full h-auto object-contain ${
+                showAnimation ? "card-loading" : ""
+              }`}
               loading="eager"
               decoding="async"
+              onLoad={handleImageLoad}
             />
           </div>
         </div>
