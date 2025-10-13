@@ -115,10 +115,7 @@ export const preloadCardImages = (
 
   return preloadImages(urls)
     .then(() => {
-      // Only log in development mode to reduce console noise
-      if (import.meta.env.DEV) {
-        console.log(`Preloaded ${urls.length} card images`);
-      }
+      console.log(`Preloaded ${urls.length} card images`);
     })
     .catch((error) => {
       console.warn("Error preloading card images:", error);

@@ -47,15 +47,6 @@ export class BattleEngine {
 
     // Calculate battle outcome
     const outcome = calculateBattleOutcome(attacker, defender);
-    console.log("Battle outcome:", {
-      result: outcome.result,
-      attackerSurvives: outcome.attackerSurvives,
-      defenderSurvives: outcome.defenderSurvives,
-      attackerAtk: attacker.attack,
-      defenderAtk: defender?.attack,
-      attackerName: attacker.name,
-      defenderName: defender?.name,
-    });
 
     // Apply battle results
     let newAttackerState = attackerState;
@@ -72,9 +63,6 @@ export class BattleEngine {
 
     // Handle attacker destruction
     if (!outcome.attackerSurvives && attackerZoneIndex !== -1) {
-      console.log(
-        `Destroying attacker ${attacker.name} at zone ${attackerZoneIndex}`
-      );
       newAttackerState = this.destroyMonster(
         newAttackerState,
         attackerZoneIndex
@@ -87,9 +75,6 @@ export class BattleEngine {
       targetZoneIndex !== undefined &&
       !outcome.defenderSurvives
     ) {
-      console.log(
-        `Destroying defender ${defender.name} at zone ${targetZoneIndex}`
-      );
       newDefenderState = this.destroyMonster(newDefenderState, targetZoneIndex);
     }
 
