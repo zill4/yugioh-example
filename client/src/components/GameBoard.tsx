@@ -17,6 +17,7 @@ import type { GameState, CardInPlay } from "../game/types/GameTypes";
 import { useGameActions } from "./game/hooks/useGameActions";
 import { useCardSelection } from "./game/hooks/useCardSelection";
 import { useTargeting } from "./game/hooks/useTargeting";
+import { useDragAndDrop } from "./game/hooks/useDragAndDrop";
 
 // UI Components
 import { GameInfo } from "./game/ui/GameInfo";
@@ -74,6 +75,45 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
       isAITurn,
     }
   );
+
+  // Handle card drop from drag and drop
+  const handleCardDrop = useCallback(
+    (cardId: string, zoneIndex: number, zoneType: "monster" | "spellTrap") => {
+      if (!gameControllerRef.current || !gameState || isAITurn) return;
+
+      // Only allow dropping monster cards in monster zones for now
+      if (zoneType === "monster" && gameState.currentPhase === "Main") {
+        // Try to normal summon the card to the specified zone
+        const success = handleNormalSummon(cardId, zoneIndex);
+        if (success) {
+          clearSelection();
+        }
+      }
+    },
+    [gameState, isAITurn, handleNormalSummon, clearSelection]
+  );
+
+  // Drag and drop hook
+  const {
+    dragState,
+    handleDragStart,
+    handleDragMove,
+    handleDragEnd,
+    registerDropZone,
+    unregisterDropZone,
+  } = useDragAndDrop({
+    onDrop: handleCardDrop,
+    onDragStart: (cardId) => {
+      console.log("Drag started:", cardId);
+      // Clear any existing selections when starting drag
+      clearSelection();
+      cancelTargeting();
+    },
+    onDragEnd: () => {
+      console.log("Drag ended");
+    },
+    isDisabled: isAITurn,
+  });
 
   // Card click handler - simplified with early returns
   const handleCardClick = useCallback(
@@ -204,6 +244,39 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
   useEffect(() => {
     console.log("GameBoard: Initializing...");
 
+    // DEBUG: Check if WebSpatial is intercepting events
+    console.log("🔍 Checking for WebSpatial event interception...");
+    const hasWebSpatial =
+      typeof window !== "undefined" && (window as any).WebSpatial !== undefined;
+    console.log("WebSpatial present:", hasWebSpatial);
+
+    // Log all global event listeners
+    if (typeof window !== "undefined") {
+      const originalAddEventListener = window.addEventListener;
+      let mouseDownListeners = 0;
+      let touchStartListeners = 0;
+
+      (window as any).addEventListener = function (
+        type: string,
+        listener: any,
+        options?: any
+      ) {
+        if (type === "mousedown") {
+          mouseDownListeners++;
+          console.log(
+            `➕ mousedown listener added (total: ${mouseDownListeners})`
+          );
+        }
+        if (type === "touchstart") {
+          touchStartListeners++;
+          console.log(
+            `➕ touchstart listener added (total: ${touchStartListeners})`
+          );
+        }
+        return originalAddEventListener.call(this, type, listener, options);
+      };
+    }
+
     try {
       const controller = new GameController();
 
@@ -260,6 +333,68 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
     });
   }, [gameState]);
 
+  // Set up global drag event listeners
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (dragState.isDragging) {
+        e.preventDefault(); // Prevent default scrolling behavior
+        handleDragMove(e);
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (dragState.isDragging) {
+        handleDragEnd();
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (dragState.isDragging) {
+        e.preventDefault(); // Prevent default scrolling behavior
+        handleDragMove(e);
+      }
+    };
+
+    const handleTouchEnd = () => {
+      if (dragState.isDragging) {
+        handleDragEnd();
+      }
+    };
+
+    if (dragState.isDragging) {
+      // Add passive: false to allow preventDefault
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+      window.addEventListener("touchmove", handleTouchMove, { passive: false });
+      window.addEventListener("touchend", handleTouchEnd);
+
+      // DEBUG: Force touch-action: none on key elements during drag
+      const elements = [
+        document.querySelector(".game-board-container"),
+        document.querySelector(".player-hand-container"),
+        document.querySelector(".zone-rows-wrapper"),
+        document.querySelector(".game-layout-grid"),
+        document.body,
+        document.documentElement,
+      ];
+
+      elements.forEach((el) => {
+        if (el instanceof HTMLElement) {
+          el.style.touchAction = "none";
+          el.style.userSelect = "none";
+          console.log(`🔒 Locked element: ${el.className || el.tagName}`);
+        }
+      });
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [dragState.isDragging, handleDragMove, handleDragEnd]);
+
   // Error state
   if (initError) {
     return (
@@ -289,19 +424,33 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
         className={`min-h-screen ${
           isXR ? "" : "bg-black"
         } relative overflow-hidden`}
+        onMouseDown={(e) => {
+          console.log("🌍 Root div mouseDown", {
+            target: (e.target as HTMLElement).className,
+            currentTarget: (e.currentTarget as HTMLElement).className,
+          });
+        }}
       >
         {/* Fixed Position Layout */}
-        <div className="game-layout-grid">
+        <div
+          className="game-layout-grid"
+          onMouseDown={(e) => {
+            console.log("🎯 Layout grid mouseDown", {
+              target: (e.target as HTMLElement).className,
+              currentTarget: (e.currentTarget as HTMLElement).className,
+            });
+          }}
+        >
           {/* Left Sidebar - Game Info */}
           <GameInfo gameState={gameState} onEndGame={onEndGame} />
 
           {/* Center - Game Board */}
-          <div className="game-board-container">
+          <div className="game-board-container" data-no-spatial-gestures="true">
             <div>
               {/* Battle Zones Container */}
               <div className="battle-zones-container">
-                {/* Zone Rows Wrapper */}
-                <div enable-xr className="zone-rows-wrapper">
+                {/* Zone Rows Wrapper - NOT spatialized to prevent dragging */}
+                <div className="zone-rows-wrapper">
                   {/* Opponent Monster Zones */}
                   <div className="flex justify-center space-x-2 mb-4">
                     {gameState.opponent.zones.mainMonsterZones.map(
@@ -325,10 +474,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
                             }
                           />
                           {!card && (
-                            <div
-                              enable-xr
-                              className="absolute inset-0 border-rounded-md border-slate-400 flex items-center justify-center pointer-events-none"
-                            >
+                            <div className="absolute inset-0 border-rounded-md border-slate-400 flex items-center justify-center pointer-events-none">
                               <div className="text-white text-[10px] font-bold text-center leading-tight">
                                 MONSTER
                                 <br />
@@ -366,12 +512,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
                                 ? () => handleCardClick(card, true)
                                 : undefined
                             }
+                            onRegisterDropZone={registerDropZone}
+                            onUnregisterDropZone={unregisterDropZone}
                           />
                           {!card && (
-                            <div
-                              enable-xr
-                              className="absolute inset-0 border-rounded-md border-slate-400 flex items-center justify-center pointer-events-none"
-                            >
+                            <div className="absolute inset-0 border-rounded-md border-slate-400 flex items-center justify-center pointer-events-none">
                               <div className="text-white text-[10px] font-bold text-center leading-tight">
                                 MONSTER
                                 <br />
@@ -389,7 +534,17 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
           </div>
 
           {/* Player Hand - Detached and Fixed */}
-          <div enable-xr className="player-hand-container">
+          <div
+            enable-xr
+            data-no-spatial-gestures="true"
+            className="player-hand-container"
+            onMouseDown={(e) => {
+              console.log("📦 Hand container mouseDown captured", {
+                target: e.target,
+                currentTarget: e.currentTarget,
+              });
+            }}
+          >
             {gameState.player.hand.map((card, index) => (
               <HandCard
                 key={`player-hand-${index}`}
@@ -398,6 +553,13 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
                 isPlayerHand={true}
                 isAITurn={isAITurn}
                 onClick={() => handleHandCardClick(card)}
+                onDragStart={(event, cardId, element) => {
+                  console.log(
+                    "🎴 GameBoard received onDragStart from HandCard"
+                  );
+                  handleDragStart(event, cardId, element);
+                }}
+                isDraggable={!isAITurn && gameState.currentPhase === "Main"}
               />
             ))}
           </div>

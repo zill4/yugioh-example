@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useRef, useEffect } from "react";
 import type { CardInPlay, GameState } from "../../../game/types/GameTypes";
 import { CardImage } from "../ui/CardImage";
 
@@ -13,6 +13,16 @@ interface CardSlotProps {
   isAITurn?: boolean;
   gameState: GameState | null;
   onClick?: () => void;
+  onRegisterDropZone?: (
+    element: HTMLElement,
+    zoneIndex: number,
+    zoneType: "monster" | "spellTrap",
+    isEmpty: boolean
+  ) => void;
+  onUnregisterDropZone?: (
+    zoneIndex: number,
+    zoneType: "monster" | "spellTrap"
+  ) => void;
 }
 
 export const CardSlot: React.FC<CardSlotProps> = React.memo(
@@ -20,12 +30,45 @@ export const CardSlot: React.FC<CardSlotProps> = React.memo(
     card,
     isOpponent = false,
     isPlayerZone,
+    zoneIndex,
+    zoneType,
     isSelected = false,
     isValidTarget = false,
     isAITurn = false,
     gameState,
     onClick,
+    onRegisterDropZone,
+    onUnregisterDropZone,
   }) => {
+    const slotRef = useRef<HTMLDivElement>(null);
+    const isEmpty = !card;
+
+    // Register/unregister as drop zone
+    useEffect(() => {
+      if (
+        slotRef.current &&
+        onRegisterDropZone &&
+        isPlayerZone &&
+        !isOpponent
+      ) {
+        onRegisterDropZone(slotRef.current, zoneIndex, zoneType, isEmpty);
+      }
+
+      return () => {
+        if (onUnregisterDropZone && isPlayerZone && !isOpponent) {
+          onUnregisterDropZone(zoneIndex, zoneType);
+        }
+      };
+    }, [
+      onRegisterDropZone,
+      onUnregisterDropZone,
+      zoneIndex,
+      zoneType,
+      isEmpty,
+      isPlayerZone,
+      isOpponent,
+    ]);
+
     const isPlayerCard = isPlayerZone && !isOpponent;
 
     const canSelectForAttack = useMemo(
@@ -46,6 +89,7 @@ export const CardSlot: React.FC<CardSlotProps> = React.memo(
 
     return (
       <div
+        ref={slotRef}
         onClick={
           card && onClick
             ? onClick

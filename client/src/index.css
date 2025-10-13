@@ -592,6 +592,7 @@ html.is-spatial {
     position: fixed;
     inset: 0;
     pointer-events: none; /* Allow clicks through the container */
+    touch-action: none; /* Prevent pan/scroll gestures on the entire layout */
   }
 
   /* Left Sidebar - Game Info */
@@ -648,6 +649,10 @@ html.is-spatial {
     height: auto;
     pointer-events: auto; /* Enable clicks on game board */
     z-index: 40;
+    touch-action: none; /* Prevent pan/scroll gestures during drag */
+    --xr-layer: overlay; /* Force as UI overlay, not movable 3D object */
+    -webkit-user-drag: none; /* Disable drag */
+    user-select: none;
     /* Removed: transform, perspective, transform-style - these break AVP hit detection */
   }
 
@@ -676,12 +681,17 @@ html.is-spatial {
     display: inline-block;
     pointer-events: auto; /* Enable clicks on monster zone cards */
     overflow: visible;
+    touch-action: none; /* Prevent pan/scroll gestures during drag */
+    --xr-layer: overlay; /* Force as UI overlay, not movable 3D object */
+    -webkit-user-drag: none; /* Disable drag */
+    user-select: none;
     /* Removed: all transforms - these break AVP hit detection */
   }
   
   /* Detached Player Hand - Fixed Position */
   .player-hand-container {
     --xr-background-material: translucent;
+    --xr-layer: overlay; /* Force as UI overlay, not 3D scene element */
     position: fixed;
     bottom: 20%;
     left: 30%;
@@ -691,6 +701,9 @@ html.is-spatial {
     padding: 20px 40px;
     border: 1px solid rgba(148, 163, 184, 0.25);
     pointer-events: auto; /* Enable clicks on hand */
+    touch-action: none; /* Prevent pan/scroll gestures during drag */
+    -webkit-user-drag: none; /* Disable WebKit drag */
+    user-select: none; /* Prevent selection */
     z-index: 100;
     /* Removed: transform, transform-style - these break AVP hit detection */
   }
