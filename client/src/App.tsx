@@ -8,6 +8,8 @@ import CardshopPage from "./pages/CardshopPage";
 import GamePage from "./pages/GamePage";
 import DeckbuilderPage from "./pages/DeckbuilderPage";
 import CardCreatorPage from "./pages/CardCreatorPage";
+import SupportPage from "./pages/SupportPage";
+import PrivacyPage from "./pages/PrivacyPage";
 import { isXR, shouldUseWebSpatialBasename } from "./utils/xr";
 
 function App() {
@@ -21,6 +23,8 @@ function App() {
         <div className="App min-h-screen">
           <Routes>
             <Route path="/" element={<GamePage />} />
+            <Route path="/support" element={<SupportPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
             {/* <Route path="/webspatial/avp" element={<GamePage />} /> */}
           </Routes>
         </div>
@@ -39,6 +43,8 @@ function App() {
           <Route path="/game" element={<GamePage />} />
           <Route path="/deckbuilder" element={<DeckbuilderPage />} />
           <Route path="/cardcreator" element={<CardCreatorPage />} />
+          <Route path="/support" element={<SupportPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
         </Routes>
       </div>
     </Router>

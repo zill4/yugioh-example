@@ -38,6 +38,20 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
             >
               PLAY
             </NavLink>
+            <div className="pt-4 border-t border-slate-800">
+              <NavLink
+                to="/support"
+                className={`block text-sm leading-tight tracking-wider font-bold no-underline cursor-pointer transition-colors text-slate-400 hover:text-slate-200`}
+              >
+                SUPPORT
+              </NavLink>
+            </div>
+            <NavLink
+              to="/privacy"
+              className={`block text-sm leading-tight tracking-wider font-bold no-underline cursor-pointer transition-colors text-slate-400 hover:text-slate-200`}
+            >
+              PRIVACY
+            </NavLink>
           </div>
         </aside>
       )}
