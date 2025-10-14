@@ -47,7 +47,7 @@ export const TargetingModal: React.FC<TargetingModalProps> = ({
     >
       <div
         className="xr-targeting-modal p-3 w-80 mx-4"
-        enable-xr={true}
+        enable-xr
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-base font-bold mb-2 text-center text-white">
@@ -60,7 +60,7 @@ export const TargetingModal: React.FC<TargetingModalProps> = ({
               key={index}
               onClick={() => handleTargetSelect(target)}
               className="xr-target-option bg-black border border-slate-700 hover:border-red-500 transition-all p-2"
-              enable-xr={true}
+              enable-xr
             >
               {/* Card Info */}
               <div className="text-center">
@@ -101,7 +101,7 @@ export const TargetingModal: React.FC<TargetingModalProps> = ({
         <button
           onClick={onCancel}
           className="w-full px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white transition-colors font-bold text-sm"
-          enable-xr={true}
+          enable-xr
         >
           Cancel
         </button>

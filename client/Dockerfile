@@ -42,8 +42,6 @@ ENV XR_ENV=$XR_ENV
 # Build application
 RUN pnpm run build
 
-# Remove development dependencies
-RUN pnpm prune --prod
 
 
 # Final stage for app image

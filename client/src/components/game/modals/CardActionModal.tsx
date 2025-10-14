@@ -39,7 +39,7 @@ export const CardActionModal: React.FC<CardActionModalProps> = ({
         {/* Card Display */}
         <div
           className="xr-card-summon-modal bg-black border-4 border-slate-800 w-72"
-          enable-xr={true}
+          enable-xr
         >
           {/* Card Art - Fixed aspect ratio container */}
           <div
@@ -55,10 +55,7 @@ export const CardActionModal: React.FC<CardActionModalProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div
-          className="xr-card-summon-modal-buttons space-y-2 w-72"
-          enable-xr={true}
-        >
+        <div className="xr-card-summon-modal-buttons space-y-2 w-72" enable-xr>
           {canNormalSummon && (
             <button
               onClick={handleNormalSummon}

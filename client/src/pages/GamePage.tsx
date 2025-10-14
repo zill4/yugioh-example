@@ -112,7 +112,7 @@ const GamePage = () => {
   const isXR = isXREnvironment();
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-black">
+    <div className="relative w-full h-screen overflow-hidden">
       {/* Three.js Canvas */}
       <canvas
         ref={canvasRef}

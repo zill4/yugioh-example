@@ -27,4 +27,3 @@ dist-ssr
 .env.dev
 .env.local
 build
-fly.toml

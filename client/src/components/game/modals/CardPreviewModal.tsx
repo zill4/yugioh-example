@@ -22,7 +22,7 @@ export const CardPreviewModal: React.FC<CardPreviewModalProps> = ({
     >
       <div
         className="xr-card-preview-modal bg-black border-4 border-slate-800 w-80"
-        enable-xr={true}
+        enable-xr
         onClick={(e) => e.stopPropagation()}
       >
         {/* Card Art - Fixed aspect ratio container */}

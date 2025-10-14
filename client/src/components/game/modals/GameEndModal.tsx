@@ -28,7 +28,7 @@ export const GameEndModal: React.FC<GameEndModalProps> = ({
     >
       <div
         className="xr-game-end-modal bg-slate-900/95 border-2 border-red-600 p-8 max-w-md w-full mx-4 text-center"
-        enable-xr={true}
+        enable-xr
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-6">
@@ -46,14 +46,14 @@ export const GameEndModal: React.FC<GameEndModalProps> = ({
           <button
             onClick={onPlayAgain}
             className="w-full px-6 py-3 bg-red-600 hover:bg-red-700 text-white transition-colors font-bold text-lg"
-            enable-xr={true}
+            enable-xr
           >
             Play Again
           </button>
           <button
             onClick={onReturnHome}
             className="w-full px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white transition-colors font-bold text-lg"
-            enable-xr={true}
+            enable-xr
           >
             Return to Home
           </button>

@@ -322,9 +322,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
   return (
     <>
       <div
-        className={`min-h-screen ${
-          isXR ? "" : "bg-black"
-        } relative overflow-hidden`}
+        className={`min-h-screen ${isXR ? "" : ""} relative overflow-hidden`}
       >
         {/* Fixed Position Layout */}
         <div className="game-layout-grid">
