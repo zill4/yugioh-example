@@ -7,7 +7,7 @@ interface GameLogProps {
 
 export const GameLog: React.FC<GameLogProps> = ({ gameState }) => {
   return (
-    <div className="game-log-container">
+    <div enable-xr className="game-log-container">
       <div className="bg-slate-800/80 backdrop-blur-sm border border-slate-600 border-rounded-lg p-2 min-h-[60px]">
         <div className="text-xs text-slate-400 font-medium mb-1">GAME LOG</div>
         <div className="space-y-1 text-xs text-slate-300 max-h-12 overflow-y-auto">
@@ -26,4 +26,3 @@ export const GameLog: React.FC<GameLogProps> = ({ gameState }) => {
     </div>
   );
 };
-

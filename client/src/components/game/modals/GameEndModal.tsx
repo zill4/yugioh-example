@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import type { GameState } from "../../../game/types/GameTypes";
 
 interface GameEndModalProps {
@@ -14,26 +14,6 @@ export const GameEndModal: React.FC<GameEndModalProps> = ({
   onPlayAgain,
   onReturnHome,
 }) => {
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        modalRef.current &&
-        !modalRef.current.contains(event.target as Node)
-      ) {
-        onReturnHome();
-      }
-    };
-
-    if (show) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }
-  }, [show, onReturnHome]);
-
   if (!show || !gameState?.winner) return null;
 
   const isPlayerWinner = gameState.winner === "player";
@@ -47,7 +27,6 @@ export const GameEndModal: React.FC<GameEndModalProps> = ({
       style={{ pointerEvents: "auto" }}
     >
       <div
-        ref={modalRef}
         className="xr-game-end-modal bg-slate-900/95 border-2 border-red-600 p-8 max-w-md w-full mx-4 text-center"
         enable-xr={true}
         onClick={(e) => e.stopPropagation()}

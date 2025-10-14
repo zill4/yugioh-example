@@ -32,6 +32,7 @@ import { TargetingModal } from "./game/modals/TargetingModal";
 import { BattleConfirmModal } from "./game/modals/BattleConfirmModal";
 import { GameEndModal } from "./game/modals/GameEndModal";
 import { CardPreviewModal } from "./game/modals/CardPreviewModal";
+import { Tooltip } from "./game/ui/Tooltip";
 
 // Utils
 import { canAttack } from "../game/utils/CardStateUtils";
@@ -49,6 +50,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
   const [initError, setInitError] = useState<string | null>(null);
   const [showGameEndModal, setShowGameEndModal] = useState(false);
   const [previewCard, setPreviewCard] = useState<CardInPlay | null>(null);
+  const [tooltipMessage, setTooltipMessage] = useState<string>("");
+  const [showTooltip, setShowTooltip] = useState(false);
   const gameControllerRef = useRef<GameController | null>(null);
 
   // Derive AI turn state from gameState
@@ -68,12 +71,14 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
     cancelTargeting,
     confirmAction,
   } = useTargeting({ gameState });
-  const { handleNextPhase, handleEndTurn, handleNormalSummon } = useGameActions(
-    {
-      gameController: gameControllerRef.current,
-      isAITurn,
-    }
-  );
+  const {
+    handleEndTurn,
+    handleNormalSummon,
+    handleNextPhase: _handleNextPhase,
+  } = useGameActions({
+    gameController: gameControllerRef.current,
+    isAITurn,
+  });
 
   // Handle card drop from drag and drop
   const handleCardDrop = useCallback(
@@ -86,10 +91,18 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
 
       // Only allow dropping monster cards in monster zones for now
       if (zoneType === "monster" && gameState.currentPhase === "Main") {
+        // Check if already normal summoned
+        if (gameState.player.hasNormalSummoned) {
+          setTooltipMessage("You've already Normal Summoned this turn");
+          setShowTooltip(true);
+          return;
+        }
+
         // Try to normal summon the card to the specified zone
         const success = handleNormalSummon(cardId, zoneIndex);
         if (!success) {
-          console.log("Failed to summon card");
+          setTooltipMessage("Cannot summon this card here");
+          setShowTooltip(true);
         }
       }
     },
@@ -426,11 +439,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
           </div>
 
           {/* Right Sidebar - Action Buttons */}
-          <GameActions
-            isAITurn={isAITurn}
-            onNextPhase={handleNextPhase}
-            onEndTurn={handleEndTurn}
-          />
+          <GameActions isAITurn={isAITurn} onEndTurn={handleEndTurn} />
         </div>
       </div>
 
@@ -475,6 +484,13 @@ const GameBoard: React.FC<GameBoardProps> = ({ onEndGame }) => {
       />
 
       <CardPreviewModal card={previewCard} onClose={handleClosePreview} />
+
+      {/* Tooltip for spatial mode feedback */}
+      <Tooltip
+        message={tooltipMessage}
+        show={showTooltip}
+        onHide={() => setShowTooltip(false)}
+      />
     </>
   );
 };

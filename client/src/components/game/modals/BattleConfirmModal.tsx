@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import { getBattlePreview } from "../../../game/utils/BattleCalculator";
 import type {
   CardInPlay,
@@ -24,26 +24,6 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
   onConfirm,
   onCancel,
 }) => {
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        modalRef.current &&
-        !modalRef.current.contains(event.target as Node)
-      ) {
-        onCancel();
-      }
-    };
-
-    if (show) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }
-  }, [show, onCancel]);
-
   if (!show || !pendingAction || !selectedCard || !gameState) return null;
 
   // Get defender based on action type
@@ -71,7 +51,6 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
       style={{ pointerEvents: "auto" }}
     >
       <div
-        ref={modalRef}
         enable-xr
         className="battle-modal-container"
         onClick={(e) => e.stopPropagation()}
