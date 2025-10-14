@@ -37,10 +37,10 @@ COPY . .
 
 # Set environment variables for Vite build
 ENV VITE_XR_ENV=$VITE_XR_ENV
-ENV XR_ENV=$XR_ENV
+ENV XR_ENV=avp
 
-# Build application
-RUN pnpm run build
+# Build application with XR support
+RUN XR_ENV=avp pnpm run build
 
 
 

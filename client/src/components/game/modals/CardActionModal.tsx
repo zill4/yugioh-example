@@ -30,17 +30,13 @@ export const CardActionModal: React.FC<CardActionModalProps> = ({
 
   return (
     <div
-      enable-xr
-      className="fixed inset-0 bg-black/50 flex items-start justify-center pt-40 z-50"
+      className="__enableXr__ fixed inset-0 bg-black/50 flex items-start justify-center pt-40 z-50"
       onClick={onClose}
       style={{ pointerEvents: "auto" }}
     >
       <div className="flex flex-col gap-4" onClick={(e) => e.stopPropagation()}>
         {/* Card Display */}
-        <div
-          className="xr-card-summon-modal bg-black border-4 border-slate-800 w-72"
-          enable-xr
-        >
+        <div className="__enableXr__ xr-card-summon-modal bg-black border-4 border-slate-800 w-72">
           {/* Card Art - Fixed aspect ratio container */}
           <div
             className="relative w-full"
@@ -55,7 +51,7 @@ export const CardActionModal: React.FC<CardActionModalProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="xr-card-summon-modal-buttons space-y-2 w-72" enable-xr>
+        <div className="__enableXr__ xr-card-summon-modal-buttons space-y-2 w-72">
           {canNormalSummon && (
             <button
               onClick={handleNormalSummon}

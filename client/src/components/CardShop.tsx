@@ -61,7 +61,7 @@ const CardShop = React.memo(() => {
   }, []);
 
   return (
-    <div enable-xr className="cardshop-main-window py-4">
+    <div className="__enableXr__ cardshop-main-window py-4">
       {/* Floating Search Bar */}
       <div className="cardshop-search-bar mb-6">
         <div className="relative">
@@ -95,8 +95,8 @@ const CardShop = React.memo(() => {
       </div>
 
       {/* Horizontal Filter Menu */}
-      <div enable-xr className="cardshop-filter-menu">
-        <div enable-xr className="cardshop-filter-menu-bg shadow-lg">
+      <div className="__enableXr__ cardshop-filter-menu">
+        <div className="__enableXr__ cardshop-filter-menu-bg shadow-lg">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
             <select
               value={filters.selectedRarity}

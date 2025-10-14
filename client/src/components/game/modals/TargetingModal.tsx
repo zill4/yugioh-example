@@ -40,14 +40,12 @@ export const TargetingModal: React.FC<TargetingModalProps> = ({
 
   return (
     <div
-      enable-xr
-      className="fixed inset-0 flex items-center justify-center z-50"
+      className="__enableXr__ fixed inset-0 flex items-center justify-center z-50"
       onClick={onCancel}
       style={{ pointerEvents: "auto" }}
     >
       <div
-        className="xr-targeting-modal p-3 w-80 mx-4"
-        enable-xr
+        className="__enableXr__ xr-targeting-modal p-3 w-80 mx-4"
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-base font-bold mb-2 text-center text-white">
@@ -59,8 +57,7 @@ export const TargetingModal: React.FC<TargetingModalProps> = ({
             <button
               key={index}
               onClick={() => handleTargetSelect(target)}
-              className="xr-target-option bg-black border border-slate-700 hover:border-red-500 transition-all p-2"
-              enable-xr
+              className="__enableXr__ xr-target-option bg-black border border-slate-700 hover:border-red-500 transition-all p-2"
             >
               {/* Card Info */}
               <div className="text-center">
@@ -100,8 +97,7 @@ export const TargetingModal: React.FC<TargetingModalProps> = ({
 
         <button
           onClick={onCancel}
-          className="w-full px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white transition-colors font-bold text-sm"
-          enable-xr
+          className="__enableXr__ w-full px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white transition-colors font-bold text-sm"
         >
           Cancel
         </button>

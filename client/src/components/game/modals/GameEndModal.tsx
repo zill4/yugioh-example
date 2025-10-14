@@ -21,14 +21,12 @@ export const GameEndModal: React.FC<GameEndModalProps> = ({
 
   return (
     <div
-      enable-xr
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      className="__enableXr__ fixed inset-0 bg-black/50 flex items-center justify-center z-50"
       onClick={onReturnHome}
       style={{ pointerEvents: "auto" }}
     >
       <div
-        className="xr-game-end-modal bg-slate-900/95 border-2 border-red-600 p-8 max-w-md w-full mx-4 text-center"
-        enable-xr
+        className="__enableXr__ xr-game-end-modal bg-slate-900/95 border-2 border-red-600 p-8 max-w-md w-full mx-4 text-center"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-6">
@@ -45,15 +43,13 @@ export const GameEndModal: React.FC<GameEndModalProps> = ({
         <div className="space-y-3">
           <button
             onClick={onPlayAgain}
-            className="w-full px-6 py-3 bg-red-600 hover:bg-red-700 text-white transition-colors font-bold text-lg"
-            enable-xr
+            className="__enableXr__ w-full px-6 py-3 bg-red-600 hover:bg-red-700 text-white transition-colors font-bold text-lg"
           >
             Play Again
           </button>
           <button
             onClick={onReturnHome}
-            className="w-full px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white transition-colors font-bold text-lg"
-            enable-xr
+            className="__enableXr__ w-full px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white transition-colors font-bold text-lg"
           >
             Return to Home
           </button>

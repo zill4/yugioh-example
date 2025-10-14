@@ -10,7 +10,7 @@ export const GameActions: React.FC<GameActionsProps> = ({
   onEndTurn,
 }) => {
   return (
-    <div enable-xr className="game-actions-sidebar">
+    <div className="__enableXr__ game-actions-sidebar">
       <div className="space-y-3">
         <button
           onClick={onEndTurn}

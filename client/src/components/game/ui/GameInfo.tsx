@@ -9,7 +9,7 @@ interface GameInfoProps {
 
 export const GameInfo: React.FC<GameInfoProps> = ({ gameState, onEndGame }) => {
   return (
-    <div enable-xr className="game-info-sidebar">
+    <div className="__enableXr__ game-info-sidebar">
       <div className="space-y-4">
         <button
           onClick={onEndGame}
