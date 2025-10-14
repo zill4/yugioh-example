@@ -2,6 +2,8 @@
 @reference "tailwindcss";
 @tailwind utilities;
 
+/* Cache buster - force new CSS hash for deployment */
+
 /* Custom Fonts */
 @font-face {
   font-family: 'Bebas Neue';
