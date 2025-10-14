@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import type { GameState } from "../../../game/types/GameTypes";
 
 interface GameEndModalProps {
@@ -14,16 +14,43 @@ export const GameEndModal: React.FC<GameEndModalProps> = ({
   onPlayAgain,
   onReturnHome,
 }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        onReturnHome();
+      }
+    };
+
+    if (show) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [show, onReturnHome]);
+
   if (!show || !gameState?.winner) return null;
 
   const isPlayerWinner = gameState.winner === "player";
   const winnerName = isPlayerWinner ? "You" : "Opponent";
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div
+      enable-xr
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      onClick={onReturnHome}
+      style={{ pointerEvents: "auto" }}
+    >
       <div
+        ref={modalRef}
         className="xr-game-end-modal bg-slate-900/95 border-2 border-red-600 p-8 max-w-md w-full mx-4 text-center"
         enable-xr={true}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-6">
           <h2 className="text-3xl font-bold mb-4 text-white">Game Over!</h2>

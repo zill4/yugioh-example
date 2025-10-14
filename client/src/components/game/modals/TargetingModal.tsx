@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useRef, useEffect } from "react";
 import type { CardInPlay, GameState } from "../../../game/types/GameTypes";
 
 interface TargetingModalProps {
@@ -20,6 +20,24 @@ export const TargetingModal: React.FC<TargetingModalProps> = ({
   onTargetSelect,
   onCancel,
 }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        onCancel();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [onCancel]);
+
   if (!targetingMode || !gameState || !selectedCard || showConfirmation)
     return null;
 
@@ -39,8 +57,18 @@ export const TargetingModal: React.FC<TargetingModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div className="xr-targeting-modal p-3 w-80 mx-4" enable-xr={true}>
+    <div
+      enable-xr
+      className="fixed inset-0 flex items-center justify-center z-50"
+      onClick={onCancel}
+      style={{ pointerEvents: "auto" }}
+    >
+      <div
+        ref={modalRef}
+        className="xr-targeting-modal p-3 w-80 mx-4"
+        enable-xr={true}
+        onClick={(e) => e.stopPropagation()}
+      >
         <h3 className="text-base font-bold mb-2 text-center text-white">
           Select Attack Target
         </h3>

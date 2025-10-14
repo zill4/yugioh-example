@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useState } from "react";
 import type { GameCard } from "../../../game/types/GameTypes";
 import { CardImage } from "../ui/CardImage";
 
@@ -8,96 +8,43 @@ interface HandCardProps {
   isPlayerHand: boolean;
   isAITurn?: boolean;
   onClick?: () => void;
-  onDragStart?: (
-    event: React.MouseEvent | React.TouchEvent,
-    cardId: string,
-    element: HTMLElement
-  ) => void;
   isDraggable?: boolean;
 }
 
 export const HandCard: React.FC<HandCardProps> = React.memo(
-  ({
-    card,
-    isPlayerHand,
-    isAITurn = false,
-    onClick,
-    onDragStart,
-    isDraggable = true,
-  }) => {
-    const cardRef = useRef<HTMLDivElement>(null);
+  ({ card, isPlayerHand, isAITurn = false, onClick, isDraggable = true }) => {
+    const canDrag = isDraggable && isPlayerHand && !isAITurn;
+    const [isDragging, setIsDragging] = useState(false);
 
-    const handleMouseDown = (event: React.MouseEvent) => {
-      console.log("🖱️ HandCard mouseDown event fired!", {
-        cardName: card.name,
-        isDraggable,
-        isPlayerHand,
-        isAITurn,
-        hasOnDragStart: !!onDragStart,
-        hasCardRef: !!cardRef.current,
-        target: event.target,
-        currentTarget: event.currentTarget,
-      });
-
-      if (
-        isDraggable &&
-        isPlayerHand &&
-        !isAITurn &&
-        onDragStart &&
-        cardRef.current
-      ) {
-        console.log("✅ Conditions met, calling onDragStart");
-        // Prevent default and stop propagation to avoid drag on parent elements
+    const handleDragStart = (event: React.DragEvent<HTMLDivElement>) => {
+      if (!canDrag) {
         event.preventDefault();
-        event.stopPropagation();
-        onDragStart(event, card.id, cardRef.current);
-      } else {
-        console.log("❌ Conditions NOT met:", {
-          isDraggable,
-          isPlayerHand,
-          isAITurn,
-          hasOnDragStart: !!onDragStart,
-        });
+        return;
       }
+      // Store card ID in dataTransfer
+      event.dataTransfer.setData("text/plain", card.id);
+      event.dataTransfer.effectAllowed = "move";
+      setIsDragging(true);
     };
 
-    const handleTouchStart = (event: React.TouchEvent) => {
-      console.log("👆 HandCard touchStart event fired!", {
-        cardName: card.name,
-        isDraggable,
-        isPlayerHand,
-        isAITurn,
-      });
-
-      if (
-        isDraggable &&
-        isPlayerHand &&
-        !isAITurn &&
-        onDragStart &&
-        cardRef.current
-      ) {
-        console.log("✅ Touch conditions met, calling onDragStart");
-        // Prevent default and stop propagation to avoid drag on parent elements
-        event.preventDefault();
-        event.stopPropagation();
-        onDragStart(event, card.id, cardRef.current);
-      }
+    const handleDragEnd = () => {
+      setIsDragging(false);
     };
 
     const handleClick = () => {
-      // Only trigger onClick if not dragging
-      if (onClick && (!isDraggable || isAITurn)) {
+      // Only trigger onClick if not draggable or during AI turn
+      if (onClick) {
         onClick();
       }
     };
 
     return (
       <div
-        ref={cardRef}
+        draggable={canDrag}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
         onClick={handleClick}
-        onMouseDown={handleMouseDown}
-        onTouchStart={handleTouchStart}
-        // Disable WebSpatial scene manipulation gestures
+        // Disable WebSpatial scene manipulation gestures - TRUE to bypass WebSpatial gesture detection
         data-no-spatial-gestures="true"
         // Mark as non-spatialized UI element
         style-xr-layer="overlay"
@@ -107,14 +54,14 @@ export const HandCard: React.FC<HandCardProps> = React.memo(
             : isDraggable && isPlayerHand
             ? "cursor-grab active:cursor-grabbing"
             : "cursor-pointer"
-        } transition-all duration-200 relative overflow-hidden hover:scale-105`}
+        } ${
+          isDragging
+            ? "scale-110 ring-4 ring-blue-400 shadow-2xl shadow-blue-500/50 brightness-110"
+            : "hover:scale-105"
+        } transition-all duration-200 relative overflow-hidden`}
         style={{
           userSelect: "none",
           WebkitUserSelect: "none",
-          MozUserSelect: "none",
-          msUserSelect: "none",
-          touchAction: "none", // Prevent all touch gestures including pan/scroll
-          WebkitTouchCallout: "none", // Prevent iOS callout
         }}
       >
         <div className="w-full h-full flex flex-col">

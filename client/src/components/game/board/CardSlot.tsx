@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import type { CardInPlay, GameState } from "../../../game/types/GameTypes";
 import { CardImage } from "../ui/CardImage";
 
@@ -13,13 +13,8 @@ interface CardSlotProps {
   isAITurn?: boolean;
   gameState: GameState | null;
   onClick?: () => void;
-  onRegisterDropZone?: (
-    element: HTMLElement,
-    zoneIndex: number,
-    zoneType: "monster" | "spellTrap",
-    isEmpty: boolean
-  ) => void;
-  onUnregisterDropZone?: (
+  onCardDrop?: (
+    cardId: string,
     zoneIndex: number,
     zoneType: "monster" | "spellTrap"
   ) => void;
@@ -37,37 +32,41 @@ export const CardSlot: React.FC<CardSlotProps> = React.memo(
     isAITurn = false,
     gameState,
     onClick,
-    onRegisterDropZone,
-    onUnregisterDropZone,
+    onCardDrop,
   }) => {
-    const slotRef = useRef<HTMLDivElement>(null);
     const isEmpty = !card;
+    const [isDragOver, setIsDragOver] = useState(false);
 
-    // Register/unregister as drop zone
-    useEffect(() => {
-      if (
-        slotRef.current &&
-        onRegisterDropZone &&
-        isPlayerZone &&
-        !isOpponent
-      ) {
-        onRegisterDropZone(slotRef.current, zoneIndex, zoneType, isEmpty);
+    const canDrop = isEmpty && isPlayerZone && !isOpponent && !isAITurn;
+
+    const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+      if (canDrop) {
+        event.preventDefault(); // Enable dropping
+        event.dataTransfer.dropEffect = "move";
       }
+    };
 
-      return () => {
-        if (onUnregisterDropZone && isPlayerZone && !isOpponent) {
-          onUnregisterDropZone(zoneIndex, zoneType);
-        }
-      };
-    }, [
-      onRegisterDropZone,
-      onUnregisterDropZone,
-      zoneIndex,
-      zoneType,
-      isEmpty,
-      isPlayerZone,
-      isOpponent,
-    ]);
+    const handleDragEnter = () => {
+      if (canDrop) {
+        setIsDragOver(true);
+      }
+    };
+
+    const handleDragLeave = () => {
+      setIsDragOver(false);
+    };
+
+    const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      setIsDragOver(false);
+
+      if (!canDrop) return;
+
+      const cardId = event.dataTransfer.getData("text/plain");
+      if (cardId && onCardDrop) {
+        onCardDrop(cardId, zoneIndex, zoneType);
+      }
+    };
 
     const isPlayerCard = isPlayerZone && !isOpponent;
 
@@ -89,7 +88,10 @@ export const CardSlot: React.FC<CardSlotProps> = React.memo(
 
     return (
       <div
-        ref={slotRef}
+        onDragOver={handleDragOver}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
         onClick={
           card && onClick
             ? onClick
@@ -132,6 +134,12 @@ export const CardSlot: React.FC<CardSlotProps> = React.memo(
               ? "bg-red-700/40 border-red-500"
               : ""
           }
+          ${
+            isDragOver && canDrop
+              ? "bg-green-500/30 scale-105 border-2 border-green-400"
+              : ""
+          }
+          ${!isDragOver && canDrop ? "border-2 border-green-400/50" : ""}
         `}
       >
         {card && (

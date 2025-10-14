@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { getBattlePreview } from "../../../game/utils/BattleCalculator";
 import type {
   CardInPlay,
@@ -24,6 +24,26 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
   onConfirm,
   onCancel,
 }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        onCancel();
+      }
+    };
+
+    if (show) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [show, onCancel]);
+
   if (!show || !pendingAction || !selectedCard || !gameState) return null;
 
   // Get defender based on action type
@@ -44,8 +64,18 @@ export const BattleConfirmModal: React.FC<BattleConfirmModalProps> = ({
   const battlePreview = getBattlePreview(selectedCard, defender);
 
   return (
-    <div enable-xr className="battle-modal-backdrop">
-      <div enable-xr className="battle-modal-container">
+    <div
+      enable-xr
+      className="battle-modal-backdrop"
+      onClick={onCancel}
+      style={{ pointerEvents: "auto" }}
+    >
+      <div
+        ref={modalRef}
+        enable-xr
+        className="battle-modal-container"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex flex-col lg:flex-row">
           {/* Battle Preview Column */}
           <div className="w-full lg:w-1/2">

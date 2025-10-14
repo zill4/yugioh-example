@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useRef, useEffect } from "react";
 import type { GameCard } from "../../../game/types/GameTypes";
 import { CardImage } from "../ui/CardImage";
 
@@ -18,6 +18,24 @@ export const CardActionModal: React.FC<CardActionModalProps> = ({
   onNormalSummon,
   isAITurn,
 }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [onClose]);
+
   if (!selectedCard || !gameState) return null;
 
   const canNormalSummon =
@@ -29,8 +47,17 @@ export const CardActionModal: React.FC<CardActionModalProps> = ({
   }, [selectedCard.id, onNormalSummon, onClose]);
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-start justify-center pt-40 z-50">
-      <div className="flex flex-col gap-4">
+    <div
+      enable-xr
+      className="fixed inset-0 bg-black/50 flex items-start justify-center pt-40 z-50"
+      onClick={onClose}
+      style={{ pointerEvents: "auto" }}
+    >
+      <div
+        ref={modalRef}
+        className="flex flex-col gap-4"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Card Display */}
         <div
           className="xr-card-summon-modal bg-black border-4 border-slate-800 w-72"

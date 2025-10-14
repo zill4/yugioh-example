@@ -15,8 +15,10 @@ export const CardPreviewModal: React.FC<CardPreviewModalProps> = ({
 
   return (
     <div
+      enable-xr
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
       onClick={onClose}
+      style={{ pointerEvents: "auto" }}
     >
       <div
         className="xr-card-preview-modal bg-black border-4 border-slate-800 w-80"
