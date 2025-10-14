@@ -1,0 +1,28 @@
+# fly.toml app configuration file generated for client-ancient-butterfly-6497 on 2025-10-02T17:45:22-05:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'client-ancient-butterfly-6497'
+primary_region = 'dfw'
+
+[build]
+  # No build args = web version by default
+  # Spatial users access via /webspatial/avp route
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+  
+[[services.http_headers]]
+  matches = ["*.css", "*.js", "*.html"]
+  force_headers = { "Cache-Control" = "no-cache, no-store, must-revalidate" }
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
