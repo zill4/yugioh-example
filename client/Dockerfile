@@ -39,7 +39,7 @@ COPY . .
 ENV VITE_XR_ENV=$VITE_XR_ENV
 ENV XR_ENV=avp
 
-# Build application with XR support
+# Build XR version only
 RUN XR_ENV=avp pnpm run build
 
 
@@ -47,8 +47,9 @@ RUN XR_ENV=avp pnpm run build
 # Final stage for app image
 FROM nginx
 
-# Copy built application
-COPY --from=build /app/dist /usr/share/nginx/html
+# Copy XR build to both root and /webspatial/avp paths
+COPY --from=build /app/dist/webspatial/avp /usr/share/nginx/html
+COPY --from=build /app/dist/webspatial/avp /usr/share/nginx/html/webspatial/avp
 
 # Copy nginx configuration for SPA routing
 COPY nginx.conf /etc/nginx/conf.d/default.conf
