@@ -33,6 +33,15 @@
         name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
       />
+      <!-- WebSpatial environment hints -->
+      <meta name="xr-spatial" content="transparent" />
+      <style>
+        /* Force transparent background before any other CSS loads */
+        html.is-spatial, html.is-spatial body {
+          background: transparent !important;
+          background-color: transparent !important;
+        }
+      </style>
       <title>Card Vault - Yu-Gi-Oh! Card Shop</title>
 
       <!-- PWA -->
